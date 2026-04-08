@@ -218,59 +218,58 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
         </section>
 
         {/* CSVインポート */}
-        <section className="form-section">
+        <section className="form-section csv-section">
           <h3>橋梁データ（CSV読込）</h3>
-          <p className="hint">CSVに「橋長」列（m単位）を含めてください。「橋梁名」列も使用可能です。</p>
 
-          <div className="csv-upload-area"
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={e => e.preventDefault()}
-            onDrop={e => {
-              e.preventDefault();
-              const file = e.dataTransfer.files[0];
-              if (file) handleCSVUpload(file);
-            }}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              style={{ display: 'none' }}
-              onChange={e => {
-                const file = e.target.files?.[0];
+          <div className="csv-row">
+            <div className="csv-upload-area-compact"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
                 if (file) handleCSVUpload(file);
               }}
-            />
-            <div className="csv-upload-icon">📂</div>
-            <div>{csvFileName || 'CSVファイルをドロップ、またはクリックして選択'}</div>
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                style={{ display: 'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) handleCSVUpload(file);
+                }}
+              />
+              <span className="csv-icon">📂</span>
+              <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+            </div>
+            {bridges.length > 0 && (
+              <span className="bridge-badge">{bridges.length} 橋</span>
+            )}
           </div>
 
           {csvErrors.length > 0 && (
-            <div className="error-box">
-              {csvErrors.map((e, i) => <div key={i}>{e}</div>)}
-            </div>
+            <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
           )}
 
           {bridges.length > 0 && (
-            <div className="bridge-summary">
-              <div className="bridge-count">橋梁数: <strong>{bridges.length} 橋</strong></div>
-              <div className="bridge-table-wrapper">
-                <table className="bridge-table">
-                  <thead>
-                    <tr><th>橋梁名</th><th>橋長 (m)</th></tr>
-                  </thead>
-                  <tbody>
-                    {bridges.slice(0, 5).map((b, i) => (
-                      <tr key={i}><td>{b.name}</td><td>{b.length}</td></tr>
-                    ))}
-                    {bridges.length > 5 && (
-                      <tr><td colSpan={2} style={{ textAlign: 'center', color: '#888' }}>... 他 {bridges.length - 5} 橋</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
+            <div className="bridge-table-wrapper">
+              <table className="bridge-table">
+                <thead><tr><th>橋梁名</th><th>橋長 (m)</th></tr></thead>
+                <tbody>
+                  {bridges.slice(0, 4).map((b, i) => (
+                    <tr key={i}><td>{b.name}</td><td>{b.length}</td></tr>
+                  ))}
+                  {bridges.length > 4 && (
+                    <tr><td colSpan={2} className="bridge-more">他 {bridges.length - 4} 橋</td></tr>
+                  )}
+                </tbody>
+              </table>
             </div>
           )}
+
+          <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
         </section>
 
         {/* 現場設定 */}
