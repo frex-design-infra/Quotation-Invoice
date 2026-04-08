@@ -424,6 +424,12 @@ button {
 .input-with-suffix input { flex: 1; }
 .suffix { font-size: 12px; color: #666; white-space: nowrap; }
 
+/* チェックボックス行の単価入力幅を上の数値入力欄に揃える */
+.field-row > .checkbox-label ~ input[type="number"] {
+  flex: 0 0 auto;
+  width: 180px;
+}
+
 .toggle-label { display: flex; align-items: center; gap: 6px; cursor: pointer; }
 
 .tier-table {
