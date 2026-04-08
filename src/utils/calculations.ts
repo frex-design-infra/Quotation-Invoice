@@ -171,7 +171,9 @@ export function calculateItems(
 
   for (const sType of settings.specialReportTypes) {
     const count = specialCounts.get(sType.id) ?? 0;
-    if (count > 0) {
+    // 国の場合: 有効な特殊タイプを数量0で常に表示（ユーザーが手入力）
+    // 他の場合: CSV由来でcountが1以上のときのみ表示
+    if (ordererCategory === '国' ? sType.enabled : count > 0) {
       items.push({
         id: genId(),
         label: `橋梁点検調書作成 ${sType.label}`,
