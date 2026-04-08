@@ -1,5 +1,13 @@
 import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, QuotationItem } from '../types';
 
+export interface WorkParams {
+  surveyDays: number;
+  inspectionDays: number;
+  summaryDays: number;
+  kokusokenEnabled: boolean;
+  mextEnabled: boolean;
+}
+
 function genId() {
   return Math.random().toString(36).slice(2, 9);
 }
@@ -13,12 +21,13 @@ export function getTierForBridge(length: number, tiers: BridgeLengthTier[]): Bri
 export function calculateItems(
   bridges: BridgeData[],
   settings: MasterSettings,
-  surveyDays: number,       // 現地踏査日数
-  inspectionDays: number,   // 点検日数
+  params: WorkParams,
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
+  const { surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled } = params;
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
+  const totalBridges = bridges.length;
 
   // 1. 準備計画
   const setupDays = settings.setupPlanningDays;
@@ -60,7 +69,7 @@ export function calculateItems(
     });
   }
 
-  // 3. 橋梁点検調書作成（橋長区分ごと）
+  // 4. 橋梁点検調書作成（橋長区分ごと）
   // 通常の橋長区分集計（specialTypeなし）
   const normalBridges = bridges.filter(b => !b.specialType);
   const tierCounts = new Map<string, number>();
@@ -110,6 +119,50 @@ export function calculateItems(
         isAutoCalculated: true,
       });
     }
+  }
+
+  // 内業項目 ----------------------------------------
+
+  // 現地踏査まとめ（日数 × 2人工、0日の場合は非表示）
+  if (summaryDays > 0) {
+    const qty = summaryDays * 2;
+    items.push({
+      id: genId(),
+      label: '現地踏査まとめ',
+      quantity: qty,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: qty * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 国総研様式作成（橋数 × 人工単価 × 1.8）
+  if (kokusokenEnabled && totalBridges > 0) {
+    const unitPrice = Math.round(settings.laborUnitPrice * 1.8);
+    items.push({
+      id: genId(),
+      label: '国総研様式作成(新様式含む)',
+      quantity: totalBridges,
+      unit: '橋',
+      unitPrice,
+      amount: totalBridges * unitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 国交省様式作成（橋数 × 人工単価 × 0.8）
+  if (mextEnabled && totalBridges > 0) {
+    const unitPrice = Math.round(settings.laborUnitPrice * 0.8);
+    items.push({
+      id: genId(),
+      label: '国交省様式作成',
+      quantity: totalBridges,
+      unit: '橋',
+      unitPrice,
+      amount: totalBridges * unitPrice,
+      isAutoCalculated: true,
+    });
   }
 
   // 5. 高所作業車燃料（点検日数ベース）

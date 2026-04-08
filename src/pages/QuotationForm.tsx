@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
-import { calculateItems, calculateTotals, formatCurrency } from '../utils/calculations';
+import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
 
@@ -37,21 +37,34 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [bridges, setBridges] = useState<BridgeData[]>(initial?.bridges ?? []);
   const [surveyDays, setSurveyDays] = useState(initial?.surveyDays ?? 0);
   const [inspectionDays, setInspectionDays] = useState(initial?.inspectionDays ?? 0);
+  const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
+  const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
+  const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 明細の再計算
+  const buildParams = useCallback((overrides?: Partial<WorkParams>): WorkParams => ({
+    surveyDays,
+    inspectionDays,
+    summaryDays,
+    kokusokenEnabled,
+    mextEnabled,
+    ...overrides,
+  }), [surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled]);
+
   const recalculate = useCallback((
     bridgeList: BridgeData[],
-    survey: number,
-    inspection: number,
+    paramOverrides?: Partial<WorkParams>,
     category?: OrdererCategory,
   ) => {
-    const calculated = calculateItems(bridgeList, settings, survey, inspection, category ?? ordererCategory);
+    const calculated = calculateItems(
+      bridgeList, settings, buildParams(paramOverrides), category ?? ordererCategory
+    );
     setItems(calculated);
-  }, [settings, ordererCategory]);
+  }, [settings, ordererCategory, buildParams]);
 
   const handleCSVUpload = useCallback(async (file: File) => {
     setCsvFileName(file.name);
@@ -59,18 +72,18 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     setCsvErrors(errors);
     if (data.length > 0) {
       setBridges(data);
-      recalculate(data, surveyDays, inspectionDays);
+      recalculate(data);
     }
-  }, [surveyDays, inspectionDays, recalculate]);
+  }, [recalculate]);
 
   const handleOrdererCategoryChange = useCallback((cat: OrdererCategory) => {
     setOrdererCategory(cat);
-    recalculate(bridges, surveyDays, inspectionDays, cat);
-  }, [bridges, surveyDays, inspectionDays, recalculate]);
+    recalculate(bridges, undefined, cat);
+  }, [bridges, recalculate]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges, surveyDays, inspectionDays);
-  }, [bridges, surveyDays, inspectionDays, recalculate]);
+    recalculate(bridges);
+  }, [bridges, recalculate]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -111,6 +124,9 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     projectName,
     surveyDays,
     inspectionDays,
+    summaryDays,
+    kokusokenEnabled,
+    mextEnabled,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -285,7 +301,59 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </div>
           </div>
           <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は点検日数ベース。</p>
-          <div className="recalc-area">
+        </section>
+
+        {/* 内業設定 */}
+        <section className="form-section">
+          <h3>内業設定</h3>
+          <div className="field-row">
+            <label>現地踏査まとめ</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={summaryDays}
+                onChange={e => setSummaryDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {summaryDays * 2} 人工{summaryDays === 0 ? '（非表示）' : ''}</span>
+            </div>
+          </div>
+
+          <div className="field-row" style={{ marginTop: '12px' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={kokusokenEnabled}
+                onChange={e => setKokusokenEnabled(e.target.checked)}
+              />
+              <span>国総研様式</span>
+            </label>
+          </div>
+          {kokusokenEnabled && (
+            <div className="office-item-preview">
+              国総研様式作成(新様式含む) &nbsp;
+              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
+            </div>
+          )}
+
+          <div className="field-row" style={{ marginTop: '8px' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={mextEnabled}
+                onChange={e => setMextEnabled(e.target.checked)}
+              />
+              <span>国交省様式</span>
+            </label>
+          </div>
+          {mextEnabled && (
+            <div className="office-item-preview">
+              国交省様式作成 &nbsp;
+              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
+            </div>
+          )}
+
+          <div className="recalc-area" style={{ marginTop: '16px' }}>
             <button onClick={handleRecalculate} className="btn-outline">
               🔄 明細を再計算
             </button>

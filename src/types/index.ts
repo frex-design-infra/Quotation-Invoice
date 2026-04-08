@@ -81,8 +81,11 @@ export interface Quotation {
   ordererCategory: OrdererCategory;
   clientName: string;
   projectName: string;
-  surveyDays: number;       // 現地踏査日数
-  inspectionDays: number;   // 点検日数
+  surveyDays: number;          // 現地踏査日数
+  inspectionDays: number;      // 点検日数
+  summaryDays: number;         // 現地踏査まとめ日数
+  kokusokenEnabled: boolean;   // 国総研様式
+  mextEnabled: boolean;        // 国交省様式
   bridges: BridgeData[];
   items: QuotationItem[];
   subtotal: number;
