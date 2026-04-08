@@ -216,6 +216,9 @@ export function calculateItems(
     });
   }
 
+  // 空行（様式グループと燃料グループの間）
+  items.push(separator());
+
   // ── 燃料グループ ──────────────────────────────────
   // 8. 橋梁点検車(BT-200)燃料
   if (settings.btFuelEnabled && btDays > 0) {

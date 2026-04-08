@@ -278,7 +278,7 @@ button {
 .recalc-area { display: flex; align-items: center; gap: 12px; margin-top: 8px; }
 
 /* 明細セパレータ行 */
-.separator-row td { height: 10px; border: none !important; background: none !important; padding: 0; }
+.separator-row td { height: 20px; border: none !important; background: none !important; padding: 0; }
 
 /* 明細テーブル（編集用） */
 .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
@@ -602,7 +602,7 @@ button {
 .items-table .col-price { text-align: right; width: 90px; }
 .items-table .col-amount { text-align: right; width: 90px; }
 
-.spacer-row td { height: 6px; border: none; background: none; padding: 0; }
+.spacer-row td { height: 12px; border: none; background: none; padding: 0; }
 
 .subtotal-row td, .tax-row td, .total-row td {
   border-left: none;
