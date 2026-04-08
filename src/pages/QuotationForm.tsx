@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
 import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
@@ -32,6 +32,13 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [view, setView] = useState<'form' | 'preview'>('form');
   const [date, setDate] = useState(initial?.date ?? today());
   const [quotationNumber, setQuotationNumber] = useState(initial?.quotationNumber ?? generateNumber());
+  const isFirstRender = useRef(true);
+
+  // 日付変更時に見積番号をリアルタイム更新（初回はスキップ）
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setQuotationNumber(`${date.replace(/-/g, '')}-001`);
+  }, [date]);
   const [ordererCategory, setOrdererCategory] = useState<OrdererCategory>(initial?.ordererCategory ?? '県');
   const [clientName, setClientName] = useState(initial?.clientName ?? '');
   const [projectName, setProjectName] = useState(initial?.projectName ?? '');
