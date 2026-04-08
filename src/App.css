@@ -420,8 +420,8 @@ button {
   font-family: inherit;
   resize: vertical;
 }
-.input-with-suffix { display: flex; align-items: center; gap: 6px; flex: 1; }
-.input-with-suffix input { flex: 1; }
+.input-with-suffix { display: flex; align-items: center; gap: 6px; }
+.input-with-suffix input { flex: none; width: 72px; }
 .suffix { font-size: 12px; color: #666; white-space: nowrap; }
 
 /* チェックボックス行の単価入力幅を上の数値入力欄に揃える */
