@@ -8,6 +8,10 @@ export interface WorkParams {
   summaryDays: number;
   kokusokenEnabled: boolean;
   mextEnabled: boolean;
+  trafficGuardEnabled: boolean;
+  trafficGuardUnitPrice: number;
+  barrierEnabled: boolean;
+  barrierUnitPrice: number;
 }
 
 function genId() {
@@ -39,7 +43,8 @@ export function calculateItems(
   params: WorkParams,
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
-  const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled } = params;
+  const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
+          trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice } = params;
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
   const totalBridges = bridges.length;
@@ -248,6 +253,32 @@ export function calculateItems(
       unit: 'L',
       unitPrice: settings.fuelUnitPrice,
       amount: liters * settings.fuelUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 10. 交通誘導員
+  if (trafficGuardEnabled) {
+    items.push({
+      id: genId(),
+      label: '交通誘導員',
+      quantity: 1,
+      unit: '式',
+      unitPrice: trafficGuardUnitPrice,
+      amount: trafficGuardUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 11. 規制材(車両等含む)
+  if (barrierEnabled) {
+    items.push({
+      id: genId(),
+      label: '規制材(車両等含む)',
+      quantity: 1,
+      unit: '式',
+      unitPrice: barrierUnitPrice,
+      amount: barrierUnitPrice,
       isAutoCalculated: true,
     });
   }

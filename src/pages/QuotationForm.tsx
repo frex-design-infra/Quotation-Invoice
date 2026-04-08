@@ -40,6 +40,10 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [btDays, setBtDays] = useState(initial?.btDays ?? 0);
   const [ewpDays, setEwpDays] = useState(initial?.ewpDays ?? 0);
   const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
+  const [trafficGuardEnabled, setTrafficGuardEnabled] = useState(initial?.trafficGuardEnabled ?? false);
+  const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
+  const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
+  const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
@@ -57,8 +61,13 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    trafficGuardEnabled,
+    trafficGuardUnitPrice,
+    barrierEnabled,
+    barrierUnitPrice,
     ...overrides,
-  }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled]);
+  }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
+       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -134,6 +143,10 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    trafficGuardEnabled,
+    trafficGuardUnitPrice,
+    barrierEnabled,
+    barrierUnitPrice,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -325,7 +338,41 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
               <span className="suffix">日 → {ewpDays * 2} 人工</span>
             </div>
           </div>
-          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
+          <p className="hint" style={{ marginBottom: '12px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={trafficGuardEnabled}
+                onChange={e => setTrafficGuardEnabled(e.target.checked)} />
+              <span>交通誘導員</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={trafficGuardUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!trafficGuardEnabled}
+              onChange={e => setTrafficGuardUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: trafficGuardEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={barrierEnabled}
+                onChange={e => setBarrierEnabled(e.target.checked)} />
+              <span>規制材(車両等含む)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={barrierUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!barrierEnabled}
+              onChange={e => setBarrierUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: barrierEnabled ? 1 : 0.4 }}
+            />
+          </div>
         </section>
 
         {/* 内業設定 */}

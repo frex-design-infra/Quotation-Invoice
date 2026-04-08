@@ -95,6 +95,10 @@ export interface Quotation {
   summaryDays: number;         // 現地踏査まとめ日数
   kokusokenEnabled: boolean;   // 国総研様式
   mextEnabled: boolean;        // 国交省様式
+  trafficGuardEnabled: boolean;    // 交通誘導員
+  trafficGuardUnitPrice: number;
+  barrierEnabled: boolean;         // 規制材(車両等含む)
+  barrierUnitPrice: number;
   bridges: BridgeData[];
   items: QuotationItem[];
   subtotal: number;
