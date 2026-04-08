@@ -480,6 +480,27 @@ button {
 .cat-btn-県.active  { color: #2e7d32; border-top: 3px solid #2e7d32; }
 .cat-btn-市町村.active { color: #e65100; border-top: 3px solid #e65100; }
 
+/* トースト通知 */
+.toast-saved {
+  position: fixed;
+  bottom: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #2e7d32;
+  color: white;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.18);
+  z-index: 9999;
+  animation: toast-in 0.2s ease;
+}
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(12px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
 /* ============================================
    見積書プレビュー（印刷）
    ============================================ */

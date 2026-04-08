@@ -45,6 +45,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 明細の再計算
@@ -144,6 +145,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
 
   const handleSave = () => {
     onSave(buildQuotation());
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2500);
   };
 
   const handlePrint = () => {
@@ -154,6 +157,9 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     const q = buildQuotation();
     return (
       <div>
+        {toastVisible && (
+          <div className="toast-saved">保存しました ✓</div>
+        )}
         <div className="preview-toolbar no-print">
           <button onClick={() => setView('form')} className="btn-secondary">← 編集に戻る</button>
           <button onClick={handlePrint} className="btn-primary">🖨 PDF出力（印刷）</button>
@@ -166,6 +172,9 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
 
   return (
     <div className="quotation-form">
+      {toastVisible && (
+        <div className="toast-saved">保存しました ✓</div>
+      )}
       <div className="form-toolbar">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
         <div className="form-toolbar-right">

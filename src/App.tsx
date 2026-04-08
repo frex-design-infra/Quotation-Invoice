@@ -25,7 +25,6 @@ export default function App() {
 
   const handleSave = (q: Quotation) => {
     saveQuotation(q);
-    setTab('list');
   };
 
   const handleCancel = () => {
