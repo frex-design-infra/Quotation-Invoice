@@ -29,49 +29,10 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
       - name: Build
         run: npm run build
-
-      - name: Generate standalone index.html
-        run: |
-          python3 - <<'PYEOF'
-          import glob, os
-
-          css_files = glob.glob('dist/assets/*.css')
-          js_files  = glob.glob('dist/assets/*.js')
-          css = open(css_files[0]).read() if css_files else ''
-          js  = open(js_files[0]).read()
-
-          os.makedirs('pages', exist_ok=True)
-
-          parts = [
-              '<!doctype html>\n',
-              '<html lang="ja">\n',
-              '  <head>\n',
-              '    <meta charset="UTF-8" />\n',
-              '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n',
-              '    <title>\u898b\u7a4d\u66f8\u30fb\u8acb\u6c42\u66f8\u7ba1\u7406</title>\n',
-              '    <style>\n',
-              css,
-              '\n    </style>\n',
-              '  </head>\n',
-              '  <body>\n',
-              '    <div id="root"></div>\n',
-              '    <script type="module">\n',
-              js,
-              '\n    </script>\n',
-              '  </body>\n',
-              '</html>\n',
-          ]
-
-          with open('pages/index.html', 'w') as f:
-              f.writelines(parts)
-
-          size = os.path.getsize('pages/index.html')
-          print('Generated pages/index.html (' + str(size) + ' bytes)')
-          PYEOF
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -79,7 +40,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './pages'
+          path: './dist'
 
       - name: Deploy to GitHub Pages
         id: deployment
