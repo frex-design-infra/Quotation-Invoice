@@ -3,6 +3,7 @@ import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCateg
 import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
+import DatePicker from '../components/DatePicker';
 
 interface Props {
   settings: MasterSettings;
@@ -202,7 +203,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
           <h3>基本情報</h3>
           <div className="field-row">
             <label>見積日</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <DatePicker value={date} onChange={setDate} />
           </div>
           <div className="field-row">
             <label>見積番号</label>
