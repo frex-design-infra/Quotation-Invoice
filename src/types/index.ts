@@ -44,6 +44,9 @@ export interface MasterSettings {
   btFuelUnitPrice: number;
   btFuelEnabled: boolean;
 
+  // 見積書フッターコメント
+  quotationFooterComment: string;
+
   // 諸経費率 (%)
   miscExpensesRate: number;
 

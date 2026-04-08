@@ -144,6 +144,15 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           </tr>
         </tbody>
       </table>
+
+      {/* フッターコメント */}
+      {settings.quotationFooterComment && (
+        <div className="quotation-footer-comment">
+          {settings.quotationFooterComment.split('\n').map((line, i) => (
+            <div key={i}>{line || '\u00A0'}</div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

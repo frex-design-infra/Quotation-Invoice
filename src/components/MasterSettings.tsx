@@ -182,6 +182,18 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           {textInput('メール', form.email, v => setForm(p => ({ ...p, email: v })))}
           {textInput('登録番号', form.registrationNumber, v => setForm(p => ({ ...p, registrationNumber: v })))}
         </section>
+
+        {/* 見積書フッターコメント */}
+        <section className="settings-section">
+          <h3>見積書フッターコメント</h3>
+          <p className="section-hint">見積書プレビューの合計の下に表示されます。</p>
+          <textarea
+            className="footer-comment-textarea"
+            value={form.quotationFooterComment}
+            onChange={e => setForm(p => ({ ...p, quotationFooterComment: e.target.value }))}
+            rows={8}
+          />
+        </section>
       </div>
 
       {/* 橋長区分マスタ（カテゴリ別） */}
