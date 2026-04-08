@@ -240,6 +240,16 @@ export function calculateItems(
       amount: liters * settings.btFuelUnitPrice,
       isAutoCalculated: true,
     });
+    // 橋梁点検車 運転手（燃料と同条件で計上）
+    items.push({
+      id: genId(),
+      label: '橋梁点検車 運転手(1名/日) 運搬含む',
+      quantity: btDays,
+      unit: '人工',
+      unitPrice: 31000,
+      amount: btDays * 31000,
+      isAutoCalculated: true,
+    });
   }
 
   // 9. 橋梁点検(高所作業車 12m)燃料
