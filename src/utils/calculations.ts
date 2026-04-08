@@ -245,6 +245,19 @@ export function calculateItems(
     });
   }
 
+  // 8a-1. 橋梁点検車 運転手（橋梁点検車(BT-200)の直下）
+  if (btDays > 0) {
+    items.push({
+      id: genId(),
+      label: '橋梁点検車 運転手(1名/日) 運搬含む',
+      quantity: btDays,
+      unit: '人工',
+      unitPrice: 31000,
+      amount: btDays * 31000,
+      isAutoCalculated: true,
+    });
+  }
+
   // 8a-2. 高所作業車(12m) 本体
   if (ewpVehicleEnabled && ewpDays > 0) {
     items.push({
@@ -269,16 +282,6 @@ export function calculateItems(
       unit: 'L',
       unitPrice: settings.btFuelUnitPrice,
       amount: liters * settings.btFuelUnitPrice,
-      isAutoCalculated: true,
-    });
-    // 橋梁点検車 運転手（燃料と同条件で計上）
-    items.push({
-      id: genId(),
-      label: '橋梁点検車 運転手(1名/日) 運搬含む',
-      quantity: btDays,
-      unit: '人工',
-      unitPrice: 31000,
-      amount: btDays * 31000,
       isAutoCalculated: true,
     });
   }
