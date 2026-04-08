@@ -274,6 +274,7 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
         <table className="tier-table">
           <thead>
             <tr>
+              <th>有効</th>
               <th>ラベル</th>
               <th>単価 (円/橋)</th>
             </tr>
@@ -281,6 +282,13 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           <tbody>
             {form.specialReportTypes.map(s => (
               <tr key={s.id}>
+                <td style={{ textAlign: 'center', width: '60px' }}>
+                  <input
+                    type="checkbox"
+                    checked={s.enabled}
+                    onChange={e => updateSpecial(s.id, 'enabled', e.target.checked)}
+                  />
+                </td>
                 <td>
                   <input
                     type="text"
