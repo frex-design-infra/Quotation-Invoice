@@ -196,10 +196,11 @@ button {
   margin-bottom: 12px;
 }
 .field-row label {
-  flex: 0 0 110px;
+  flex: 0 0 130px;
   font-weight: 600;
   color: #555;
   font-size: 13px;
+  white-space: nowrap;
 }
 .field-row input, .field-row select {
   flex: 1;
