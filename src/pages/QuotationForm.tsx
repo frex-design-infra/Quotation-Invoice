@@ -41,6 +41,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [btDays, setBtDays] = useState(initial?.btDays ?? 0);
   const [ewpDays, setEwpDays] = useState(initial?.ewpDays ?? 0);
   const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
+  const [btVehicleEnabled, setBtVehicleEnabled] = useState(initial?.btVehicleEnabled ?? false);
+  const [btVehicleUnitPrice, setBtVehicleUnitPrice] = useState(initial?.btVehicleUnitPrice ?? 0);
   const [trafficGuardEnabled, setTrafficGuardEnabled] = useState(initial?.trafficGuardEnabled ?? false);
   const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
   const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
@@ -62,13 +64,15 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    btVehicleEnabled,
+    btVehicleUnitPrice,
     trafficGuardEnabled,
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
     ...overrides,
   }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
-       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
+       btVehicleEnabled, btVehicleUnitPrice, trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -144,6 +148,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    btVehicleEnabled,
+    btVehicleUnitPrice,
     trafficGuardEnabled,
     trafficGuardUnitPrice,
     barrierEnabled,
@@ -340,6 +346,23 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </div>
           </div>
           <p className="hint" style={{ marginBottom: '12px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={btVehicleEnabled}
+                onChange={e => setBtVehicleEnabled(e.target.checked)} />
+              <span>橋梁点検車(BT-200)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={btVehicleUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!btVehicleEnabled}
+              onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
+            />
+          </div>
 
           <div className="field-row">
             <label className="checkbox-label">

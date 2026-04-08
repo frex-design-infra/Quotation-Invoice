@@ -8,6 +8,8 @@ export interface WorkParams {
   summaryDays: number;
   kokusokenEnabled: boolean;
   mextEnabled: boolean;
+  btVehicleEnabled: boolean;
+  btVehicleUnitPrice: number;
   trafficGuardEnabled: boolean;
   trafficGuardUnitPrice: number;
   barrierEnabled: boolean;
@@ -44,6 +46,7 @@ export function calculateItems(
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
   const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
+          btVehicleEnabled, btVehicleUnitPrice,
           trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice } = params;
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
@@ -227,7 +230,20 @@ export function calculateItems(
   items.push(separator());
 
   // ── 燃料グループ ──────────────────────────────────
-  // 8. 橋梁点検車(BT-200)燃料
+  // 8a. 橋梁点検車(BT-200) 本体
+  if (btVehicleEnabled && btDays > 0) {
+    items.push({
+      id: genId(),
+      label: '橋梁点検車(BT-200)',
+      quantity: 1,
+      unit: '式',
+      unitPrice: btVehicleUnitPrice,
+      amount: btVehicleUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 8b. 橋梁点検車(BT-200)燃料
   if (settings.btFuelEnabled && btDays > 0) {
     const liters = settings.btFuelHoursPerDay * settings.btFuelLitersPerHour * btDays;
     const label = `橋梁点検車(BT-200)燃料 ${settings.btFuelHoursPerDay}h/1日稼働時間×${settings.btFuelLitersPerHour}L/h×日`;
