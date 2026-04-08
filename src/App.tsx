@@ -38,7 +38,7 @@ export default function App() {
       <nav className="app-nav no-print">
         <div className="nav-brand">
           <span className="nav-logo">📋</span>
-          <span>見積書・請求書管理</span>
+          <span>見積書/請求書管理システム | FRe:x Design inc.</span>
         </div>
         <div className="nav-tabs">
           <button
