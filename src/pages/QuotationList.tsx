@@ -50,7 +50,6 @@ export default function QuotationList({ quotations, onNew, onEdit, onDelete, onT
             <tr>
               <th>見積番号</th>
               <th>見積日</th>
-              <th>発注者区分</th>
               <th>発注者名</th>
               <th>件名</th>
               <th>合計金額</th>
@@ -63,11 +62,6 @@ export default function QuotationList({ quotations, onNew, onEdit, onDelete, onT
               <tr key={q.id} onClick={() => onEdit(q)} className="list-row">
                 <td className="mono">{q.quotationNumber}</td>
                 <td>{formatDate(q.date)}</td>
-                <td>
-                  <span className={`category-badge cat-${q.ordererCategory}`}>
-                    {q.ordererCategory}
-                  </span>
-                </td>
                 <td>{q.clientName}</td>
                 <td className="project-name-cell">{q.projectName}</td>
                 <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
