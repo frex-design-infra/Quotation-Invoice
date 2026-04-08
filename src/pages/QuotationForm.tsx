@@ -56,6 +56,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
   const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
   const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
+  const [submitted, setSubmitted] = useState(initial?.submitted ?? false);
+  const [submitAnimating, setSubmitAnimating] = useState(false);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
@@ -168,6 +170,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
+    submitted,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -263,6 +266,19 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
               onChange={e => setProjectName(e.target.value)}
               placeholder="例: 令和8年度 秋田・湯沢管内橋梁点検業務"
             />
+          </div>
+          <div className="field-row">
+            <label>提出状況</label>
+            <button
+              className={`status-btn ${submitted ? 'submitted' : 'not-submitted'} ${submitAnimating ? 'pikoon' : ''}`}
+              onClick={() => {
+                setSubmitAnimating(true);
+                setSubmitted(v => !v);
+                setTimeout(() => setSubmitAnimating(false), 600);
+              }}
+            >
+              {submitted ? '提出済' : '未提出'}
+            </button>
           </div>
         </section>
 

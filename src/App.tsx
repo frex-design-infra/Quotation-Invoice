@@ -27,6 +27,12 @@ export default function App() {
     saveQuotation(q);
   };
 
+  const handleToggleSubmitted = (id: string) => {
+    const q = quotations.find(x => x.id === id);
+    if (!q) return;
+    saveQuotation({ ...q, submitted: !q.submitted });
+  };
+
   const handleCancel = () => {
     setTab('list');
   };
@@ -63,6 +69,7 @@ export default function App() {
             onNew={handleNew}
             onEdit={handleEdit}
             onDelete={deleteQuotation}
+            onToggleSubmitted={handleToggleSubmitted}
           />
         )}
         {tab === 'form' && (

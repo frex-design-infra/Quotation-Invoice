@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -7,12 +7,28 @@ interface Props {
   onNew: () => void;
   onEdit: (q: Quotation) => void;
   onDelete: (id: string) => void;
+  onToggleSubmitted: (id: string) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onDelete }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onDelete, onToggleSubmitted }: Props) {
+  const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  };
+
+  const handleToggle = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    setAnimatingIds(prev => new Set(prev).add(id));
+    onToggleSubmitted(id);
+    setTimeout(() => {
+      setAnimatingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 600);
   };
 
   return (
@@ -56,7 +72,13 @@ export default function QuotationList({ quotations, onNew, onEdit, onDelete }: P
                 <td className="project-name-cell">{q.projectName}</td>
                 <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
                 <td className="center">{q.bridges.length}</td>
-                <td onClick={e => e.stopPropagation()}>
+                <td onClick={e => e.stopPropagation()} className="action-cell">
+                  <button
+                    className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
+                    onClick={e => handleToggle(e, q.id)}
+                  >
+                    {q.submitted ? '提出済' : '未提出'}
+                  </button>
                   <button
                     onClick={() => {
                       if (confirm(`「${q.quotationNumber}」を削除しますか？`)) {

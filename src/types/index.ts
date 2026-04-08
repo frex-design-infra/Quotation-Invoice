@@ -108,6 +108,7 @@ export interface Quotation {
   subtotal: number;
   tax: number;
   total: number;
+  submitted: boolean;           // 提出済フラグ
   createdAt: string;
   updatedAt: string;
 }
