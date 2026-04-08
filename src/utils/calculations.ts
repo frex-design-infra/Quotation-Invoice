@@ -6,7 +6,7 @@ function genId() {
 
 /** 橋長から該当する区分を返す */
 export function getTierForBridge(length: number, tiers: BridgeLengthTier[]): BridgeLengthTier | undefined {
-  return tiers.find(t => length >= t.minLength && length < t.maxLength);
+  return tiers.find(t => length >= t.minLength && length < (t.maxLength ?? 999999));
 }
 
 /** bridges と settings から見積明細行を自動生成 */

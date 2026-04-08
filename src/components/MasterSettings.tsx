@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function MasterSettingsPanel({ settings, onSave }: Props) {
-  const [form, setForm] = useState<MasterSettings>(() => JSON.parse(JSON.stringify(settings)));
+  const [form, setForm] = useState<MasterSettings>(() => structuredClone(settings));
   const [saved, setSaved] = useState(false);
   const [tierTab, setTierTab] = useState<OrdererCategory>('国');
 
@@ -22,7 +22,7 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
 
   function handleReset() {
     if (confirm('マスタ設定を初期値にリセットしますか？')) {
-      setForm(JSON.parse(JSON.stringify(DEFAULT_MASTER_SETTINGS)));
+      setForm(structuredClone(DEFAULT_MASTER_SETTINGS));
     }
   }
 
@@ -217,9 +217,9 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
                 <td>
                   <input
                     type="number"
-                    value={tier.maxLength === Infinity ? '' : tier.maxLength}
-                    placeholder="∞"
-                    onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? Infinity : parseFloat(e.target.value) || 0)}
+                    value={tier.maxLength >= 999999 ? '' : tier.maxLength}
+                    placeholder="∞（上限なし）"
+                    onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? 999999 : parseFloat(e.target.value) || 0)}
                   />
                 </td>
                 <td>
