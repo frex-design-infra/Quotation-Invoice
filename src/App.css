@@ -416,6 +416,14 @@ button {
 }
 
 /* カテゴリタブ（橋長区分マスタ） */
+.computed-price {
+  text-align: right;
+  font-weight: 600;
+  color: #1e3a5f;
+  white-space: nowrap;
+  padding-right: 12px;
+}
+
 .tier-tabs {
   display: flex;
   align-items: center;

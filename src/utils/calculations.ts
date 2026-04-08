@@ -58,17 +58,18 @@ export function calculateItems(
     }
   }
 
-  // 区分順に出力
+  // 区分順に出力（単価 = 調書人工 × 人工単価）
   for (const tier of tiers) {
     const count = tierCounts.get(tier.id) ?? 0;
     if (count > 0) {
+      const unitPrice = Math.round(tier.reportLaborDays * settings.laborUnitPrice);
       items.push({
         id: genId(),
         label: `橋梁点検調書作成(${tier.label})`,
         quantity: count,
         unit: '橋',
-        unitPrice: tier.unitPrice,
-        amount: count * tier.unitPrice,
+        unitPrice,
+        amount: count * unitPrice,
         isAutoCalculated: true,
       });
     }

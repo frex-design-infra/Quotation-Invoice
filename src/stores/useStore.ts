@@ -7,26 +7,27 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   inspectionAssistDaysPerBridge: 1.674,  // 72人工 / 43橋 ≈ 1.674
 
   bridgeLengthTiers: {
+    // 調書人工 × 人工単価(34,000) = 単価  例: 2.5 × 34,000 = 85,000
     '国': [
-      { id: 'kuni-t1', label: '15m未満',          minLength: 0,   maxLength: 15,       unitPrice: 85000 },
-      { id: 'kuni-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,      unitPrice: 153000 },
-      { id: 'kuni-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,      unitPrice: 255000 },
-      { id: 'kuni-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,      unitPrice: 289000 },
-      { id: 'kuni-t5', label: '300m以上',          minLength: 300, maxLength: 999999, unitPrice: 357000 },
+      { id: 'kuni-t1', label: '15m未満',         minLength: 0,   maxLength: 15,     reportLaborDays: 2.5  },
+      { id: 'kuni-t2', label: '15m以上100m未満',  minLength: 15,  maxLength: 100,    reportLaborDays: 4.5  },
+      { id: 'kuni-t3', label: '100m以上200m未満', minLength: 100, maxLength: 200,    reportLaborDays: 7.5  },
+      { id: 'kuni-t4', label: '200m以上300m未満', minLength: 200, maxLength: 300,    reportLaborDays: 8.5  },
+      { id: 'kuni-t5', label: '300m以上',         minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
     ],
     '県': [
-      { id: 'ken-t1', label: '15m未満',          minLength: 0,   maxLength: 15,     unitPrice: 85000 },
-      { id: 'ken-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,    unitPrice: 153000 },
-      { id: 'ken-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,    unitPrice: 255000 },
-      { id: 'ken-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,    unitPrice: 289000 },
-      { id: 'ken-t5', label: '300m以上',          minLength: 300, maxLength: 999999, unitPrice: 357000 },
+      { id: 'ken-t1', label: '15m未満',         minLength: 0,   maxLength: 15,     reportLaborDays: 2.5  },
+      { id: 'ken-t2', label: '15m以上100m未満',  minLength: 15,  maxLength: 100,    reportLaborDays: 4.5  },
+      { id: 'ken-t3', label: '100m以上200m未満', minLength: 100, maxLength: 200,    reportLaborDays: 7.5  },
+      { id: 'ken-t4', label: '200m以上300m未満', minLength: 200, maxLength: 300,    reportLaborDays: 8.5  },
+      { id: 'ken-t5', label: '300m以上',         minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
     ],
     '市町村': [
-      { id: 'shi-t1', label: '15m未満',          minLength: 0,   maxLength: 15,     unitPrice: 85000 },
-      { id: 'shi-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,    unitPrice: 153000 },
-      { id: 'shi-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,    unitPrice: 255000 },
-      { id: 'shi-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,    unitPrice: 289000 },
-      { id: 'shi-t5', label: '300m以上',          minLength: 300, maxLength: 999999, unitPrice: 357000 },
+      { id: 'shi-t1', label: '15m未満',         minLength: 0,   maxLength: 15,     reportLaborDays: 2.5  },
+      { id: 'shi-t2', label: '15m以上100m未満',  minLength: 15,  maxLength: 100,    reportLaborDays: 4.5  },
+      { id: 'shi-t3', label: '100m以上200m未満', minLength: 100, maxLength: 200,    reportLaborDays: 7.5  },
+      { id: 'shi-t4', label: '200m以上300m未満', minLength: 200, maxLength: 300,    reportLaborDays: 8.5  },
+      { id: 'shi-t5', label: '300m以上',         minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
     ],
   },
 
@@ -64,6 +65,21 @@ function loadSettings(): MasterSettings {
       // 旧フォーマット（bridgeLengthTiersが配列）は破棄してデフォルトを使用
       if (Array.isArray(parsed.bridgeLengthTiers)) {
         delete parsed.bridgeLengthTiers;
+      }
+      // 旧フォーマット（unitPrice直接指定）を reportLaborDays に移行
+      if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
+        for (const cat of ['国', '県', '市町村'] as const) {
+          const tiers = parsed.bridgeLengthTiers[cat];
+          if (Array.isArray(tiers)) {
+            parsed.bridgeLengthTiers[cat] = tiers.map((t: Record<string, unknown>) => {
+              if (t.reportLaborDays === undefined && typeof t.unitPrice === 'number') {
+                const laborUnitPrice = parsed.laborUnitPrice ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
+                return { ...t, reportLaborDays: Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 };
+              }
+              return t;
+            });
+          }
+        }
       }
       return { ...DEFAULT_MASTER_SETTINGS, ...parsed };
     }

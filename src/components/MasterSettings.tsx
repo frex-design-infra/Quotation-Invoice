@@ -193,49 +193,60 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
               <th>表示ラベル</th>
               <th>最小橋長 (m以上)</th>
               <th>最大橋長 (m未満)</th>
-              <th>単価 (円/橋)</th>
+              <th>調書人工数</th>
+              <th>単価（自動計算）</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {form.bridgeLengthTiers[tierTab].map(tier => (
-              <tr key={tier.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={tier.label}
-                    onChange={e => updateTier(tierTab, tier.id, 'label', e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.minLength}
-                    onChange={e => updateTier(tierTab, tier.id, 'minLength', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.maxLength >= 999999 ? '' : tier.maxLength}
-                    placeholder="∞（上限なし）"
-                    onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? 999999 : parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.unitPrice}
-                    onChange={e => updateTier(tierTab, tier.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <button onClick={() => removeTier(tierTab, tier.id)} className="btn-danger btn-sm">削除</button>
-                </td>
-              </tr>
-            ))}
+            {form.bridgeLengthTiers[tierTab].map(tier => {
+              const unitPrice = Math.round(tier.reportLaborDays * form.laborUnitPrice);
+              return (
+                <tr key={tier.id}>
+                  <td>
+                    <input
+                      type="text"
+                      value={tier.label}
+                      onChange={e => updateTier(tierTab, tier.id, 'label', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={tier.minLength}
+                      onChange={e => updateTier(tierTab, tier.id, 'minLength', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={tier.maxLength >= 999999 ? '' : tier.maxLength}
+                      placeholder="∞（上限なし）"
+                      onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? 999999 : parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={tier.reportLaborDays}
+                      onChange={e => updateTier(tierTab, tier.id, 'reportLaborDays', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="computed-price">
+                    ¥ {unitPrice.toLocaleString('ja-JP')}
+                  </td>
+                  <td>
+                    <button onClick={() => removeTier(tierTab, tier.id)} className="btn-danger btn-sm">削除</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+        <p className="section-hint" style={{ marginTop: '8px' }}>
+          単価 = 調書人工数 × 人工単価（¥{form.laborUnitPrice.toLocaleString('ja-JP')}）
+        </p>
       </section>
 
       {/* 特殊調書タイプ */}

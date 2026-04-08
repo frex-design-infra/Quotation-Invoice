@@ -4,10 +4,10 @@ export type OrdererCategory = '国' | '県' | '市町村';
 // 橋長区分マスタ
 export interface BridgeLengthTier {
   id: string;
-  label: string;         // 例: "15m未満"
-  minLength: number;     // 以上 (0 = 制限なし)
-  maxLength: number;     // 未満 (Infinity = 制限なし)
-  unitPrice: number;     // 単価
+  label: string;            // 例: "15m未満"
+  minLength: number;        // 以上
+  maxLength: number;        // 未満 (999999 = 上限なし)
+  reportLaborDays: number;  // 調書作成 人工数（単価 = 調書人工 × 人工単価）
 }
 
 // 特殊調書タイプ
