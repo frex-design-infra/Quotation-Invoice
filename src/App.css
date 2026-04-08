@@ -109,6 +109,7 @@ button {
 .list-table {
   width: 100%;
   border-collapse: collapse;
+  table-layout: auto;
 }
 .list-table th {
   background: #f0f4f8;
@@ -117,10 +118,16 @@ button {
   font-weight: 600;
   color: #444;
   border-bottom: 2px solid #d0d7e0;
+  white-space: nowrap;
 }
 .list-table td {
   padding: 12px;
   border-bottom: 1px solid #eee;
+  white-space: nowrap;
+}
+.list-table td.project-name-cell {
+  white-space: normal;
+  min-width: 160px;
 }
 .list-row { cursor: pointer; }
 .list-row:hover td { background: #f8fbff; }
