@@ -97,6 +97,8 @@ export interface Quotation {
   mextEnabled: boolean;        // 国交省様式
   btVehicleEnabled: boolean;        // 橋梁点検車(BT-200)
   btVehicleUnitPrice: number;
+  ewpVehicleEnabled: boolean;       // 高所作業車(12m)
+  ewpVehicleUnitPrice: number;
   trafficGuardEnabled: boolean;    // 交通誘導員
   trafficGuardUnitPrice: number;
   barrierEnabled: boolean;         // 規制材(車両等含む)

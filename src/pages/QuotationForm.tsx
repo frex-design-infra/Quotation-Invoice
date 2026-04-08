@@ -43,6 +43,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
   const [btVehicleEnabled, setBtVehicleEnabled] = useState(initial?.btVehicleEnabled ?? false);
   const [btVehicleUnitPrice, setBtVehicleUnitPrice] = useState(initial?.btVehicleUnitPrice ?? 0);
+  const [ewpVehicleEnabled, setEwpVehicleEnabled] = useState(initial?.ewpVehicleEnabled ?? false);
+  const [ewpVehicleUnitPrice, setEwpVehicleUnitPrice] = useState(initial?.ewpVehicleUnitPrice ?? 0);
   const [trafficGuardEnabled, setTrafficGuardEnabled] = useState(initial?.trafficGuardEnabled ?? false);
   const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
   const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
@@ -66,13 +68,16 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     mextEnabled,
     btVehicleEnabled,
     btVehicleUnitPrice,
+    ewpVehicleEnabled,
+    ewpVehicleUnitPrice,
     trafficGuardEnabled,
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
     ...overrides,
   }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
-       btVehicleEnabled, btVehicleUnitPrice, trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
+       btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
+       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -150,6 +155,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     mextEnabled,
     btVehicleEnabled,
     btVehicleUnitPrice,
+    ewpVehicleEnabled,
+    ewpVehicleUnitPrice,
     trafficGuardEnabled,
     trafficGuardUnitPrice,
     barrierEnabled,
@@ -361,6 +368,23 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
               disabled={!btVehicleEnabled}
               onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
               style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={ewpVehicleEnabled}
+                onChange={e => setEwpVehicleEnabled(e.target.checked)} />
+              <span>高所作業車(12m)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={ewpVehicleUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!ewpVehicleEnabled}
+              onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
             />
           </div>
 

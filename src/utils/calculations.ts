@@ -10,6 +10,8 @@ export interface WorkParams {
   mextEnabled: boolean;
   btVehicleEnabled: boolean;
   btVehicleUnitPrice: number;
+  ewpVehicleEnabled: boolean;
+  ewpVehicleUnitPrice: number;
   trafficGuardEnabled: boolean;
   trafficGuardUnitPrice: number;
   barrierEnabled: boolean;
@@ -46,7 +48,7 @@ export function calculateItems(
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
   const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
-          btVehicleEnabled, btVehicleUnitPrice,
+          btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
           trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice } = params;
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
@@ -239,6 +241,19 @@ export function calculateItems(
       unit: '式',
       unitPrice: btVehicleUnitPrice,
       amount: btVehicleUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 8a-2. 高所作業車(12m) 本体
+  if (ewpVehicleEnabled && ewpDays > 0) {
+    items.push({
+      id: genId(),
+      label: '高所作業車(12m)',
+      quantity: 1,
+      unit: '式',
+      unitPrice: ewpVehicleUnitPrice,
+      amount: ewpVehicleUnitPrice,
       isAutoCalculated: true,
     });
   }
