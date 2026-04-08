@@ -293,9 +293,9 @@ export function calculateTotals(
 ): { subtotalBeforeMisc: number; miscExpenses: number; discount: number; subtotal: number; tax: number; total: number } {
   const subtotalBeforeMisc = items.reduce((s, i) => s + i.amount, 0);
   const miscExpenses = Math.round(subtotalBeforeMisc * (settings.miscExpensesRate / 100));
-  // 諸経費込み合計の百円未満端数を自動値引き
+  // 諸経費込み合計の千円未満（100円の位まで）を自動値引き
   const sumWithMisc = subtotalBeforeMisc + miscExpenses;
-  const discount = sumWithMisc % 100;
+  const discount = sumWithMisc % 1000;
   const subtotal = sumWithMisc - discount;
   const tax = Math.round(subtotal * (settings.taxRate / 100));
   const total = subtotal + tax;
