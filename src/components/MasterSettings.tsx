@@ -113,7 +113,6 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           <h3>人工・労務単価</h3>
           {numInput('人工単価', form.laborUnitPrice, v => setForm(p => ({ ...p, laborUnitPrice: v })), '円/人工')}
           {numInput('準備計画 人工数', form.setupPlanningDays, v => setForm(p => ({ ...p, setupPlanningDays: v })), '人工')}
-          {numInput('点検補助 人工数/橋', form.inspectionAssistDaysPerBridge, v => setForm(p => ({ ...p, inspectionAssistDaysPerBridge: v })), '人工/橋')}
         </section>
 
         {/* 諸経費・税 */}

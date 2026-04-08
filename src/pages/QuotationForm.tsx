@@ -35,15 +35,21 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [clientName, setClientName] = useState(initial?.clientName ?? '');
   const [projectName, setProjectName] = useState(initial?.projectName ?? '');
   const [bridges, setBridges] = useState<BridgeData[]>(initial?.bridges ?? []);
-  const [workingDays, setWorkingDays] = useState(0);
+  const [surveyDays, setSurveyDays] = useState(initial?.surveyDays ?? 0);
+  const [inspectionDays, setInspectionDays] = useState(initial?.inspectionDays ?? 0);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 橋梁データが変わったら自動計算
-  const recalculate = useCallback((bridgeList: BridgeData[], days: number, category?: OrdererCategory) => {
-    const calculated = calculateItems(bridgeList, settings, days, category ?? ordererCategory);
+  // 明細の再計算
+  const recalculate = useCallback((
+    bridgeList: BridgeData[],
+    survey: number,
+    inspection: number,
+    category?: OrdererCategory,
+  ) => {
+    const calculated = calculateItems(bridgeList, settings, survey, inspection, category ?? ordererCategory);
     setItems(calculated);
   }, [settings, ordererCategory]);
 
@@ -53,23 +59,18 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     setCsvErrors(errors);
     if (data.length > 0) {
       setBridges(data);
-      recalculate(data, workingDays);
+      recalculate(data, surveyDays, inspectionDays);
     }
-  }, [workingDays, recalculate]);
+  }, [surveyDays, inspectionDays, recalculate]);
 
   const handleOrdererCategoryChange = useCallback((cat: OrdererCategory) => {
     setOrdererCategory(cat);
-    if (bridges.length > 0) recalculate(bridges, workingDays, cat);
-  }, [bridges, workingDays, recalculate]);
-
-  const handleWorkingDaysChange = useCallback((days: number) => {
-    setWorkingDays(days);
-    recalculate(bridges, days);
-  }, [bridges, recalculate]);
+    recalculate(bridges, surveyDays, inspectionDays, cat);
+  }, [bridges, surveyDays, inspectionDays, recalculate]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges, workingDays);
-  }, [bridges, workingDays, recalculate]);
+    recalculate(bridges, surveyDays, inspectionDays);
+  }, [bridges, surveyDays, inspectionDays, recalculate]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -108,6 +109,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     ordererCategory,
     clientName,
     projectName,
+    surveyDays,
+    inspectionDays,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -258,21 +261,35 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
         <section className="form-section">
           <h3>現場設定</h3>
           <div className="field-row">
-            <label>現場稼働日数</label>
+            <label>現地踏査日数</label>
             <div className="input-with-suffix">
               <input
                 type="number"
-                value={workingDays}
-                onChange={e => handleWorkingDaysChange(parseInt(e.target.value) || 0)}
+                min="0"
+                value={surveyDays}
+                onChange={e => setSurveyDays(parseInt(e.target.value) || 0)}
               />
-              <span className="suffix">日（燃料計算用）</span>
+              <span className="suffix">日 → {surveyDays * 2} 人工</span>
             </div>
           </div>
+          <div className="field-row">
+            <label>点検日数</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={inspectionDays}
+                onChange={e => setInspectionDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {inspectionDays * 2} 人工</span>
+            </div>
+          </div>
+          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は点検日数ベース。</p>
           <div className="recalc-area">
             <button onClick={handleRecalculate} className="btn-outline">
               🔄 明細を再計算
             </button>
-            <span className="hint">※ 設定変更後に再計算ボタンを押してください</span>
+            <span className="hint">※ 入力後に再計算ボタンを押してください</span>
           </div>
         </section>
       </div>

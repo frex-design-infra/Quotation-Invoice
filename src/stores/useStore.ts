@@ -4,7 +4,6 @@ import type { MasterSettings, Quotation } from '../types';
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   laborUnitPrice: 34000,
   setupPlanningDays: 5,
-  inspectionAssistDaysPerBridge: 1.674,  // 72人工 / 43橋 ≈ 1.674
 
   bridgeLengthTiers: {
     // 調書人工 × 人工単価(34,000) = 単価  例: 2.5 × 34,000 = 85,000

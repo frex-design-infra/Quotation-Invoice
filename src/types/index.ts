@@ -26,9 +26,6 @@ export interface MasterSettings {
   // 準備計画
   setupPlanningDays: number;         // 人工数
 
-  // 点検補助 (橋梁1橋あたりの人工数)
-  inspectionAssistDaysPerBridge: number;
-
   // 橋長区分マスタ（発注者区分ごと）
   bridgeLengthTiers: Record<OrdererCategory, BridgeLengthTier[]>;
 
@@ -84,6 +81,8 @@ export interface Quotation {
   ordererCategory: OrdererCategory;
   clientName: string;
   projectName: string;
+  surveyDays: number;       // 現地踏査日数
+  inspectionDays: number;   // 点検日数
   bridges: BridgeData[];
   items: QuotationItem[];
   subtotal: number;

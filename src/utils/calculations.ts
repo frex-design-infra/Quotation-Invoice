@@ -13,13 +13,12 @@ export function getTierForBridge(length: number, tiers: BridgeLengthTier[]): Bri
 export function calculateItems(
   bridges: BridgeData[],
   settings: MasterSettings,
-  workingDays: number,          // 現場稼働日数 (燃料計算用)
+  surveyDays: number,       // 現地踏査日数
+  inspectionDays: number,   // 点検日数
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
-
-  const totalBridges = bridges.length;
 
   // 1. 準備計画
   const setupDays = settings.setupPlanningDays;
@@ -33,16 +32,30 @@ export function calculateItems(
     isAutoCalculated: true,
   });
 
-  // 2. 橋梁点検補助 N=XX
-  if (totalBridges > 0) {
-    const assistDays = Math.ceil(totalBridges * settings.inspectionAssistDaysPerBridge);
+  // 2. 現地踏査（日数 × 2人工）
+  if (surveyDays > 0) {
+    const qty = surveyDays * 2;
     items.push({
       id: genId(),
-      label: `橋梁点検補助 N=${totalBridges}`,
-      quantity: assistDays,
+      label: '現地踏査',
+      quantity: qty,
       unit: '人工',
       unitPrice: settings.laborUnitPrice,
-      amount: assistDays * settings.laborUnitPrice,
+      amount: qty * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 3. 橋梁点検（日数 × 2人工）
+  if (inspectionDays > 0) {
+    const qty = inspectionDays * 2;
+    items.push({
+      id: genId(),
+      label: '橋梁点検',
+      quantity: qty,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: qty * settings.laborUnitPrice,
       isAutoCalculated: true,
     });
   }
@@ -99,9 +112,9 @@ export function calculateItems(
     }
   }
 
-  // 5. 高所作業車燃料
-  if (settings.fuelEnabled && workingDays > 0) {
-    const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * workingDays;
+  // 5. 高所作業車燃料（点検日数ベース）
+  if (settings.fuelEnabled && inspectionDays > 0) {
+    const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * inspectionDays;
     const label = `高所作業車燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;
     items.push({
       id: genId(),
