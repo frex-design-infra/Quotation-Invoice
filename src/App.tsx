@@ -12,14 +12,23 @@ export default function App() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation } = useStore();
   const [tab, setTab] = useState<Tab>('list');
   const [editingQuotation, setEditingQuotation] = useState<Quotation | undefined>();
+  const [formInitialView, setFormInitialView] = useState<'form' | 'preview'>('form');
 
   const handleNew = () => {
     setEditingQuotation(undefined);
+    setFormInitialView('form');
     setTab('form');
   };
 
   const handleEdit = (q: Quotation) => {
     setEditingQuotation(q);
+    setFormInitialView('form');
+    setTab('form');
+  };
+
+  const handlePreview = (q: Quotation) => {
+    setEditingQuotation(q);
+    setFormInitialView('preview');
     setTab('form');
   };
 
@@ -68,6 +77,7 @@ export default function App() {
             quotations={quotations}
             onNew={handleNew}
             onEdit={handleEdit}
+            onPreview={handlePreview}
             onDelete={deleteQuotation}
             onToggleSubmitted={handleToggleSubmitted}
           />
@@ -76,6 +86,7 @@ export default function App() {
           <QuotationForm
             settings={settings}
             initial={editingQuotation}
+            initialView={formInitialView}
             onSave={handleSave}
             onCancel={handleCancel}
           />

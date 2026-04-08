@@ -6,11 +6,12 @@ interface Props {
   quotations: Quotation[];
   onNew: () => void;
   onEdit: (q: Quotation) => void;
+  onPreview: (q: Quotation) => void;
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onDelete, onToggleSubmitted }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
 
   const formatDate = (dateStr: string) => {
@@ -72,6 +73,12 @@ export default function QuotationList({ quotations, onNew, onEdit, onDelete, onT
                     onClick={e => handleToggle(e, q.id)}
                   >
                     {q.submitted ? '提出済' : '未提出'}
+                  </button>
+                  <button
+                    onClick={() => onPreview(q)}
+                    className="btn-outline btn-sm"
+                  >
+                    プレビュー
                   </button>
                   <button
                     onClick={() => {

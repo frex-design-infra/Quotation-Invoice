@@ -8,6 +8,7 @@ import DatePicker from '../components/DatePicker';
 interface Props {
   settings: MasterSettings;
   initial?: Quotation;
+  initialView?: 'form' | 'preview';
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
@@ -28,8 +29,8 @@ function generateNumber(): string {
 
 const ORDERER_CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
 
-export default function QuotationForm({ settings, initial, onSave, onCancel }: Props) {
-  const [view, setView] = useState<'form' | 'preview'>('form');
+export default function QuotationForm({ settings, initial, initialView, onSave, onCancel }: Props) {
+  const [view, setView] = useState<'form' | 'preview'>(initialView ?? 'form');
   const [date, setDate] = useState(initial?.date ?? today());
   const [quotationNumber, setQuotationNumber] = useState(initial?.quotationNumber ?? generateNumber());
   const isFirstRender = useRef(true);
