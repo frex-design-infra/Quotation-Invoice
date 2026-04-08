@@ -70,6 +70,7 @@ export interface QuotationItem {
   unitPrice: number;
   amount: number;
   isAutoCalculated: boolean;  // CSV/マスタから自動計算された行
+  isSeparator?: boolean;      // 空行（セクション区切り）
   note?: string;
 }
 

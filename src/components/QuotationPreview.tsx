@@ -90,14 +90,19 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           </tr>
         </thead>
         <tbody>
-          {quotation.items.map(item => (
-            <tr key={item.id}>
-              <td className="col-name">{item.label}</td>
-              <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
-              <td className="col-price">{formatCurrency(item.unitPrice)}</td>
-              <td className="col-amount">{formatCurrency(item.amount)}</td>
-            </tr>
-          ))}
+          {quotation.items.map(item => {
+            if (item.isSeparator) {
+              return <tr key={item.id} className="spacer-row"><td colSpan={4}></td></tr>;
+            }
+            return (
+              <tr key={item.id}>
+                <td className="col-name">{item.label}</td>
+                <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
+                <td className="col-price">{formatCurrency(item.unitPrice)}</td>
+                <td className="col-amount">{formatCurrency(item.amount)}</td>
+              </tr>
+            );
+          })}
 
           {/* 空行（諸経費前） */}
           <tr className="spacer-row"><td colSpan={4}></td></tr>

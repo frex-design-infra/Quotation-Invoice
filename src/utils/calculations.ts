@@ -12,6 +12,19 @@ function genId() {
   return Math.random().toString(36).slice(2, 9);
 }
 
+function separator(): QuotationItem {
+  return {
+    id: genId(),
+    label: '',
+    quantity: 0,
+    unit: '',
+    unitPrice: 0,
+    amount: 0,
+    isAutoCalculated: true,
+    isSeparator: true,
+  };
+}
+
 /** 橋長から該当する区分を返す */
 export function getTierForBridge(length: number, tiers: BridgeLengthTier[]): BridgeLengthTier | undefined {
   return tiers.find(t => length >= t.minLength && length < (t.maxLength ?? 999999));
@@ -29,6 +42,7 @@ export function calculateItems(
   const tiers = settings.bridgeLengthTiers[ordererCategory];
   const totalBridges = bridges.length;
 
+  // ── 外業グループ ────────────────────────────────
   // 1. 準備計画
   const setupDays = settings.setupPlanningDays;
   items.push({
@@ -55,7 +69,24 @@ export function calculateItems(
     });
   }
 
-  // 3. 橋梁点検（日数 × 2人工）
+  // 3. 現地踏査まとめ（日数 = 1人工、0日の場合は非表示）
+  if (summaryDays > 0) {
+    items.push({
+      id: genId(),
+      label: '現地踏査まとめ',
+      quantity: summaryDays,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: summaryDays * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 空行
+  items.push(separator());
+
+  // ── 点検グループ ────────────────────────────────
+  // 4. 橋梁点検（日数 × 2人工）
   if (inspectionDays > 0) {
     const qty = inspectionDays * 2;
     items.push({
@@ -69,8 +100,11 @@ export function calculateItems(
     });
   }
 
-  // 4. 橋梁点検調書作成（橋長区分ごと）
-  // 通常の橋長区分集計（specialTypeなし）
+  // 空行
+  items.push(separator());
+
+  // ── 調書作成グループ ──────────────────────────────
+  // 5. 橋梁点検調書作成（橋長区分ごと）
   const normalBridges = bridges.filter(b => !b.specialType);
   const tierCounts = new Map<string, number>();
   for (const b of normalBridges) {
@@ -80,7 +114,6 @@ export function calculateItems(
     }
   }
 
-  // 区分順に出力（単価 = 調書人工 × 人工単価）
   for (const tier of tiers) {
     const count = tierCounts.get(tier.id) ?? 0;
     if (count > 0) {
@@ -97,7 +130,7 @@ export function calculateItems(
     }
   }
 
-  // 4. 特殊調書タイプ（specialType で分類された橋）
+  // 特殊調書タイプ
   const specialBridges = bridges.filter(b => b.specialType);
   const specialCounts = new Map<string, number>();
   for (const b of specialBridges) {
@@ -121,23 +154,11 @@ export function calculateItems(
     }
   }
 
-  // 内業項目 ----------------------------------------
+  // 空行
+  items.push(separator());
 
-  // 現地踏査まとめ（日数 × 2人工、0日の場合は非表示）
-  if (summaryDays > 0) {
-    const qty = summaryDays * 2;
-    items.push({
-      id: genId(),
-      label: '現地踏査まとめ',
-      quantity: qty,
-      unit: '人工',
-      unitPrice: settings.laborUnitPrice,
-      amount: qty * settings.laborUnitPrice,
-      isAutoCalculated: true,
-    });
-  }
-
-  // 国総研様式作成（橋数 × 人工単価 × 1.8）
+  // ── 様式グループ ──────────────────────────────────
+  // 6. 国総研様式作成（橋数 × 人工単価 × 1.8）
   if (kokusokenEnabled && totalBridges > 0) {
     const unitPrice = Math.round(settings.laborUnitPrice * 1.8);
     items.push({
@@ -151,7 +172,7 @@ export function calculateItems(
     });
   }
 
-  // 国交省様式作成（橋数 × 人工単価 × 0.8）
+  // 7. 国交省様式作成（橋数 × 人工単価 × 0.8）
   if (mextEnabled && totalBridges > 0) {
     const unitPrice = Math.round(settings.laborUnitPrice * 0.8);
     items.push({
@@ -165,7 +186,7 @@ export function calculateItems(
     });
   }
 
-  // 5. 高所作業車燃料（点検日数ベース）
+  // 8. 高所作業車燃料（点検日数ベース）
   if (settings.fuelEnabled && inspectionDays > 0) {
     const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * inspectionDays;
     const label = `高所作業車燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;

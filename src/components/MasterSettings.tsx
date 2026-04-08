@@ -44,7 +44,7 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
       label: '新規区分',
       minLength: 0,
       maxLength: 100,
-      unitPrice: 0,
+      reportLaborDays: 0,
     };
     setForm(prev => ({
       ...prev,

@@ -217,8 +217,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
           </div>
         </section>
 
-        {/* CSVインポート */}
-        <section className="form-section csv-section">
+        {/* CSVインポート（右寄せ） */}
+        <section className="form-section csv-section csv-compact">
           <h3>橋梁データ（CSV読込）</h3>
 
           <div className="csv-row">
@@ -253,25 +253,12 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
           )}
 
-          {bridges.length > 0 && (
-            <div className="bridge-table-wrapper">
-              <table className="bridge-table">
-                <thead><tr><th>橋梁名</th><th>橋長 (m)</th></tr></thead>
-                <tbody>
-                  {bridges.slice(0, 4).map((b, i) => (
-                    <tr key={i}><td>{b.name}</td><td>{b.length}</td></tr>
-                  ))}
-                  {bridges.length > 4 && (
-                    <tr><td colSpan={2} className="bridge-more">他 {bridges.length - 4} 橋</td></tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          )}
-
           <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
         </section>
+      </div>
 
+      {/* 現場設定 ＋ 内業設定 */}
+      <div className="form-grid">
         {/* 現場設定 */}
         <section className="form-section">
           <h3>現場設定</h3>
@@ -314,7 +301,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
                 value={summaryDays}
                 onChange={e => setSummaryDays(parseInt(e.target.value) || 0)}
               />
-              <span className="suffix">日 → {summaryDays * 2} 人工{summaryDays === 0 ? '（非表示）' : ''}</span>
+              <span className="suffix">日 → {summaryDays} 人工{summaryDays === 0 ? '（非表示）' : ''}</span>
             </div>
           </div>
 
@@ -381,47 +368,56 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </tr>
           </thead>
           <tbody>
-            {items.map(item => (
-              <tr key={item.id} className={item.isAutoCalculated ? 'auto-row' : ''}>
-                <td className="col-auto">
-                  {item.isAutoCalculated ? <span className="auto-badge">自動</span> : ''}
-                </td>
-                <td className="col-name">
-                  <input
-                    type="text"
-                    value={item.label}
-                    onChange={e => updateItem(item.id, 'label', e.target.value)}
-                  />
-                </td>
-                <td className="col-qty">
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td className="col-unit">
-                  <input
-                    type="text"
-                    value={item.unit}
-                    onChange={e => updateItem(item.id, 'unit', e.target.value)}
-                  />
-                </td>
-                <td className="col-price">
-                  <input
-                    type="number"
-                    value={item.unitPrice}
-                    onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td className="col-amount amount-cell">
-                  {formatCurrency(item.amount)}
-                </td>
-                <td className="col-del">
-                  <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
-                </td>
-              </tr>
-            ))}
+            {items.map(item => {
+              if (item.isSeparator) {
+                return (
+                  <tr key={item.id} className="separator-row">
+                    <td colSpan={7}></td>
+                  </tr>
+                );
+              }
+              return (
+                <tr key={item.id} className={item.isAutoCalculated ? 'auto-row' : ''}>
+                  <td className="col-auto">
+                    {item.isAutoCalculated ? <span className="auto-badge">自動</span> : ''}
+                  </td>
+                  <td className="col-name">
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={e => updateItem(item.id, 'label', e.target.value)}
+                    />
+                  </td>
+                  <td className="col-qty">
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="col-unit">
+                    <input
+                      type="text"
+                      value={item.unit}
+                      onChange={e => updateItem(item.id, 'unit', e.target.value)}
+                    />
+                  </td>
+                  <td className="col-price">
+                    <input
+                      type="number"
+                      value={item.unitPrice}
+                      onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="col-amount amount-cell">
+                    {formatCurrency(item.amount)}
+                  </td>
+                  <td className="col-del">
+                    <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 
