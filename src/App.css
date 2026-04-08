@@ -415,6 +415,31 @@ button {
   font-size: 13px;
 }
 
+/* カテゴリタブ（橋長区分マスタ） */
+.tier-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  border-bottom: 2px solid #e0e6ef;
+  padding-bottom: 8px;
+}
+.tier-tab-btn {
+  padding: 6px 20px;
+  border-radius: 6px 6px 0 0;
+  font-weight: 600;
+  font-size: 14px;
+  background: #f0f4f8;
+  color: #555;
+  border: 1.5px solid transparent;
+  border-bottom: none;
+}
+.tier-tab-btn:hover { background: #e0e8f0; }
+.tier-tab-btn.active { background: white; border-color: #e0e6ef; color: #1e3a5f; border-bottom: 2px solid white; margin-bottom: -10px; }
+.cat-btn-国.active  { color: #1565c0; border-top: 3px solid #1565c0; }
+.cat-btn-県.active  { color: #2e7d32; border-top: 3px solid #2e7d32; }
+.cat-btn-市町村.active { color: #e65100; border-top: 3px solid #e65100; }
+
 /* ============================================
    見積書プレビュー（印刷）
    ============================================ */

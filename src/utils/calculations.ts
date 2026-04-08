@@ -1,4 +1,4 @@
-import type { BridgeData, BridgeLengthTier, MasterSettings, QuotationItem } from '../types';
+import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, QuotationItem } from '../types';
 
 function genId() {
   return Math.random().toString(36).slice(2, 9);
@@ -14,8 +14,10 @@ export function calculateItems(
   bridges: BridgeData[],
   settings: MasterSettings,
   workingDays: number,          // 現場稼働日数 (燃料計算用)
+  ordererCategory: OrdererCategory,
 ): QuotationItem[] {
   const items: QuotationItem[] = [];
+  const tiers = settings.bridgeLengthTiers[ordererCategory];
 
   const totalBridges = bridges.length;
 
@@ -50,14 +52,14 @@ export function calculateItems(
   const normalBridges = bridges.filter(b => !b.specialType);
   const tierCounts = new Map<string, number>();
   for (const b of normalBridges) {
-    const tier = getTierForBridge(b.length, settings.bridgeLengthTiers);
+    const tier = getTierForBridge(b.length, tiers);
     if (tier) {
       tierCounts.set(tier.id, (tierCounts.get(tier.id) ?? 0) + 1);
     }
   }
 
   // 区分順に出力
-  for (const tier of settings.bridgeLengthTiers) {
+  for (const tier of tiers) {
     const count = tierCounts.get(tier.id) ?? 0;
     if (count > 0) {
       items.push({

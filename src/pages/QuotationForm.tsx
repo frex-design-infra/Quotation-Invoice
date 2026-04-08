@@ -42,10 +42,10 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 橋梁データが変わったら自動計算
-  const recalculate = useCallback((bridgeList: BridgeData[], days: number) => {
-    const calculated = calculateItems(bridgeList, settings, days);
+  const recalculate = useCallback((bridgeList: BridgeData[], days: number, category?: OrdererCategory) => {
+    const calculated = calculateItems(bridgeList, settings, days, category ?? ordererCategory);
     setItems(calculated);
-  }, [settings]);
+  }, [settings, ordererCategory]);
 
   const handleCSVUpload = useCallback(async (file: File) => {
     setCsvFileName(file.name);
@@ -56,6 +56,11 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
       recalculate(data, workingDays);
     }
   }, [workingDays, recalculate]);
+
+  const handleOrdererCategoryChange = useCallback((cat: OrdererCategory) => {
+    setOrdererCategory(cat);
+    if (bridges.length > 0) recalculate(bridges, workingDays, cat);
+  }, [bridges, workingDays, recalculate]);
 
   const handleWorkingDaysChange = useCallback((days: number) => {
     setWorkingDays(days);
@@ -166,7 +171,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
                     name="ordererCategory"
                     value={cat}
                     checked={ordererCategory === cat}
-                    onChange={() => setOrdererCategory(cat)}
+                    onChange={() => handleOrdererCategoryChange(cat)}
                   />
                   {cat}
                 </label>

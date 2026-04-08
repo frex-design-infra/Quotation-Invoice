@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import type { MasterSettings, BridgeLengthTier, SpecialReportType } from '../types';
+import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType } from '../types';
 import { DEFAULT_MASTER_SETTINGS } from '../stores/useStore';
+
+const CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
 
 interface Props {
   settings: MasterSettings;
@@ -10,6 +12,7 @@ interface Props {
 export default function MasterSettingsPanel({ settings, onSave }: Props) {
   const [form, setForm] = useState<MasterSettings>(() => JSON.parse(JSON.stringify(settings)));
   const [saved, setSaved] = useState(false);
+  const [tierTab, setTierTab] = useState<OrdererCategory>('国');
 
   function handleSave() {
     onSave(form);
@@ -23,28 +26,43 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
     }
   }
 
-  function updateTier(id: string, field: keyof BridgeLengthTier, value: string | number) {
+  function updateTier(cat: OrdererCategory, id: string, field: keyof BridgeLengthTier, value: string | number) {
     setForm(prev => ({
       ...prev,
-      bridgeLengthTiers: prev.bridgeLengthTiers.map(t =>
-        t.id === id ? { ...t, [field]: value } : t
-      ),
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: prev.bridgeLengthTiers[cat].map(t =>
+          t.id === id ? { ...t, [field]: value } : t
+        ),
+      },
     }));
   }
 
-  function addTier() {
+  function addTier(cat: OrdererCategory) {
     const newTier: BridgeLengthTier = {
-      id: Math.random().toString(36).slice(2, 9),
+      id: `${cat}-${Math.random().toString(36).slice(2, 7)}`,
       label: '新規区分',
       minLength: 0,
       maxLength: 100,
       unitPrice: 0,
     };
-    setForm(prev => ({ ...prev, bridgeLengthTiers: [...prev.bridgeLengthTiers, newTier] }));
+    setForm(prev => ({
+      ...prev,
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: [...prev.bridgeLengthTiers[cat], newTier],
+      },
+    }));
   }
 
-  function removeTier(id: string) {
-    setForm(prev => ({ ...prev, bridgeLengthTiers: prev.bridgeLengthTiers.filter(t => t.id !== id) }));
+  function removeTier(cat: OrdererCategory, id: string) {
+    setForm(prev => ({
+      ...prev,
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: prev.bridgeLengthTiers[cat].filter(t => t.id !== id),
+      },
+    }));
   }
 
   function updateSpecial(id: string, field: keyof SpecialReportType, value: string | number | boolean) {
@@ -148,13 +166,27 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
         </section>
       </div>
 
-      {/* 橋長区分マスタ */}
+      {/* 橋長区分マスタ（カテゴリ別） */}
       <section className="settings-section full-width">
-        <div className="section-header">
-          <h3>橋長区分・単価マスタ</h3>
-          <button onClick={addTier} className="btn-secondary btn-sm">＋ 区分追加</button>
+        <h3>橋長区分・単価マスタ</h3>
+        <p className="section-hint">発注者区分（国/県/市町村）ごとに単価を設定します。minLength ≤ 橋長 &lt; maxLength で判定します。</p>
+
+        {/* カテゴリタブ */}
+        <div className="tier-tabs">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setTierTab(cat)}
+              className={`tier-tab-btn ${tierTab === cat ? 'active' : ''} cat-btn-${cat}`}
+            >
+              {cat}
+            </button>
+          ))}
+          <button onClick={() => addTier(tierTab)} className="btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
+            ＋ 区分追加
+          </button>
         </div>
-        <p className="section-hint">橋長に応じた調書作成の単価を設定します。minLength ≤ 橋長 &lt; maxLength で判定します。</p>
+
         <table className="tier-table">
           <thead>
             <tr>
@@ -166,20 +198,20 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
             </tr>
           </thead>
           <tbody>
-            {form.bridgeLengthTiers.map(tier => (
+            {form.bridgeLengthTiers[tierTab].map(tier => (
               <tr key={tier.id}>
                 <td>
                   <input
                     type="text"
                     value={tier.label}
-                    onChange={e => updateTier(tier.id, 'label', e.target.value)}
+                    onChange={e => updateTier(tierTab, tier.id, 'label', e.target.value)}
                   />
                 </td>
                 <td>
                   <input
                     type="number"
                     value={tier.minLength}
-                    onChange={e => updateTier(tier.id, 'minLength', parseFloat(e.target.value) || 0)}
+                    onChange={e => updateTier(tierTab, tier.id, 'minLength', parseFloat(e.target.value) || 0)}
                   />
                 </td>
                 <td>
@@ -187,18 +219,18 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
                     type="number"
                     value={tier.maxLength === Infinity ? '' : tier.maxLength}
                     placeholder="∞"
-                    onChange={e => updateTier(tier.id, 'maxLength', e.target.value === '' ? Infinity : parseFloat(e.target.value) || 0)}
+                    onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? Infinity : parseFloat(e.target.value) || 0)}
                   />
                 </td>
                 <td>
                   <input
                     type="number"
                     value={tier.unitPrice}
-                    onChange={e => updateTier(tier.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                    onChange={e => updateTier(tierTab, tier.id, 'unitPrice', parseFloat(e.target.value) || 0)}
                   />
                 </td>
                 <td>
-                  <button onClick={() => removeTier(tier.id)} className="btn-danger btn-sm">削除</button>
+                  <button onClick={() => removeTier(tierTab, tier.id)} className="btn-danger btn-sm">削除</button>
                 </td>
               </tr>
             ))}

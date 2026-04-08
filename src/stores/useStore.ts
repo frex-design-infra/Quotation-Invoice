@@ -6,13 +6,29 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   setupPlanningDays: 5,
   inspectionAssistDaysPerBridge: 1.674,  // 72人工 / 43橋 ≈ 1.674
 
-  bridgeLengthTiers: [
-    { id: 't1', label: '15m未満', minLength: 0, maxLength: 15, unitPrice: 85000 },
-    { id: 't2', label: '15m以上100m未満', minLength: 15, maxLength: 100, unitPrice: 153000 },
-    { id: 't3', label: '100m以上200m未満', minLength: 100, maxLength: 200, unitPrice: 255000 },
-    { id: 't4', label: '200m以上300m未満', minLength: 200, maxLength: 300, unitPrice: 289000 },
-    { id: 't5', label: '300m以上', minLength: 300, maxLength: Infinity, unitPrice: 357000 },
-  ],
+  bridgeLengthTiers: {
+    '国': [
+      { id: 'kuni-t1', label: '15m未満',          minLength: 0,   maxLength: 15,       unitPrice: 85000 },
+      { id: 'kuni-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,      unitPrice: 153000 },
+      { id: 'kuni-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,      unitPrice: 255000 },
+      { id: 'kuni-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,      unitPrice: 289000 },
+      { id: 'kuni-t5', label: '300m以上',          minLength: 300, maxLength: Infinity, unitPrice: 357000 },
+    ],
+    '県': [
+      { id: 'ken-t1', label: '15m未満',          minLength: 0,   maxLength: 15,       unitPrice: 85000 },
+      { id: 'ken-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,      unitPrice: 153000 },
+      { id: 'ken-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,      unitPrice: 255000 },
+      { id: 'ken-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,      unitPrice: 289000 },
+      { id: 'ken-t5', label: '300m以上',          minLength: 300, maxLength: Infinity, unitPrice: 357000 },
+    ],
+    '市町村': [
+      { id: 'shi-t1', label: '15m未満',          minLength: 0,   maxLength: 15,       unitPrice: 85000 },
+      { id: 'shi-t2', label: '15m以上100m未満',   minLength: 15,  maxLength: 100,      unitPrice: 153000 },
+      { id: 'shi-t3', label: '100m以上200m未満',  minLength: 100, maxLength: 200,      unitPrice: 255000 },
+      { id: 'shi-t4', label: '200m以上300m未満',  minLength: 200, maxLength: 300,      unitPrice: 289000 },
+      { id: 'shi-t5', label: '300m以上',          minLength: 300, maxLength: Infinity, unitPrice: 357000 },
+    ],
+  },
 
   specialReportTypes: [
     { id: 's1', label: '橋面のみ', unitPrice: 68000, enabled: false },

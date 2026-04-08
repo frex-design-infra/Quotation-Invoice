@@ -29,8 +29,8 @@ export interface MasterSettings {
   // 点検補助 (橋梁1橋あたりの人工数)
   inspectionAssistDaysPerBridge: number;
 
-  // 橋長区分マスタ
-  bridgeLengthTiers: BridgeLengthTier[];
+  // 橋長区分マスタ（発注者区分ごと）
+  bridgeLengthTiers: Record<OrdererCategory, BridgeLengthTier[]>;
 
   // 特殊調書タイプ
   specialReportTypes: SpecialReportType[];
