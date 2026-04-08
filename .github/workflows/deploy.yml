@@ -36,7 +36,7 @@ jobs:
 
       - name: Generate standalone index.html
         run: |
-          python3 - <<'EOF'
+          python3 - <<'PYEOF'
           import glob, os
 
           css_files = glob.glob('dist/assets/*.css')
@@ -44,28 +44,34 @@ jobs:
           css = open(css_files[0]).read() if css_files else ''
           js  = open(js_files[0]).read()
 
-          html = f'''<!doctype html>
-          <html lang="ja">
-            <head>
-              <meta charset="UTF-8" />
-              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-              <title>見積書・請求書管理</title>
-              <style>
-          {css}
-              </style>
-            </head>
-            <body>
-              <div id="root"></div>
-              <script type="module">
-          {js}
-              </script>
-            </body>
-          </html>'''
+          os.makedirs('pages', exist_ok=True)
 
-          with open('index.html', 'w') as f:
-              f.write(html)
-          print(f'Generated index.html ({os.path.getsize("index.html"):,} bytes)')
-          EOF
+          parts = [
+              '<!doctype html>\n',
+              '<html lang="ja">\n',
+              '  <head>\n',
+              '    <meta charset="UTF-8" />\n',
+              '    <meta name="viewport" content="width=device-width, initial-scale=1.0" />\n',
+              '    <title>\u898b\u7a4d\u66f8\u30fb\u8acb\u6c42\u66f8\u7ba1\u7406</title>\n',
+              '    <style>\n',
+              css,
+              '\n    </style>\n',
+              '  </head>\n',
+              '  <body>\n',
+              '    <div id="root"></div>\n',
+              '    <script type="module">\n',
+              js,
+              '\n    </script>\n',
+              '  </body>\n',
+              '</html>\n',
+          ]
+
+          with open('pages/index.html', 'w') as f:
+              f.writelines(parts)
+
+          size = os.path.getsize('pages/index.html')
+          print('Generated pages/index.html (' + str(size) + ' bytes)')
+          PYEOF
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -73,7 +79,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: '.'
+          path: './pages'
 
       - name: Deploy to GitHub Pages
         id: deployment
