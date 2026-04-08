@@ -121,8 +121,10 @@ export function calculateTotals(
 ): { subtotalBeforeMisc: number; miscExpenses: number; discount: number; subtotal: number; tax: number; total: number } {
   const subtotalBeforeMisc = items.reduce((s, i) => s + i.amount, 0);
   const miscExpenses = Math.round(subtotalBeforeMisc * (settings.miscExpensesRate / 100));
-  const discount = settings.discountAmount;
-  const subtotal = subtotalBeforeMisc + miscExpenses - discount;
+  // 諸経費込み合計の百円未満端数を自動値引き
+  const sumWithMisc = subtotalBeforeMisc + miscExpenses;
+  const discount = sumWithMisc % 100;
+  const subtotal = sumWithMisc - discount;
   const tax = Math.round(subtotal * (settings.taxRate / 100));
   const total = subtotal + tax;
   return { subtotalBeforeMisc, miscExpenses, discount, subtotal, tax, total };

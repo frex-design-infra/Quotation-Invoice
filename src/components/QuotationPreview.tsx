@@ -26,12 +26,12 @@ export default function QuotationPreview({ quotation, settings }: Props) {
     amount: totals.miscExpenses,
   };
 
-  const discountItem = settings.discountAmount !== 0 ? {
+  const discountItem = totals.discount !== 0 ? {
     label: 'お取引値引き',
     quantity: 1,
     unit: '式',
-    unitPrice: -settings.discountAmount,
-    amount: -settings.discountAmount,
+    unitPrice: -totals.discount,
+    amount: -totals.discount,
   } : null;
 
   return (

@@ -26,7 +26,6 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   fuelEnabled: true,
 
   miscExpensesRate: 15,
-  discountAmount: 0,
   taxRate: 10,
 
   companyName: '株式会社フレックスデザイン',

@@ -44,9 +44,6 @@ export interface MasterSettings {
   // 諸経費率 (%)
   miscExpensesRate: number;
 
-  // お取引値引き
-  discountAmount: number;
-
   // 消費税率 (%)
   taxRate: number;
 

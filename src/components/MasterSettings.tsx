@@ -102,8 +102,11 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
         <section className="settings-section">
           <h3>諸経費・税</h3>
           {numInput('諸経費率', form.miscExpensesRate, v => setForm(p => ({ ...p, miscExpensesRate: v })), '%')}
-          {numInput('お取引値引き', form.discountAmount, v => setForm(p => ({ ...p, discountAmount: v })), '円')}
           {numInput('消費税率', form.taxRate, v => setForm(p => ({ ...p, taxRate: v })), '%')}
+          <div className="settings-row">
+            <label>お取引値引き</label>
+            <span style={{ fontSize: '12px', color: '#888' }}>（小計＋諸経費）の百円未満端数を自動計上</span>
+          </div>
         </section>
 
         {/* 高所作業車燃料 */}
