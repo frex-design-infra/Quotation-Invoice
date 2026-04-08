@@ -37,8 +37,13 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
 
   fuelHoursPerDay: 5,
   fuelLitersPerHour: 5,
-  fuelUnitPrice: 155,
+  fuelUnitPrice: 160,
   fuelEnabled: true,
+
+  btFuelHoursPerDay: 5,
+  btFuelLitersPerHour: 5,
+  btFuelUnitPrice: 160,
+  btFuelEnabled: true,
 
   miscExpensesRate: 15,
   taxRate: 10,

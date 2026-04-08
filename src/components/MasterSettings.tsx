@@ -126,9 +126,28 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           </div>
         </section>
 
-        {/* 高所作業車燃料 */}
+        {/* 橋梁点検車(BT-200)燃料 */}
         <section className="settings-section">
-          <h3>高所作業車燃料</h3>
+          <h3>橋梁点検車(BT-200)燃料</h3>
+          <div className="settings-row">
+            <label>燃料計算</label>
+            <label className="toggle-label">
+              <input
+                type="checkbox"
+                checked={form.btFuelEnabled}
+                onChange={e => setForm(p => ({ ...p, btFuelEnabled: e.target.checked }))}
+              />
+              <span>有効</span>
+            </label>
+          </div>
+          {numInput('稼働時間/日', form.btFuelHoursPerDay, v => setForm(p => ({ ...p, btFuelHoursPerDay: v })), 'h')}
+          {numInput('燃料消費量', form.btFuelLitersPerHour, v => setForm(p => ({ ...p, btFuelLitersPerHour: v })), 'L/h')}
+          {numInput('燃料単価', form.btFuelUnitPrice, v => setForm(p => ({ ...p, btFuelUnitPrice: v })), '円/L')}
+        </section>
+
+        {/* 高所作業車(12m)燃料 */}
+        <section className="settings-section">
+          <h3>高所作業車(12m)燃料</h3>
           <div className="settings-row">
             <label>燃料計算</label>
             <label className="toggle-label">

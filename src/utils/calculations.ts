@@ -2,7 +2,9 @@ import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, Quo
 
 export interface WorkParams {
   surveyDays: number;
-  inspectionDays: number;
+  walkingDays: number;       // 橋梁点検（徒歩・梯子）
+  btDays: number;            // 橋梁点検（橋梁点検車 BT-200）
+  ewpDays: number;           // 橋梁点検（高所作業車 12m）
   summaryDays: number;
   kokusokenEnabled: boolean;
   mextEnabled: boolean;
@@ -37,7 +39,7 @@ export function calculateItems(
   params: WorkParams,
   ordererCategory: OrdererCategory,
 ): QuotationItem[] {
-  const { surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled } = params;
+  const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled } = params;
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
   const totalBridges = bridges.length;
@@ -69,7 +71,7 @@ export function calculateItems(
     });
   }
 
-  // 3. 現地踏査まとめ（日数 = 1人工、0日の場合は非表示）
+  // 3. 現地踏査まとめ（日数 = 1人工）
   if (summaryDays > 0) {
     items.push({
       id: genId(),
@@ -86,12 +88,40 @@ export function calculateItems(
   items.push(separator());
 
   // ── 点検グループ ────────────────────────────────
-  // 4. 橋梁点検（日数 × 2人工）
-  if (inspectionDays > 0) {
-    const qty = inspectionDays * 2;
+  // 4a. 橋梁点検（徒歩・梯子）
+  if (walkingDays > 0) {
+    const qty = walkingDays * 2;
     items.push({
       id: genId(),
-      label: '橋梁点検',
+      label: '橋梁点検 (徒歩・梯子)',
+      quantity: qty,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: qty * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 4b. 橋梁点検（橋梁点検車 BT-200）
+  if (btDays > 0) {
+    const qty = btDays * 2;
+    items.push({
+      id: genId(),
+      label: '橋梁点検 (橋梁点検車 BT-200)',
+      quantity: qty,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: qty * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 4c. 橋梁点検（高所作業車 12m）
+  if (ewpDays > 0) {
+    const qty = ewpDays * 2;
+    items.push({
+      id: genId(),
+      label: '橋梁点検 (高所作業車 12m)',
       quantity: qty,
       unit: '人工',
       unitPrice: settings.laborUnitPrice,
@@ -186,10 +216,26 @@ export function calculateItems(
     });
   }
 
-  // 8. 高所作業車燃料（点検日数ベース）
-  if (settings.fuelEnabled && inspectionDays > 0) {
-    const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * inspectionDays;
-    const label = `高所作業車燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;
+  // ── 燃料グループ ──────────────────────────────────
+  // 8. 橋梁点検車(BT-200)燃料
+  if (settings.btFuelEnabled && btDays > 0) {
+    const liters = settings.btFuelHoursPerDay * settings.btFuelLitersPerHour * btDays;
+    const label = `橋梁点検車(BT-200)燃料 ${settings.btFuelHoursPerDay}h/1日稼働時間×${settings.btFuelLitersPerHour}L/h×日`;
+    items.push({
+      id: genId(),
+      label,
+      quantity: liters,
+      unit: 'L',
+      unitPrice: settings.btFuelUnitPrice,
+      amount: liters * settings.btFuelUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 9. 橋梁点検(高所作業車 12m)燃料
+  if (settings.fuelEnabled && ewpDays > 0) {
+    const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * ewpDays;
+    const label = `橋梁点検(高所作業車 12m)燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;
     items.push({
       id: genId(),
       label,

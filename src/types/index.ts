@@ -33,10 +33,16 @@ export interface MasterSettings {
   specialReportTypes: SpecialReportType[];
 
   // 高所作業車燃料
-  fuelHoursPerDay: number;           // 稼働時間/日 (例: 5h)
-  fuelLitersPerHour: number;         // L/h (例: 5L)
-  fuelUnitPrice: number;             // 単価 (例: 155円/L)
+  fuelHoursPerDay: number;           // 稼働時間/日
+  fuelLitersPerHour: number;         // L/h
+  fuelUnitPrice: number;             // 単価（円/L）
   fuelEnabled: boolean;
+
+  // 橋梁点検車（BT-200）燃料
+  btFuelHoursPerDay: number;
+  btFuelLitersPerHour: number;
+  btFuelUnitPrice: number;
+  btFuelEnabled: boolean;
 
   // 諸経費率 (%)
   miscExpensesRate: number;
@@ -83,7 +89,9 @@ export interface Quotation {
   clientName: string;
   projectName: string;
   surveyDays: number;          // 現地踏査日数
-  inspectionDays: number;      // 点検日数
+  walkingDays: number;         // 橋梁点検（徒歩・梯子）日数
+  btDays: number;              // 橋梁点検（橋梁点検車 BT-200）日数
+  ewpDays: number;             // 橋梁点検（高所作業車 12m）日数
   summaryDays: number;         // 現地踏査まとめ日数
   kokusokenEnabled: boolean;   // 国総研様式
   mextEnabled: boolean;        // 国交省様式

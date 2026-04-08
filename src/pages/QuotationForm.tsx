@@ -36,7 +36,9 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [projectName, setProjectName] = useState(initial?.projectName ?? '');
   const [bridges, setBridges] = useState<BridgeData[]>(initial?.bridges ?? []);
   const [surveyDays, setSurveyDays] = useState(initial?.surveyDays ?? 0);
-  const [inspectionDays, setInspectionDays] = useState(initial?.inspectionDays ?? 0);
+  const [walkingDays, setWalkingDays] = useState(initial?.walkingDays ?? 0);
+  const [btDays, setBtDays] = useState(initial?.btDays ?? 0);
+  const [ewpDays, setEwpDays] = useState(initial?.ewpDays ?? 0);
   const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
@@ -48,12 +50,14 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   // 明細の再計算
   const buildParams = useCallback((overrides?: Partial<WorkParams>): WorkParams => ({
     surveyDays,
-    inspectionDays,
+    walkingDays,
+    btDays,
+    ewpDays,
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
     ...overrides,
-  }), [surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled]);
+  }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -123,7 +127,9 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     clientName,
     projectName,
     surveyDays,
-    inspectionDays,
+    walkingDays,
+    btDays,
+    ewpDays,
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
@@ -275,18 +281,42 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </div>
           </div>
           <div className="field-row">
-            <label>点検日数</label>
+            <label>点検（徒歩・梯子）</label>
             <div className="input-with-suffix">
               <input
                 type="number"
                 min="0"
-                value={inspectionDays}
-                onChange={e => setInspectionDays(parseInt(e.target.value) || 0)}
+                value={walkingDays}
+                onChange={e => setWalkingDays(parseInt(e.target.value) || 0)}
               />
-              <span className="suffix">日 → {inspectionDays * 2} 人工</span>
+              <span className="suffix">日 → {walkingDays * 2} 人工</span>
             </div>
           </div>
-          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は点検日数ベース。</p>
+          <div className="field-row">
+            <label>点検（BT-200）</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={btDays}
+                onChange={e => setBtDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {btDays * 2} 人工</span>
+            </div>
+          </div>
+          <div className="field-row">
+            <label>点検（高所作業車）</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={ewpDays}
+                onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {ewpDays * 2} 人工</span>
+            </div>
+          </div>
+          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
         </section>
 
         {/* 内業設定 */}
