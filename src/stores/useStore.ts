@@ -1,18 +1,33 @@
 import { useState, useCallback } from 'react';
-import type { MasterSettings, Quotation } from '../types';
+import type { MasterSettings, Quotation, OrdererCategory } from '../types';
 
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   laborUnitPrice: 34000,
   setupPlanningDays: 5,
-  inspectionAssistDaysPerBridge: 1.674,  // 72人工 / 43橋 ≈ 1.674
 
-  bridgeLengthTiers: [
-    { id: 't1', label: '15m未満', minLength: 0, maxLength: 15, unitPrice: 85000 },
-    { id: 't2', label: '15m以上100m未満', minLength: 15, maxLength: 100, unitPrice: 153000 },
-    { id: 't3', label: '100m以上200m未満', minLength: 100, maxLength: 200, unitPrice: 255000 },
-    { id: 't4', label: '200m以上300m未満', minLength: 200, maxLength: 300, unitPrice: 289000 },
-    { id: 't5', label: '300m以上', minLength: 300, maxLength: Infinity, unitPrice: 357000 },
-  ],
+  bridgeLengthTiers: {
+    '国': [
+      { id: 'k1', label: '15m未満', minLength: 0, maxLength: 15, reportLaborDays: 2.5 },
+      { id: 'k2', label: '15m以上100m未満', minLength: 15, maxLength: 100, reportLaborDays: 4.5 },
+      { id: 'k3', label: '100m以上200m未満', minLength: 100, maxLength: 200, reportLaborDays: 7.5 },
+      { id: 'k4', label: '200m以上300m未満', minLength: 200, maxLength: 300, reportLaborDays: 8.5 },
+      { id: 'k5', label: '300m以上', minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
+    ],
+    '県': [
+      { id: 'p1', label: '15m未満', minLength: 0, maxLength: 15, reportLaborDays: 2.5 },
+      { id: 'p2', label: '15m以上100m未満', minLength: 15, maxLength: 100, reportLaborDays: 4.5 },
+      { id: 'p3', label: '100m以上200m未満', minLength: 100, maxLength: 200, reportLaborDays: 7.5 },
+      { id: 'p4', label: '200m以上300m未満', minLength: 200, maxLength: 300, reportLaborDays: 8.5 },
+      { id: 'p5', label: '300m以上', minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
+    ],
+    '市町村': [
+      { id: 'm1', label: '15m未満', minLength: 0, maxLength: 15, reportLaborDays: 2.5 },
+      { id: 'm2', label: '15m以上100m未満', minLength: 15, maxLength: 100, reportLaborDays: 4.5 },
+      { id: 'm3', label: '100m以上200m未満', minLength: 100, maxLength: 200, reportLaborDays: 7.5 },
+      { id: 'm4', label: '200m以上300m未満', minLength: 200, maxLength: 300, reportLaborDays: 8.5 },
+      { id: 'm5', label: '300m以上', minLength: 300, maxLength: 999999, reportLaborDays: 10.5 },
+    ],
+  },
 
   specialReportTypes: [
     { id: 's1', label: '橋面のみ', unitPrice: 68000, enabled: false },
@@ -26,7 +41,6 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   fuelEnabled: true,
 
   miscExpensesRate: 15,
-  discountAmount: 0,
   taxRate: 10,
 
   companyName: '株式会社フレックスデザイン',
@@ -44,9 +58,39 @@ const STORAGE_KEY_QUOTATIONS = 'quotation_list';
 function loadSettings(): MasterSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
-    if (raw) return { ...DEFAULT_MASTER_SETTINGS, ...JSON.parse(raw) };
-  } catch {}
-  return DEFAULT_MASTER_SETTINGS;
+    if (!raw) return structuredClone(DEFAULT_MASTER_SETTINGS);
+    const parsed = JSON.parse(raw);
+
+    // Migration: old array-format bridgeLengthTiers → delete and use default
+    if (Array.isArray(parsed.bridgeLengthTiers)) {
+      delete parsed.bridgeLengthTiers;
+    }
+
+    // Migration: per-category tiers with unitPrice instead of reportLaborDays
+    if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
+      const cats: OrdererCategory[] = ['国', '県', '市町村'];
+      for (const cat of cats) {
+        const tiers = parsed.bridgeLengthTiers[cat];
+        if (Array.isArray(tiers)) {
+          parsed.bridgeLengthTiers[cat] = tiers.map((t: Record<string, unknown>) => {
+            if (typeof t.reportLaborDays === 'undefined' && typeof t.unitPrice === 'number') {
+              const laborUnitPrice = parsed.laborUnitPrice ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
+              return { ...t, reportLaborDays: laborUnitPrice > 0 ? Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 : 0 };
+            }
+            return t;
+          });
+        }
+      }
+    }
+
+    const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
+    // Remove legacy fields
+    delete (merged as Record<string, unknown>).discountAmount;
+    delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
+    return merged;
+  } catch {
+    return structuredClone(DEFAULT_MASTER_SETTINGS);
+  }
 }
 
 function loadQuotations(): Quotation[] {

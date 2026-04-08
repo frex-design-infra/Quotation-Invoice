@@ -4,10 +4,10 @@ export type OrdererCategory = '国' | '県' | '市町村';
 // 橋長区分マスタ
 export interface BridgeLengthTier {
   id: string;
-  label: string;         // 例: "15m未満"
-  minLength: number;     // 以上 (0 = 制限なし)
-  maxLength: number;     // 未満 (Infinity = 制限なし)
-  unitPrice: number;     // 単価
+  label: string;            // 例: "15m未満"
+  minLength: number;        // 以上
+  maxLength: number;        // 未満 (999999 = 上限なし)
+  reportLaborDays: number;  // 調書作成 人工数（単価 = 調書人工 × 人工単価）
 }
 
 // 特殊調書タイプ
@@ -26,11 +26,8 @@ export interface MasterSettings {
   // 準備計画
   setupPlanningDays: number;         // 人工数
 
-  // 点検補助 (橋梁1橋あたりの人工数)
-  inspectionAssistDaysPerBridge: number;
-
-  // 橋長区分マスタ
-  bridgeLengthTiers: BridgeLengthTier[];
+  // 橋長区分マスタ（発注者区分ごと）
+  bridgeLengthTiers: Record<OrdererCategory, BridgeLengthTier[]>;
 
   // 特殊調書タイプ
   specialReportTypes: SpecialReportType[];
@@ -43,9 +40,6 @@ export interface MasterSettings {
 
   // 諸経費率 (%)
   miscExpensesRate: number;
-
-  // お取引値引き
-  discountAmount: number;
 
   // 消費税率 (%)
   taxRate: number;
@@ -76,6 +70,7 @@ export interface QuotationItem {
   unitPrice: number;
   amount: number;
   isAutoCalculated: boolean;  // CSV/マスタから自動計算された行
+  isSeparator?: boolean;      // 空行（セクション区切り）
   note?: string;
 }
 
@@ -87,6 +82,11 @@ export interface Quotation {
   ordererCategory: OrdererCategory;
   clientName: string;
   projectName: string;
+  surveyDays: number;          // 現地踏査日数
+  inspectionDays: number;      // 点検日数
+  summaryDays: number;         // 現地踏査まとめ日数
+  kokusokenEnabled: boolean;   // 国総研様式
+  mextEnabled: boolean;        // 国交省様式
   bridges: BridgeData[];
   items: QuotationItem[];
   subtotal: number;

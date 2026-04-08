@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import type { MasterSettings, BridgeLengthTier, SpecialReportType } from '../types';
+import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType } from '../types';
 import { DEFAULT_MASTER_SETTINGS } from '../stores/useStore';
+
+const CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
 
 interface Props {
   settings: MasterSettings;
@@ -8,8 +10,9 @@ interface Props {
 }
 
 export default function MasterSettingsPanel({ settings, onSave }: Props) {
-  const [form, setForm] = useState<MasterSettings>(() => JSON.parse(JSON.stringify(settings)));
+  const [form, setForm] = useState<MasterSettings>(() => structuredClone(settings));
   const [saved, setSaved] = useState(false);
+  const [tierTab, setTierTab] = useState<OrdererCategory>('国');
 
   function handleSave() {
     onSave(form);
@@ -19,32 +22,47 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
 
   function handleReset() {
     if (confirm('マスタ設定を初期値にリセットしますか？')) {
-      setForm(JSON.parse(JSON.stringify(DEFAULT_MASTER_SETTINGS)));
+      setForm(structuredClone(DEFAULT_MASTER_SETTINGS));
     }
   }
 
-  function updateTier(id: string, field: keyof BridgeLengthTier, value: string | number) {
+  function updateTier(cat: OrdererCategory, id: string, field: keyof BridgeLengthTier, value: string | number) {
     setForm(prev => ({
       ...prev,
-      bridgeLengthTiers: prev.bridgeLengthTiers.map(t =>
-        t.id === id ? { ...t, [field]: value } : t
-      ),
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: prev.bridgeLengthTiers[cat].map(t =>
+          t.id === id ? { ...t, [field]: value } : t
+        ),
+      },
     }));
   }
 
-  function addTier() {
+  function addTier(cat: OrdererCategory) {
     const newTier: BridgeLengthTier = {
-      id: Math.random().toString(36).slice(2, 9),
+      id: `${cat}-${Math.random().toString(36).slice(2, 7)}`,
       label: '新規区分',
       minLength: 0,
       maxLength: 100,
-      unitPrice: 0,
+      reportLaborDays: 0,
     };
-    setForm(prev => ({ ...prev, bridgeLengthTiers: [...prev.bridgeLengthTiers, newTier] }));
+    setForm(prev => ({
+      ...prev,
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: [...prev.bridgeLengthTiers[cat], newTier],
+      },
+    }));
   }
 
-  function removeTier(id: string) {
-    setForm(prev => ({ ...prev, bridgeLengthTiers: prev.bridgeLengthTiers.filter(t => t.id !== id) }));
+  function removeTier(cat: OrdererCategory, id: string) {
+    setForm(prev => ({
+      ...prev,
+      bridgeLengthTiers: {
+        ...prev.bridgeLengthTiers,
+        [cat]: prev.bridgeLengthTiers[cat].filter(t => t.id !== id),
+      },
+    }));
   }
 
   function updateSpecial(id: string, field: keyof SpecialReportType, value: string | number | boolean) {
@@ -95,15 +113,17 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           <h3>人工・労務単価</h3>
           {numInput('人工単価', form.laborUnitPrice, v => setForm(p => ({ ...p, laborUnitPrice: v })), '円/人工')}
           {numInput('準備計画 人工数', form.setupPlanningDays, v => setForm(p => ({ ...p, setupPlanningDays: v })), '人工')}
-          {numInput('点検補助 人工数/橋', form.inspectionAssistDaysPerBridge, v => setForm(p => ({ ...p, inspectionAssistDaysPerBridge: v })), '人工/橋')}
         </section>
 
         {/* 諸経費・税 */}
         <section className="settings-section">
           <h3>諸経費・税</h3>
           {numInput('諸経費率', form.miscExpensesRate, v => setForm(p => ({ ...p, miscExpensesRate: v })), '%')}
-          {numInput('お取引値引き', form.discountAmount, v => setForm(p => ({ ...p, discountAmount: v })), '円')}
           {numInput('消費税率', form.taxRate, v => setForm(p => ({ ...p, taxRate: v })), '%')}
+          <div className="settings-row">
+            <label>お取引値引き</label>
+            <span style={{ fontSize: '12px', color: '#888' }}>（小計＋諸経費）の百円未満端数を自動計上</span>
+          </div>
         </section>
 
         {/* 高所作業車燃料 */}
@@ -145,62 +165,87 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
         </section>
       </div>
 
-      {/* 橋長区分マスタ */}
+      {/* 橋長区分マスタ（カテゴリ別） */}
       <section className="settings-section full-width">
-        <div className="section-header">
-          <h3>橋長区分・単価マスタ</h3>
-          <button onClick={addTier} className="btn-secondary btn-sm">＋ 区分追加</button>
+        <h3>橋長区分・単価マスタ</h3>
+        <p className="section-hint">発注者区分（国/県/市町村）ごとに単価を設定します。minLength ≤ 橋長 &lt; maxLength で判定します。</p>
+
+        {/* カテゴリタブ */}
+        <div className="tier-tabs">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setTierTab(cat)}
+              className={`tier-tab-btn ${tierTab === cat ? 'active' : ''} cat-btn-${cat}`}
+            >
+              {cat}
+            </button>
+          ))}
+          <button onClick={() => addTier(tierTab)} className="btn-secondary btn-sm" style={{ marginLeft: 'auto' }}>
+            ＋ 区分追加
+          </button>
         </div>
-        <p className="section-hint">橋長に応じた調書作成の単価を設定します。minLength ≤ 橋長 &lt; maxLength で判定します。</p>
+
         <table className="tier-table">
           <thead>
             <tr>
               <th>表示ラベル</th>
               <th>最小橋長 (m以上)</th>
               <th>最大橋長 (m未満)</th>
-              <th>単価 (円/橋)</th>
+              <th>調書人工数</th>
+              <th>単価（自動計算）</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            {form.bridgeLengthTiers.map(tier => (
-              <tr key={tier.id}>
-                <td>
-                  <input
-                    type="text"
-                    value={tier.label}
-                    onChange={e => updateTier(tier.id, 'label', e.target.value)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.minLength}
-                    onChange={e => updateTier(tier.id, 'minLength', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.maxLength === Infinity ? '' : tier.maxLength}
-                    placeholder="∞"
-                    onChange={e => updateTier(tier.id, 'maxLength', e.target.value === '' ? Infinity : parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <input
-                    type="number"
-                    value={tier.unitPrice}
-                    onChange={e => updateTier(tier.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td>
-                  <button onClick={() => removeTier(tier.id)} className="btn-danger btn-sm">削除</button>
-                </td>
-              </tr>
-            ))}
+            {form.bridgeLengthTiers[tierTab].map(tier => {
+              const unitPrice = Math.round(tier.reportLaborDays * form.laborUnitPrice);
+              return (
+                <tr key={tier.id}>
+                  <td>
+                    <input
+                      type="text"
+                      value={tier.label}
+                      onChange={e => updateTier(tierTab, tier.id, 'label', e.target.value)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={tier.minLength}
+                      onChange={e => updateTier(tierTab, tier.id, 'minLength', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      value={tier.maxLength >= 999999 ? '' : tier.maxLength}
+                      placeholder="∞（上限なし）"
+                      onChange={e => updateTier(tierTab, tier.id, 'maxLength', e.target.value === '' ? 999999 : parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td>
+                    <input
+                      type="number"
+                      step="0.1"
+                      value={tier.reportLaborDays}
+                      onChange={e => updateTier(tierTab, tier.id, 'reportLaborDays', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="computed-price">
+                    ¥ {unitPrice.toLocaleString('ja-JP')}
+                  </td>
+                  <td>
+                    <button onClick={() => removeTier(tierTab, tier.id)} className="btn-danger btn-sm">削除</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
+        <p className="section-hint" style={{ marginTop: '8px' }}>
+          単価 = 調書人工数 × 人工単価（¥{form.laborUnitPrice.toLocaleString('ja-JP')}）
+        </p>
       </section>
 
       {/* 特殊調書タイプ */}

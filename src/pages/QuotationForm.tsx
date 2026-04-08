@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback } from 'react';
 import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
-import { calculateItems, calculateTotals, formatCurrency } from '../utils/calculations';
+import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
 
@@ -35,17 +35,36 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   const [clientName, setClientName] = useState(initial?.clientName ?? '');
   const [projectName, setProjectName] = useState(initial?.projectName ?? '');
   const [bridges, setBridges] = useState<BridgeData[]>(initial?.bridges ?? []);
-  const [workingDays, setWorkingDays] = useState(0);
+  const [surveyDays, setSurveyDays] = useState(initial?.surveyDays ?? 0);
+  const [inspectionDays, setInspectionDays] = useState(initial?.inspectionDays ?? 0);
+  const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
+  const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
+  const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // 橋梁データが変わったら自動計算
-  const recalculate = useCallback((bridgeList: BridgeData[], days: number) => {
-    const calculated = calculateItems(bridgeList, settings, days);
+  // 明細の再計算
+  const buildParams = useCallback((overrides?: Partial<WorkParams>): WorkParams => ({
+    surveyDays,
+    inspectionDays,
+    summaryDays,
+    kokusokenEnabled,
+    mextEnabled,
+    ...overrides,
+  }), [surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled]);
+
+  const recalculate = useCallback((
+    bridgeList: BridgeData[],
+    paramOverrides?: Partial<WorkParams>,
+    category?: OrdererCategory,
+  ) => {
+    const calculated = calculateItems(
+      bridgeList, settings, buildParams(paramOverrides), category ?? ordererCategory
+    );
     setItems(calculated);
-  }, [settings]);
+  }, [settings, ordererCategory, buildParams]);
 
   const handleCSVUpload = useCallback(async (file: File) => {
     setCsvFileName(file.name);
@@ -53,18 +72,18 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     setCsvErrors(errors);
     if (data.length > 0) {
       setBridges(data);
-      recalculate(data, workingDays);
+      recalculate(data);
     }
-  }, [workingDays, recalculate]);
+  }, [recalculate]);
 
-  const handleWorkingDaysChange = useCallback((days: number) => {
-    setWorkingDays(days);
-    recalculate(bridges, days);
+  const handleOrdererCategoryChange = useCallback((cat: OrdererCategory) => {
+    setOrdererCategory(cat);
+    recalculate(bridges, undefined, cat);
   }, [bridges, recalculate]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges, workingDays);
-  }, [bridges, workingDays, recalculate]);
+    recalculate(bridges);
+  }, [bridges, recalculate]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -103,6 +122,11 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     ordererCategory,
     clientName,
     projectName,
+    surveyDays,
+    inspectionDays,
+    summaryDays,
+    kokusokenEnabled,
+    mextEnabled,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -166,7 +190,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
                     name="ordererCategory"
                     value={cat}
                     checked={ordererCategory === cat}
-                    onChange={() => setOrdererCategory(cat)}
+                    onChange={() => handleOrdererCategoryChange(cat)}
                   />
                   {cat}
                 </label>
@@ -193,81 +217,133 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
           </div>
         </section>
 
-        {/* CSVインポート */}
-        <section className="form-section">
+        {/* CSVインポート（右寄せ） */}
+        <section className="form-section csv-section csv-compact">
           <h3>橋梁データ（CSV読込）</h3>
-          <p className="hint">CSVに「橋長」列（m単位）を含めてください。「橋梁名」列も使用可能です。</p>
 
-          <div className="csv-upload-area"
-            onClick={() => fileInputRef.current?.click()}
-            onDragOver={e => e.preventDefault()}
-            onDrop={e => {
-              e.preventDefault();
-              const file = e.dataTransfer.files[0];
-              if (file) handleCSVUpload(file);
-            }}
-          >
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".csv"
-              style={{ display: 'none' }}
-              onChange={e => {
-                const file = e.target.files?.[0];
+          <div className="csv-row">
+            <div className="csv-upload-area-compact"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={e => e.preventDefault()}
+              onDrop={e => {
+                e.preventDefault();
+                const file = e.dataTransfer.files[0];
                 if (file) handleCSVUpload(file);
               }}
-            />
-            <div className="csv-upload-icon">📂</div>
-            <div>{csvFileName || 'CSVファイルをドロップ、またはクリックして選択'}</div>
+            >
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".csv"
+                style={{ display: 'none' }}
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (file) handleCSVUpload(file);
+                }}
+              />
+              <span className="csv-icon">📂</span>
+              <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+            </div>
+            {bridges.length > 0 && (
+              <span className="bridge-badge">{bridges.length} 橋</span>
+            )}
           </div>
 
           {csvErrors.length > 0 && (
-            <div className="error-box">
-              {csvErrors.map((e, i) => <div key={i}>{e}</div>)}
-            </div>
+            <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
           )}
 
-          {bridges.length > 0 && (
-            <div className="bridge-summary">
-              <div className="bridge-count">橋梁数: <strong>{bridges.length} 橋</strong></div>
-              <div className="bridge-table-wrapper">
-                <table className="bridge-table">
-                  <thead>
-                    <tr><th>橋梁名</th><th>橋長 (m)</th></tr>
-                  </thead>
-                  <tbody>
-                    {bridges.slice(0, 5).map((b, i) => (
-                      <tr key={i}><td>{b.name}</td><td>{b.length}</td></tr>
-                    ))}
-                    {bridges.length > 5 && (
-                      <tr><td colSpan={2} style={{ textAlign: 'center', color: '#888' }}>... 他 {bridges.length - 5} 橋</td></tr>
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          )}
+          <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
         </section>
+      </div>
 
+      {/* 現場設定 ＋ 内業設定 */}
+      <div className="form-grid">
         {/* 現場設定 */}
         <section className="form-section">
           <h3>現場設定</h3>
           <div className="field-row">
-            <label>現場稼働日数</label>
+            <label>現地踏査日数</label>
             <div className="input-with-suffix">
               <input
                 type="number"
-                value={workingDays}
-                onChange={e => handleWorkingDaysChange(parseInt(e.target.value) || 0)}
+                min="0"
+                value={surveyDays}
+                onChange={e => setSurveyDays(parseInt(e.target.value) || 0)}
               />
-              <span className="suffix">日（燃料計算用）</span>
+              <span className="suffix">日 → {surveyDays * 2} 人工</span>
             </div>
           </div>
-          <div className="recalc-area">
+          <div className="field-row">
+            <label>点検日数</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={inspectionDays}
+                onChange={e => setInspectionDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {inspectionDays * 2} 人工</span>
+            </div>
+          </div>
+          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は点検日数ベース。</p>
+        </section>
+
+        {/* 内業設定 */}
+        <section className="form-section">
+          <h3>内業設定</h3>
+          <div className="field-row">
+            <label>現地踏査まとめ</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={summaryDays}
+                onChange={e => setSummaryDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {summaryDays} 人工{summaryDays === 0 ? '（非表示）' : ''}</span>
+            </div>
+          </div>
+
+          <div className="field-row" style={{ marginTop: '12px' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={kokusokenEnabled}
+                onChange={e => setKokusokenEnabled(e.target.checked)}
+              />
+              <span>国総研様式</span>
+            </label>
+          </div>
+          {kokusokenEnabled && (
+            <div className="office-item-preview">
+              国総研様式作成(新様式含む) &nbsp;
+              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
+            </div>
+          )}
+
+          <div className="field-row" style={{ marginTop: '8px' }}>
+            <label className="checkbox-label">
+              <input
+                type="checkbox"
+                checked={mextEnabled}
+                onChange={e => setMextEnabled(e.target.checked)}
+              />
+              <span>国交省様式</span>
+            </label>
+          </div>
+          {mextEnabled && (
+            <div className="office-item-preview">
+              国交省様式作成 &nbsp;
+              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
+            </div>
+          )}
+
+          <div className="recalc-area" style={{ marginTop: '16px' }}>
             <button onClick={handleRecalculate} className="btn-outline">
               🔄 明細を再計算
             </button>
-            <span className="hint">※ 設定変更後に再計算ボタンを押してください</span>
+            <span className="hint">※ 入力後に再計算ボタンを押してください</span>
           </div>
         </section>
       </div>
@@ -292,47 +368,56 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </tr>
           </thead>
           <tbody>
-            {items.map(item => (
-              <tr key={item.id} className={item.isAutoCalculated ? 'auto-row' : ''}>
-                <td className="col-auto">
-                  {item.isAutoCalculated ? <span className="auto-badge">自動</span> : ''}
-                </td>
-                <td className="col-name">
-                  <input
-                    type="text"
-                    value={item.label}
-                    onChange={e => updateItem(item.id, 'label', e.target.value)}
-                  />
-                </td>
-                <td className="col-qty">
-                  <input
-                    type="number"
-                    value={item.quantity}
-                    onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td className="col-unit">
-                  <input
-                    type="text"
-                    value={item.unit}
-                    onChange={e => updateItem(item.id, 'unit', e.target.value)}
-                  />
-                </td>
-                <td className="col-price">
-                  <input
-                    type="number"
-                    value={item.unitPrice}
-                    onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
-                  />
-                </td>
-                <td className="col-amount amount-cell">
-                  {formatCurrency(item.amount)}
-                </td>
-                <td className="col-del">
-                  <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
-                </td>
-              </tr>
-            ))}
+            {items.map(item => {
+              if (item.isSeparator) {
+                return (
+                  <tr key={item.id} className="separator-row">
+                    <td colSpan={7}></td>
+                  </tr>
+                );
+              }
+              return (
+                <tr key={item.id} className={item.isAutoCalculated ? 'auto-row' : ''}>
+                  <td className="col-auto">
+                    {item.isAutoCalculated ? <span className="auto-badge">自動</span> : ''}
+                  </td>
+                  <td className="col-name">
+                    <input
+                      type="text"
+                      value={item.label}
+                      onChange={e => updateItem(item.id, 'label', e.target.value)}
+                    />
+                  </td>
+                  <td className="col-qty">
+                    <input
+                      type="number"
+                      value={item.quantity}
+                      onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="col-unit">
+                    <input
+                      type="text"
+                      value={item.unit}
+                      onChange={e => updateItem(item.id, 'unit', e.target.value)}
+                    />
+                  </td>
+                  <td className="col-price">
+                    <input
+                      type="number"
+                      value={item.unitPrice}
+                      onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                    />
+                  </td>
+                  <td className="col-amount amount-cell">
+                    {formatCurrency(item.amount)}
+                  </td>
+                  <td className="col-del">
+                    <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
 

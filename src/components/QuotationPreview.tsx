@@ -26,12 +26,12 @@ export default function QuotationPreview({ quotation, settings }: Props) {
     amount: totals.miscExpenses,
   };
 
-  const discountItem = settings.discountAmount !== 0 ? {
+  const discountItem = totals.discount !== 0 ? {
     label: 'お取引値引き',
     quantity: 1,
     unit: '式',
-    unitPrice: -settings.discountAmount,
-    amount: -settings.discountAmount,
+    unitPrice: -totals.discount,
+    amount: -totals.discount,
   } : null;
 
   return (
@@ -90,14 +90,19 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           </tr>
         </thead>
         <tbody>
-          {quotation.items.map(item => (
-            <tr key={item.id}>
-              <td className="col-name">{item.label}</td>
-              <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
-              <td className="col-price">{formatCurrency(item.unitPrice)}</td>
-              <td className="col-amount">{formatCurrency(item.amount)}</td>
-            </tr>
-          ))}
+          {quotation.items.map(item => {
+            if (item.isSeparator) {
+              return <tr key={item.id} className="spacer-row"><td colSpan={4}></td></tr>;
+            }
+            return (
+              <tr key={item.id}>
+                <td className="col-name">{item.label}</td>
+                <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
+                <td className="col-price">{formatCurrency(item.unitPrice)}</td>
+                <td className="col-amount">{formatCurrency(item.amount)}</td>
+              </tr>
+            );
+          })}
 
           {/* 空行（諸経費前） */}
           <tr className="spacer-row"><td colSpan={4}></td></tr>
