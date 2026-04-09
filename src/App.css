@@ -889,9 +889,10 @@ button {
   .items-table { font-size: 7.5pt; }
   .items-table th { font-size: 7.5pt; padding: 3px 6px; }
   .items-table td { padding: 2px 6px; }
-  .items-table .col-qty   { text-align: right; }
-  .items-table .col-price { text-align: right; }
-  .items-table .col-amount { text-align: right; }
+  .items-table td.col-qty   { text-align: right; }
+  .items-table td.col-price { text-align: right; }
+  .items-table td.col-amount { text-align: right; }
+  .items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
   .spacer-row td { height: 4px; }
   .quotation-footer-comment { line-height: 1.4; }
 
