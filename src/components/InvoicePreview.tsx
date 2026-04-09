@@ -99,7 +99,12 @@ export default function InvoicePreview({ invoice, settings }: Props) {
         {/* RIGHT: 自社情報 */}
         <div className="inv-company-area">
           <div className="inv-company-name-row">
-            <span className="inv-company-name">{settings.companyName}</span>
+            <div>
+              <div className="inv-company-name">{settings.companyName}</div>
+              {settings.companyNameEn && (
+                <div className="inv-company-name-en">{settings.companyNameEn}</div>
+              )}
+            </div>
             {settings.logoDataUrl && (
               <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
             )}

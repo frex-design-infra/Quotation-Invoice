@@ -733,10 +733,10 @@ button {
 /* タイトル */
 .doc-title {
   text-align: center;
-  font-size: 26pt;
+  font-size: 20pt;
   font-weight: 700;
-  letter-spacing: 0.5em;
-  margin: 6px 0 14px;
+  letter-spacing: 0.3em;
+  margin: -62px 0 28px;
   border-bottom: none;
 }
 
@@ -996,6 +996,7 @@ button {
   gap: 8px;
 }
 .inv-company-name { font-size: 10.5pt; font-weight: 700; }
+.inv-company-name-en { font-size: 7.5pt; color: #444; }
 .inv-logo-img { max-height: 40px; max-width: 100px; object-fit: contain; }
 .inv-company-details { font-size: 8pt; line-height: 1.7; margin-top: 6em; }
 .inv-seal-img {
