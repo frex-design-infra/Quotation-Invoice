@@ -867,12 +867,14 @@ button {
     print-color-adjust: exact;
   }
 
-  /* 明細テーブル：フォント縮小＋数値右揃え */
+  /* 明細テーブル：フォント縮小・行高縮小・数値右揃え */
   .items-table { font-size: 7.5pt; }
-  .items-table th { font-size: 7.5pt; }
+  .items-table th { font-size: 7.5pt; padding: 3px 6px; }
+  .items-table td { padding: 2px 6px; }
   .items-table .col-qty   { text-align: right; }
   .items-table .col-price { text-align: right; }
   .items-table .col-amount { text-align: right; }
+  .spacer-row td { height: 4px; }
 
   @page {
     size: A4 portrait;
