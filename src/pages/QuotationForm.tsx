@@ -713,7 +713,21 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
         {/* 合計サマリ */}
         <div className="totals-summary">
           <div className="total-line">
-            <span>小計</span>
+            <span>直接費計</span>
+            <span>¥ {formatCurrency(totals.subtotalBeforeMisc)}</span>
+          </div>
+          <div className="total-line">
+            <span>諸経費 ({settings.miscExpensesRate}%)</span>
+            <span>¥ {formatCurrency(totals.miscExpenses)}</span>
+          </div>
+          {totals.discount > 0 && (
+            <div className="total-line discount-line">
+              <span>お値引き</span>
+              <span>- ¥ {formatCurrency(totals.discount)}</span>
+            </div>
+          )}
+          <div className="total-line subtotal-line">
+            <span>小計（税抜）</span>
             <span>¥ {formatCurrency(totals.subtotal)}</span>
           </div>
           <div className="total-line">
