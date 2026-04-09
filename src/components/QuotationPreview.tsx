@@ -81,9 +81,14 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
                 <div key={i}>{line}</div>
               ))}
             </div>
-            <div className="company-contact">
+            <div className="company-contact" style={{ position: 'relative' }}>
               {isSubcontract && settings.representativeName && (
-                <div>{settings.representativeName}</div>
+                <div style={{ position: 'relative' }}>
+                  {settings.repSealDataUrl && (
+                    <img src={settings.repSealDataUrl} alt="代表印" className="company-rep-seal-img" />
+                  )}
+                  {settings.representativeName}
+                </div>
               )}
               <div>TEL: {settings.tel}</div>
               <div>{settings.email}</div>

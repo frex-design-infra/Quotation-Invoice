@@ -246,6 +246,38 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
               )}
             </div>
           </div>
+
+          <div className="settings-row">
+            <label>代表印（再委託用）</label>
+            <div className="logo-upload-area">
+              {form.repSealDataUrl && (
+                <img src={form.repSealDataUrl} alt="代表印" className="logo-preview-img" />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="rep-seal-file-input"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = ev => {
+                    setForm(p => ({ ...p, repSealDataUrl: ev.target?.result as string }));
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+              <label htmlFor="rep-seal-file-input" className="btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                {form.repSealDataUrl ? '画像を変更' : '画像をアップロード'}
+              </label>
+              {form.repSealDataUrl && (
+                <button className="btn-danger btn-sm" onClick={() => setForm(p => ({ ...p, repSealDataUrl: '' }))}>
+                  削除
+                </button>
+              )}
+            </div>
+          </div>
         </section>
 
         {/* 見積書フッターコメント */}

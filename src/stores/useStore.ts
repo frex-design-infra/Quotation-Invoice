@@ -60,6 +60,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   registrationNumber: 'T3410001013320',
   logoDataUrl: '',
   sealDataUrl: '',
+  repSealDataUrl: '',
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';

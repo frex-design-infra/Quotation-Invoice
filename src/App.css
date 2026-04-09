@@ -803,6 +803,17 @@ button {
   pointer-events: none;
 }
 
+/* 代表印（再委託用・代表者名の右上に絶対配置） */
+.company-rep-seal-img {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 70px;
+  height: 70px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
 /* 明細テーブル */
 .items-table {
   width: 100%;
