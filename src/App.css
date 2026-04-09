@@ -702,6 +702,7 @@ button {
 .doc-date-area {
   text-align: right;
   font-size: 9pt;
+  margin-top: -8px;
   margin-bottom: 4px;
 }
 .doc-number { font-weight: 600; }
@@ -756,6 +757,7 @@ button {
   font-size: 8pt;
   line-height: 1.5;
   padding-left: 80px;
+  padding-top: 18px;
 }
 .doc-logo-wrap {
   margin-top: 6px;
