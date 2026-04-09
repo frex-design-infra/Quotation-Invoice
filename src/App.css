@@ -835,9 +835,10 @@ button {
   vertical-align: middle;
 }
 .items-table .col-name { min-width: 240px; }
-.items-table .col-qty { text-align: center; width: 80px; }
-.items-table .col-price { text-align: center; width: 90px; }
-.items-table .col-amount { text-align: center; width: 90px; }
+.items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
+.items-table td.col-qty { text-align: right; width: 80px; }
+.items-table td.col-price { text-align: right; width: 90px; }
+.items-table td.col-amount { text-align: right; width: 90px; }
 
 .spacer-row td { height: 12px; border: none; background: none; padding: 0; }
 
