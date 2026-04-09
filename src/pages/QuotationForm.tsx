@@ -189,7 +189,14 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   };
 
   const handlePrint = () => {
+    const el = document.getElementById('quotation-print-area');
+    // A4高さ（px @ 96dpi）に収まるよう自動スケール
+    const a4H = 297 / 25.4 * 96;
+    if (el && el.scrollHeight > a4H) {
+      el.style.zoom = String(a4H / el.scrollHeight);
+    }
     window.print();
+    if (el) el.style.zoom = '';
   };
 
   if (view === 'preview') {
