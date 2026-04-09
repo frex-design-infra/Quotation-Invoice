@@ -855,7 +855,7 @@ button {
   border: 1px solid #ccc;
   vertical-align: middle;
 }
-.items-table .col-name { min-width: 240px; }
+.items-table .col-name { min-width: 240px; max-width: 0; }
 .items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
 .items-table td.col-qty { text-align: right; width: 80px; }
 .items-table td.col-price { text-align: right; width: 90px; }

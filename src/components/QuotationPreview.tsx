@@ -1,6 +1,39 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef, useState } from 'react';
 import type { Quotation, MasterSettings } from '../types';
 import { calculateTotals, formatCurrency } from '../utils/calculations';
+
+/** セル幅に収まらない場合だけ横方向に縮小フィットするコンポーネント */
+function FitText({ text }: { text: string }) {
+  const outerRef = useRef<HTMLSpanElement>(null);
+  const innerRef = useRef<HTMLSpanElement>(null);
+  const [scale, setScale] = useState(1);
+
+  useLayoutEffect(() => {
+    const outer = outerRef.current;
+    const inner = innerRef.current;
+    if (!outer || !inner) return;
+    const available = outer.offsetWidth;
+    const needed = inner.scrollWidth;
+    const next = needed > available && available > 0 ? available / needed : 1;
+    setScale(prev => (Math.abs(prev - next) > 0.001 ? next : prev));
+  });
+
+  return (
+    <span ref={outerRef} style={{ display: 'block', overflow: 'hidden' }}>
+      <span
+        ref={innerRef}
+        style={{
+          display: 'inline-block',
+          whiteSpace: 'nowrap',
+          transformOrigin: 'left center',
+          transform: scale < 1 ? `scaleX(${scale})` : 'none',
+        }}
+      >
+        {text}
+      </span>
+    </span>
+  );
+}
 
 interface Props {
   quotation: Quotation;
@@ -115,7 +148,7 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
             }
             return (
               <tr key={item.id}>
-                <td className="col-name">{item.label}</td>
+                <td className="col-name"><FitText text={item.label} /></td>
                 <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
                 <td className="col-price">{formatCurrency(item.unitPrice)}</td>
                 <td className="col-amount">{formatCurrency(item.amount)}</td>
