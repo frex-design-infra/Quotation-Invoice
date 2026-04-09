@@ -464,8 +464,8 @@ button {
 
 /* 見積書プレビュー：フッターコメント */
 .quotation-footer-comment {
-  margin-top: 10px;
-  padding: 6px 16px;
+  margin-top: 20px;
+  padding: 12px 16px;
   border-top: 1px solid #ccc;
   font-size: 11px;
   color: #444;
@@ -722,7 +722,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 260px;
   gap: 0;
-  margin-bottom: 32px;
+  margin-bottom: 20px;
 }
 
 /* 発注者エリア */
@@ -895,7 +895,8 @@ button {
   .items-table td.col-amount { text-align: right; }
   .items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
   .spacer-row td { height: 4px; }
-  .quotation-footer-comment { line-height: 1.4; }
+  .doc-header-grid { margin-bottom: 32px; }
+  .quotation-footer-comment { line-height: 1.4; margin-top: 10px; padding: 6px 16px; }
 
   @page {
     size: A4 portrait;
