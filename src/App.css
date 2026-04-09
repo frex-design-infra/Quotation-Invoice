@@ -805,12 +805,34 @@ button {
   color: #444;
   letter-spacing: 0.05em;
 }
-.company-info { line-height: 1.6; }
-.company-name-jp { font-size: 10.5pt; font-weight: 700; margin-bottom: 1px; }
-.company-name-en { font-size: 8pt; margin-bottom: 6px; color: #444; }
-.company-postal { font-size: 8pt; }
-.company-address { font-size: 8pt; margin-bottom: 5px; }
-.company-contact { font-size: 8pt; color: #333; }
+.company-info { line-height: 1.5; }
+.company-name-jp { font-size: 9.5pt; font-weight: 700; margin-bottom: 1px; }
+.company-name-en { font-size: 7.5pt; margin-bottom: 4px; color: #444; text-align: right; }
+.company-postal { font-size: 7.5pt; }
+.company-address { font-size: 7.5pt; margin-bottom: 3px; text-align: right; }
+.company-contact { font-size: 7.5pt; color: #333; }
+
+/* 角印（会社情報エリア右上に絶対配置・文字に重なる） */
+.company-seal-img {
+  position: absolute;
+  top: -46px;
+  right: 0;
+  width: 112px;
+  height: auto;
+  pointer-events: none;
+  filter: saturate(0.9);
+}
+
+/* 代表印（再委託用・代表者名の右上に絶対配置） */
+.company-rep-seal-img {
+  position: absolute;
+  top: -30px;
+  right: -18px;
+  width: 96px;
+  height: auto;
+  pointer-events: none;
+  filter: saturate(0.9);
+}
 
 /* マスタ設定：ロゴアップロード */
 .logo-upload-area { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
