@@ -891,6 +891,7 @@ button {
   .items-table .col-price { text-align: right; }
   .items-table .col-amount { text-align: right; }
   .spacer-row td { height: 4px; }
+  .quotation-footer-comment { line-height: 1.4; }
 
   @page {
     size: A4 portrait;
