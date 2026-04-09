@@ -837,21 +837,32 @@ button {
 @media print {
   .no-print { display: none !important; }
   .app-nav { display: none !important; }
-  .app-main { padding: 0; max-width: none; }
   .preview-toolbar { display: none !important; }
 
-  body { background: white; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: white;
+    width: 210mm;
+  }
+
+  .app-main {
+    padding: 0 !important;
+    margin: 0 !important;
+    max-width: none !important;
+    background: white !important;
+  }
 
   .quotation-preview {
     box-shadow: none;
     margin: 0;
-    padding: 15mm 15mm;
-    width: 100%;
-    page-break-after: always;
+    padding: 20mm 18mm;
+    width: 210mm;
+    min-height: 297mm;
   }
 
   @page {
-    size: A4;
+    size: A4 portrait;
     margin: 0;
   }
 }
