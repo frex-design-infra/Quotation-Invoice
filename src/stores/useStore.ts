@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import type { MasterSettings, Quotation, Invoice, OrdererCategory } from '../types';
+import type { MasterSettings, Quotation, Invoice, OrdererCategory, BankAccount } from '../types';
 import { supabase } from '../lib/supabase';
 
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
@@ -65,7 +65,18 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   sealDataUrl: '',
   repSealDataUrl: '',
 
-  bankInfo: '秋田信用金庫\u3000本店\u3000店番001\n普通\u30000057179\u3000カ)フレックスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
+  bankAccounts: [
+    {
+      id: 'bank1',
+      label: '秋田銀行',
+      info: '秋田銀行\u3000港北支店(店番 154)\n普通\u30001049763\u3000カ)フレツクスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
+    },
+    {
+      id: 'bank2',
+      label: '秋田信用金庫',
+      info: '秋田信用金庫\u3000本店\u3000店番001\n普通\u30000057179\u3000カ)フレツクスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
+    },
+  ] as BankAccount[],
   deliveryPersonDefault: '',
 };
 
@@ -109,6 +120,12 @@ function applySettingsMigrations(parsed: Record<string, unknown>): MasterSetting
   const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
   delete (merged as Record<string, unknown>).discountAmount;
   delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
+  // Migration: bankInfo string → bankAccounts array
+  const legacy = merged as Record<string, unknown>;
+  if (!legacy.bankAccounts && legacy.bankInfo) {
+    legacy.bankAccounts = [{ id: 'bank1', label: '振込先', info: legacy.bankInfo }];
+  }
+  delete legacy.bankInfo;
   return merged;
 }
 

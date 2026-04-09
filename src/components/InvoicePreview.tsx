@@ -62,7 +62,8 @@ export default function InvoicePreview({ invoice, settings }: Props) {
   const displayLines = [...deliveryLines];
   while (displayLines.length < 4) displayLines.push('');
 
-  const bankLines = settings.bankInfo ? settings.bankInfo.split('\n') : [];
+  const resolvedBankInfo = invoice.bankInfo || (settings.bankAccounts?.[0]?.info ?? '');
+  const bankLines = resolvedBankInfo ? resolvedBankInfo.split('\n') : [];
 
   const companyAddress = settings.address
     ? settings.address.split('\n')
@@ -229,7 +230,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           <tr>
             <th className="inv-th-side" style={{ whiteSpace: 'nowrap', verticalAlign: 'middle' }}>お振込先</th>
             <td className="inv-bank-info" style={{ whiteSpace: 'pre-line' }}>
-              {settings.bankInfo || ''}
+              {resolvedBankInfo}
             </td>
             <th className="inv-th" style={{ whiteSpace: 'nowrap', width: '90px' }}>お支払期限</th>
             <td className="inv-date-cell" style={{ whiteSpace: 'nowrap' }}>

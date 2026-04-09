@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType, Client } from '../types';
+import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType, Client, BankAccount } from '../types';
 import { DEFAULT_MASTER_SETTINGS } from '../stores/useStore';
 
 const CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
@@ -182,14 +182,49 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           {textInput('TEL', form.tel, v => setForm(p => ({ ...p, tel: v })))}
           {textInput('メール', form.email, v => setForm(p => ({ ...p, email: v })))}
           {textInput('登録番号', form.registrationNumber, v => setForm(p => ({ ...p, registrationNumber: v })))}
-          <div className="settings-row">
-            <label>お振込先</label>
-            <textarea
-              value={form.bankInfo ?? ''}
-              onChange={e => setForm(p => ({ ...p, bankInfo: e.target.value }))}
-              rows={4}
-              placeholder="銀行名・支店・口座番号など"
-            />
+          <div className="settings-row" style={{ alignItems: 'flex-start' }}>
+            <label>振込先口座</label>
+            <div style={{ flex: 1 }}>
+              {(form.bankAccounts ?? []).map((ba, i) => (
+                <div key={ba.id} className="client-list-row" style={{ marginBottom: '10px' }}>
+                  <div style={{ display: 'flex', gap: '6px', marginBottom: '4px', alignItems: 'center' }}>
+                    <input
+                      type="text"
+                      value={ba.label}
+                      placeholder="表示名（例: 秋田銀行）"
+                      style={{ flex: 1, padding: '5px 8px', border: '1px solid #dde2e8', borderRadius: '5px', fontSize: '13px' }}
+                      onChange={e => {
+                        const next = [...form.bankAccounts] as BankAccount[];
+                        next[i] = { ...next[i], label: e.target.value };
+                        setForm(p => ({ ...p, bankAccounts: next }));
+                      }}
+                    />
+                    <button
+                      className="btn-danger btn-sm"
+                      onClick={() => setForm(p => ({ ...p, bankAccounts: p.bankAccounts.filter((_, j) => j !== i) }))}
+                    >削除</button>
+                  </div>
+                  <textarea
+                    value={ba.info}
+                    placeholder="銀行名・支店・口座番号など"
+                    rows={4}
+                    style={{ width: '100%', padding: '6px 8px', border: '1px solid #dde2e8', borderRadius: '5px', fontSize: '13px', fontFamily: 'inherit', resize: 'vertical', boxSizing: 'border-box' }}
+                    onChange={e => {
+                      const next = [...form.bankAccounts] as BankAccount[];
+                      next[i] = { ...next[i], info: e.target.value };
+                      setForm(p => ({ ...p, bankAccounts: next }));
+                    }}
+                  />
+                </div>
+              ))}
+              <button
+                className="btn-outline btn-sm"
+                onClick={() => setForm(p => ({
+                  ...p,
+                  bankAccounts: [...(p.bankAccounts ?? []), { id: `bank-${Date.now()}`, label: '', info: '' }],
+                }))}
+              >＋ 振込先を追加</button>
+            </div>
           </div>
           {textInput('納品担当者（デフォルト）', form.deliveryPersonDefault ?? '', v => setForm(p => ({ ...p, deliveryPersonDefault: v })))}
 

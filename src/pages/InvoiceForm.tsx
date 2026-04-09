@@ -92,6 +92,15 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   const [paymentDueDate, setPaymentDueDate] = useState(
     initial?.paymentDueDate ?? calcEndOfNextMonth(initIssueDate)
   );
+  const bankAccounts = settings.bankAccounts ?? [];
+  const defaultBankInfo = initial?.bankInfo ?? bankAccounts[0]?.info ?? '';
+  const [bankInfo, setBankInfo] = useState(defaultBankInfo);
+  const [bankSelectId, setBankSelectId] = useState(() => {
+    if (initial?.bankInfo) {
+      return bankAccounts.find(b => b.info === initial.bankInfo)?.id ?? '';
+    }
+    return bankAccounts[0]?.id ?? '';
+  });
 
   // 発行日変更時に請求書番号・支払期限を更新（初回スキップ）
   useEffect(() => {
@@ -128,6 +137,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
     billingDate,
     previousBillingTotal,
     paymentDueDate,
+    bankInfo,
     taxRate: settings.taxRate,
     createdAt: initial?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -354,6 +364,36 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
           <div className="field-row">
             <label>お支払期限</label>
             <DatePicker value={paymentDueDate} onChange={setPaymentDueDate} />
+          </div>
+          {bankAccounts.length > 0 && (
+            <div className="field-row">
+              <label>振込先口座</label>
+              <select
+                value={bankSelectId}
+                onChange={e => {
+                  const id = e.target.value;
+                  setBankSelectId(id);
+                  const found = bankAccounts.find(b => b.id === id);
+                  if (found) setBankInfo(found.info);
+                }}
+                style={{ flex: 1 }}
+              >
+                <option value="">-- 選択してください --</option>
+                {bankAccounts.map(b => (
+                  <option key={b.id} value={b.id}>{b.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+          <div className="field-row" style={{ alignItems: 'flex-start' }}>
+            <label>振込先内容</label>
+            <textarea
+              value={bankInfo}
+              onChange={e => setBankInfo(e.target.value)}
+              rows={4}
+              style={{ flex: 1, padding: '7px 10px', border: '1.5px solid #dde2e8', borderRadius: '6px', fontSize: '14px', fontFamily: 'inherit', resize: 'vertical' }}
+              placeholder="銀行名・支店・口座番号など"
+            />
           </div>
         </section>
       </div>

@@ -21,6 +21,13 @@ export interface SpecialReportType {
   enabled: boolean;
 }
 
+// 振込先口座
+export interface BankAccount {
+  id: string;
+  label: string;  // 表示名（例: "秋田銀行"）
+  info: string;   // 振込先テキスト（改行区切り）
+}
+
 // 発注者（クライアント）
 export interface Client {
   id: string;
@@ -81,7 +88,7 @@ export interface MasterSettings {
   repSealDataUrl: string;       // base64代表印画像（再委託用）
 
   // 請求書用
-  bankInfo: string;              // お振込先テキスト（複数行）
+  bankAccounts: BankAccount[];   // 振込先口座リスト
   deliveryPersonDefault: string; // 納品担当者デフォルト
 }
 
@@ -103,6 +110,7 @@ export interface Invoice {
   billingDate: string;
   previousBillingTotal: number;    // 中間既請求額（税込）
   paymentDueDate: string;
+  bankInfo: string;                // 選択した振込先テキスト
   taxRate: number;
   createdAt: string;
   updatedAt: string;
