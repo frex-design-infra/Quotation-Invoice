@@ -569,38 +569,42 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             </div>
           </div>
 
-          <div className="field-row" style={{ marginTop: '12px' }}>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={kokusokenEnabled}
-                onChange={e => setKokusokenEnabled(e.target.checked)}
-              />
-              <span>国総研様式</span>
-            </label>
-          </div>
-          {kokusokenEnabled && (
-            <div className="office-item-preview">
-              国総研様式作成(新様式含む) &nbsp;
-              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
-            </div>
-          )}
+          {inspectionType === '橋梁点検' && (
+            <>
+              <div className="field-row" style={{ marginTop: '12px' }}>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={kokusokenEnabled}
+                    onChange={e => setKokusokenEnabled(e.target.checked)}
+                  />
+                  <span>国総研様式</span>
+                </label>
+              </div>
+              {kokusokenEnabled && (
+                <div className="office-item-preview">
+                  国総研様式作成(新様式含む) &nbsp;
+                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
+                </div>
+              )}
 
-          <div className="field-row" style={{ marginTop: '8px' }}>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={mextEnabled}
-                onChange={e => setMextEnabled(e.target.checked)}
-              />
-              <span>国交省様式</span>
-            </label>
-          </div>
-          {mextEnabled && (
-            <div className="office-item-preview">
-              国交省様式作成 &nbsp;
-              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
-            </div>
+              <div className="field-row" style={{ marginTop: '8px' }}>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={mextEnabled}
+                    onChange={e => setMextEnabled(e.target.checked)}
+                  />
+                  <span>国交省様式</span>
+                </label>
+              </div>
+              {mextEnabled && (
+                <div className="office-item-preview">
+                  国交省様式作成 &nbsp;
+                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
+                </div>
+              )}
+            </>
           )}
 
           <div className="recalc-area" style={{ marginTop: '16px' }}>
