@@ -107,7 +107,12 @@ function loadSettings(): MasterSettings {
 function loadQuotations(): Quotation[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_QUOTATIONS);
-    if (raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw).map((q: Record<string, unknown>) => ({
+      inspectionType: '橋梁点検',
+      roadAccessoryCount: 0,
+      roadAccessoryDays: 0,
+      ...q,
+    }));
   } catch {}
   return [];
 }

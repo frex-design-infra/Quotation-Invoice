@@ -1,4 +1,4 @@
-import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, Quotation, QuotationItem } from '../types';
+import type { BridgeData, BridgeLengthTier, InspectionType, MasterSettings, OrdererCategory, Quotation, QuotationItem } from '../types';
 
 export interface WorkParams {
   surveyDays: number;
@@ -16,6 +16,9 @@ export interface WorkParams {
   trafficGuardUnitPrice: number;
   barrierEnabled: boolean;
   barrierUnitPrice: number;
+  inspectionType?: InspectionType;
+  roadAccessoryCount?: number;
+  roadAccessoryDays?: number;
 }
 
 function genId() {
@@ -50,6 +53,115 @@ export function calculateItems(
   const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
           btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
           trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice } = params;
+
+  // ── 道路附属物点検モード ─────────────────────────
+  if (params.inspectionType === '道路附属物点検') {
+    const roadItems: QuotationItem[] = [];
+    const count = params.roadAccessoryCount ?? 0;
+    const days = params.roadAccessoryDays ?? Math.ceil(count / 12);
+
+    // 1. 準備計画（既存と同じロジック）
+    const setupDays = settings.setupPlanningDays;
+    roadItems.push({
+      id: genId(),
+      label: '準備計画',
+      quantity: setupDays,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: setupDays * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+
+    // 2. 現地踏査（既存と同じ、surveyDays > 0のみ）
+    if (surveyDays > 0) {
+      const qty = surveyDays * 2;
+      roadItems.push({
+        id: genId(),
+        label: '現地踏査',
+        quantity: qty,
+        unit: '人工',
+        unitPrice: settings.laborUnitPrice,
+        amount: qty * settings.laborUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    // 3. 現地踏査まとめ（既存と同じ、summaryDays > 0のみ）
+    if (summaryDays > 0) {
+      roadItems.push({
+        id: genId(),
+        label: '現地踏査まとめ',
+        quantity: summaryDays,
+        unit: '人工',
+        unitPrice: settings.laborUnitPrice,
+        amount: summaryDays * settings.laborUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    // separator
+    roadItems.push(separator());
+
+    // 4. 道路附属物点検
+    const inspectionQty = days * 2;
+    roadItems.push({
+      id: genId(),
+      label: `道路附属物点検 N=${count}（基本的には12基/日を初期値で計上）`,
+      quantity: inspectionQty,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: inspectionQty * settings.laborUnitPrice,
+      isAutoCalculated: true,
+    });
+
+    // separator
+    roadItems.push(separator());
+
+    // 5. 道路附属物点検調書作成(xROAD登録含む)
+    const reportUnitPrice = Math.floor(settings.laborUnitPrice * 0.35 / 10) * 10;
+    roadItems.push({
+      id: genId(),
+      label: '道路附属物点検調書作成(xROAD登録含む)',
+      quantity: count,
+      unit: '基',
+      unitPrice: reportUnitPrice,
+      amount: count * reportUnitPrice,
+      isAutoCalculated: true,
+    });
+
+    // separator
+    roadItems.push(separator());
+
+    // 6. 交通誘導員（trafficGuardEnabled、既存と同じ）
+    if (trafficGuardEnabled) {
+      roadItems.push({
+        id: genId(),
+        label: '交通誘導員',
+        quantity: 1,
+        unit: '式',
+        unitPrice: trafficGuardUnitPrice,
+        amount: trafficGuardUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    // 7. 規制材（barrierEnabled、既存と同じ）
+    if (barrierEnabled) {
+      roadItems.push({
+        id: genId(),
+        label: '規制材(車両等含む)',
+        quantity: 1,
+        unit: '式',
+        unitPrice: barrierUnitPrice,
+        amount: barrierUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    return roadItems;
+  }
+  // 以降は既存の橋梁点検ロジック
+
   const items: QuotationItem[] = [];
   const tiers = settings.bridgeLengthTiers[ordererCategory];
   const totalBridges = bridges.length;

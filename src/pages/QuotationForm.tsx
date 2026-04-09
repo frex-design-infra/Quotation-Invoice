@@ -1,5 +1,5 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
+import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory, InspectionType } from '../types';
 import { calculateItems, calculateTotals, formatCurrency, buildSubcontractQuotation, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
@@ -59,6 +59,9 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
   const [submitted, setSubmitted] = useState(initial?.submitted ?? false);
   const [submitAnimating, setSubmitAnimating] = useState(false);
+  const [inspectionType, setInspectionType] = useState<InspectionType>(initial?.inspectionType ?? '橋梁点検');
+  const [roadAccessoryCount, setRoadAccessoryCount] = useState(initial?.roadAccessoryCount ?? 0);
+  const [roadAccessoryDays, setRoadAccessoryDays] = useState(initial?.roadAccessoryDays ?? 0);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
@@ -67,6 +70,11 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [toastVisible, setToastVisible] = useState(false);
   const [subcontractMode, setSubcontractMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
+  useEffect(() => {
+    setRoadAccessoryDays(Math.ceil(roadAccessoryCount / 12) || 0);
+  }, [roadAccessoryCount]);
 
   // 明細の再計算
   const buildParams = useCallback((overrides?: Partial<WorkParams>): WorkParams => ({
@@ -85,10 +93,14 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
+    inspectionType,
+    roadAccessoryCount,
+    roadAccessoryDays,
     ...overrides,
   }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
        btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
-       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice]);
+       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
+       inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -117,8 +129,8 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   }, [bridges, recalculate]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges);
-  }, [bridges, recalculate]);
+    recalculate(bridges, { inspectionType, roadAccessoryCount, roadAccessoryDays });
+  }, [bridges, recalculate, inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -154,6 +166,9 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     id: initial?.id ?? genId(),
     quotationNumber,
     date,
+    inspectionType,
+    roadAccessoryCount,
+    roadAccessoryDays,
     ordererCategory,
     clientName,
     projectName,
@@ -320,46 +335,65 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
               {submitted ? '提出済' : '未提出'}
             </button>
           </div>
+          <div className="field-row">
+            <label>点検種別</label>
+            <div className="radio-group">
+              {(['橋梁点検', '道路附属物点検'] as InspectionType[]).map(type => (
+                <label key={type} className="radio-label">
+                  <input
+                    type="radio"
+                    name="inspectionType"
+                    value={type}
+                    checked={inspectionType === type}
+                    onChange={() => { setInspectionType(type); recalculate(bridges, { inspectionType: type }); }}
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+          </div>
         </section>
 
-        {/* CSVインポート（右寄せ） */}
-        <section className="form-section csv-section csv-compact">
-          <h3>橋梁データ（CSV読込）</h3>
+        {/* CSVインポート（橋梁点検のみ） */}
+        {inspectionType === '橋梁点検' && (
+          <section className="form-section csv-section csv-compact">
+            <h3>橋梁データ（CSV読込）</h3>
 
-          <div className="csv-row">
-            <div className="csv-upload-area-compact"
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={e => e.preventDefault()}
-              onDrop={e => {
-                e.preventDefault();
-                const file = e.dataTransfer.files[0];
-                if (file) handleCSVUpload(file);
-              }}
-            >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                style={{ display: 'none' }}
-                onChange={e => {
-                  const file = e.target.files?.[0];
+            <div className="csv-row">
+              <div className="csv-upload-area-compact"
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files[0];
                   if (file) handleCSVUpload(file);
                 }}
-              />
-              <span className="csv-icon">📂</span>
-              <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  style={{ display: 'none' }}
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) handleCSVUpload(file);
+                  }}
+                />
+                <span className="csv-icon">📂</span>
+                <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+              </div>
+              {bridges.length > 0 && (
+                <span className="bridge-badge">{bridges.length} 橋</span>
+              )}
             </div>
-            {bridges.length > 0 && (
-              <span className="bridge-badge">{bridges.length} 橋</span>
+
+            {csvErrors.length > 0 && (
+              <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
             )}
-          </div>
 
-          {csvErrors.length > 0 && (
-            <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
-          )}
-
-          <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
-        </section>
+            <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
+          </section>
+        )}
       </div>
 
       {/* 現場設定 ＋ 内業設定 */}
@@ -379,77 +413,110 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
               <span className="suffix">日 → {surveyDays * 2} 人工</span>
             </div>
           </div>
-          <div className="field-row">
-            <label>点検（徒歩・梯子）</label>
-            <div className="input-with-suffix">
-              <input
-                type="number"
-                min="0"
-                value={walkingDays}
-                onChange={e => setWalkingDays(parseInt(e.target.value) || 0)}
-              />
-              <span className="suffix">日 → {walkingDays * 2} 人工</span>
-            </div>
-          </div>
-          <div className="field-row">
-            <label>点検（BT-200）</label>
-            <div className="input-with-suffix">
-              <input
-                type="number"
-                min="0"
-                value={btDays}
-                onChange={e => setBtDays(parseInt(e.target.value) || 0)}
-              />
-              <span className="suffix">日 → {btDays * 2} 人工</span>
-            </div>
-          </div>
-          <div className="field-row">
-            <label>点検（高所作業車）</label>
-            <div className="input-with-suffix">
-              <input
-                type="number"
-                min="0"
-                value={ewpDays}
-                onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
-              />
-              <span className="suffix">日 → {ewpDays * 2} 人工</span>
-            </div>
-          </div>
-          <p className="hint" style={{ marginBottom: '12px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
+          {inspectionType === '橋梁点検' && (
+            <>
+              <div className="field-row">
+                <label>点検（徒歩・梯子）</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={walkingDays}
+                    onChange={e => setWalkingDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {walkingDays * 2} 人工</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label>点検（BT-200）</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={btDays}
+                    onChange={e => setBtDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {btDays * 2} 人工</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label>点検（高所作業車）</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={ewpDays}
+                    onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {ewpDays * 2} 人工</span>
+                </div>
+              </div>
+              <p className="hint" style={{ marginBottom: '12px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
 
-          <div className="field-row">
-            <label className="checkbox-label">
-              <input type="checkbox" checked={btVehicleEnabled}
-                onChange={e => setBtVehicleEnabled(e.target.checked)} />
-              <span>橋梁点検車(BT-200)</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={btVehicleUnitPrice || ''}
-              placeholder="単価（円）"
-              disabled={!btVehicleEnabled}
-              onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
-              style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
-            />
-          </div>
+              <div className="field-row">
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={btVehicleEnabled}
+                    onChange={e => setBtVehicleEnabled(e.target.checked)} />
+                  <span>橋梁点検車(BT-200)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={btVehicleUnitPrice || ''}
+                  placeholder="単価（円）"
+                  disabled={!btVehicleEnabled}
+                  onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+                  style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
+                />
+              </div>
 
-          <div className="field-row">
-            <label className="checkbox-label">
-              <input type="checkbox" checked={ewpVehicleEnabled}
-                onChange={e => setEwpVehicleEnabled(e.target.checked)} />
-              <span>高所作業車(12m)</span>
-            </label>
-            <input
-              type="number"
-              min="0"
-              value={ewpVehicleUnitPrice || ''}
-              placeholder="単価（円）"
-              disabled={!ewpVehicleEnabled}
-              onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
-              style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
-            />
-          </div>
+              <div className="field-row">
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={ewpVehicleEnabled}
+                    onChange={e => setEwpVehicleEnabled(e.target.checked)} />
+                  <span>高所作業車(12m)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={ewpVehicleUnitPrice || ''}
+                  placeholder="単価（円）"
+                  disabled={!ewpVehicleEnabled}
+                  onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+                  style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
+                />
+              </div>
+            </>
+          )}
+
+          {inspectionType === '道路附属物点検' && (
+            <>
+              <div className="field-row">
+                <label>点検基数</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={roadAccessoryCount}
+                    onChange={e => setRoadAccessoryCount(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">基</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label>点検日数</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={roadAccessoryDays}
+                    onChange={e => setRoadAccessoryDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {roadAccessoryDays * 2} 人工（初期値: 12基/日）</span>
+                </div>
+              </div>
+            </>
+          )}
 
           <div className="field-row">
             <label className="checkbox-label">

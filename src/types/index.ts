@@ -1,6 +1,9 @@
 // 発注者区分
 export type OrdererCategory = '国' | '県' | '市町村';
 
+// 点検種別
+export type InspectionType = '橋梁点検' | '道路附属物点検';
+
 // 橋長区分マスタ
 export interface BridgeLengthTier {
   id: string;
@@ -92,6 +95,9 @@ export interface Quotation {
   id: string;
   quotationNumber: string;
   date: string;                    // YYYY-MM-DD
+  inspectionType: InspectionType;
+  roadAccessoryCount: number;      // 基数（道路附属物点検のみ）
+  roadAccessoryDays: number;       // 点検日数（道路附属物点検のみ）
   ordererCategory: OrdererCategory;
   clientName: string;
   projectName: string;
