@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { MasterSettings, Quotation, OrdererCategory } from '../types';
+import type { MasterSettings, Quotation, Invoice, OrdererCategory } from '../types';
 
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   laborUnitPrice: 34000,
@@ -40,20 +40,37 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   fuelUnitPrice: 155,
   fuelEnabled: true,
 
+  btFuelHoursPerDay: 5,
+  btFuelLitersPerHour: 5,
+  btFuelUnitPrice: 160,
+  btFuelEnabled: true,
+
+  clients: [] as import('../types').Client[],
+
+  quotationFooterComment: `※現地踏査および定期点検は実稼働日数による精算とする\n※写真整理および損傷図修正含む\n※移動にかかる燃料費,車両維持費およびソフトウェア等は諸経費に含む\n\nこのたびの御見積につきましては、昨今の燃料費・資材価格の高騰および技術者の人件費上昇に伴い、誠に不本意ながら前年度より一部価格の改定を行わせていただきました。これまで価格の据え置きに努めてまいりましたが、安定した点検品質を維持するためのやむを得ない措置としてご判断いただけますと幸いです。お客様にご負担をおかけすることとなり、深くお詫び申し上げます。何卒ご理解賜りますようお願い申し上げます。`,
+
   miscExpensesRate: 15,
   taxRate: 10,
 
   companyName: '株式会社フレックスデザイン',
   companyNameEn: 'FRe:x Design inc.',
+  representativeName: '代表取締役　藤嶋 正博',
   postalCode: '0100904',
   address: '秋田県秋田保戸野原の町7-68\nアトレデルタ4F',
   tel: '050-3091-9584',
   email: 'info@frex-design.co.jp',
   registrationNumber: 'T3410001013320',
+  logoDataUrl: '',
+  sealDataUrl: '',
+  repSealDataUrl: '',
+
+  bankInfo: '秋田信用金庫\u3000本店\u3000店番001\n普通\u30000057179\u3000カ)フレックスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
+  deliveryPersonDefault: '',
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
 const STORAGE_KEY_QUOTATIONS = 'quotation_list';
+const STORAGE_KEY_INVOICES = 'invoice_list';
 
 function loadSettings(): MasterSettings {
   try {
@@ -83,6 +100,16 @@ function loadSettings(): MasterSettings {
       }
     }
 
+    // Migration: clients string[] → Client[]
+    if (parsed.clients && Array.isArray(parsed.clients) && parsed.clients.length > 0 && typeof parsed.clients[0] === 'string') {
+      parsed.clients = (parsed.clients as string[]).map((name: string, i: number) => ({
+        id: `c${i}`,
+        name,
+        postalCode: '',
+        address: '',
+      }));
+    }
+
     const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
     // Remove legacy fields
     delete (merged as Record<string, unknown>).discountAmount;
@@ -91,6 +118,14 @@ function loadSettings(): MasterSettings {
   } catch {
     return structuredClone(DEFAULT_MASTER_SETTINGS);
   }
+}
+
+function loadInvoices(): Invoice[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_INVOICES);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return [];
 }
 
 function loadQuotations(): Quotation[] {
@@ -104,6 +139,7 @@ function loadQuotations(): Quotation[] {
 export function useStore() {
   const [settings, setSettingsState] = useState<MasterSettings>(loadSettings);
   const [quotations, setQuotationsState] = useState<Quotation[]>(loadQuotations);
+  const [invoices, setInvoicesState] = useState<Invoice[]>(loadInvoices);
 
   const saveSettings = useCallback((s: MasterSettings) => {
     setSettingsState(s);
@@ -129,5 +165,24 @@ export function useStore() {
     });
   }, []);
 
-  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation };
+  const saveInvoice = useCallback((inv: Invoice) => {
+    setInvoicesState(prev => {
+      const exists = prev.findIndex(x => x.id === inv.id);
+      const next = exists >= 0
+        ? prev.map(x => x.id === inv.id ? inv : x)
+        : [inv, ...prev];
+      localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  const deleteInvoice = useCallback((id: string) => {
+    setInvoicesState(prev => {
+      const next = prev.filter(x => x.id !== id);
+      localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      return next;
+    });
+  }, []);
+
+  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice };
 }

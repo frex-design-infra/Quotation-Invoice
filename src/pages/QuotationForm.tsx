@@ -1,12 +1,14 @@
-import React, { useState, useRef, useCallback } from 'react';
-import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
-import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
+import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory, InspectionType } from '../types';
+import { calculateItems, calculateTotals, formatCurrency, buildSubcontractQuotation, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
+import DatePicker from '../components/DatePicker';
 
 interface Props {
   settings: MasterSettings;
   initial?: Quotation;
+  initialView?: 'form' | 'preview';
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
@@ -27,33 +29,80 @@ function generateNumber(): string {
 
 const ORDERER_CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
 
-export default function QuotationForm({ settings, initial, onSave, onCancel }: Props) {
-  const [view, setView] = useState<'form' | 'preview'>('form');
+export default function QuotationForm({ settings, initial, initialView, onSave, onCancel }: Props) {
+  const [view, setView] = useState<'form' | 'preview'>(initialView ?? 'form');
   const [date, setDate] = useState(initial?.date ?? today());
   const [quotationNumber, setQuotationNumber] = useState(initial?.quotationNumber ?? generateNumber());
+  const isFirstRender = useRef(true);
+
+  // 日付変更時に見積番号をリアルタイム更新（初回はスキップ）
+  useEffect(() => {
+    if (isFirstRender.current) { isFirstRender.current = false; return; }
+    setQuotationNumber(`${date.replace(/-/g, '')}-001`);
+  }, [date]);
   const [ordererCategory, setOrdererCategory] = useState<OrdererCategory>(initial?.ordererCategory ?? '県');
   const [clientName, setClientName] = useState(initial?.clientName ?? '');
   const [projectName, setProjectName] = useState(initial?.projectName ?? '');
   const [bridges, setBridges] = useState<BridgeData[]>(initial?.bridges ?? []);
   const [surveyDays, setSurveyDays] = useState(initial?.surveyDays ?? 0);
-  const [inspectionDays, setInspectionDays] = useState(initial?.inspectionDays ?? 0);
+  const [walkingDays, setWalkingDays] = useState(initial?.walkingDays ?? 0);
+  const [btDays, setBtDays] = useState(initial?.btDays ?? 0);
+  const [ewpDays, setEwpDays] = useState(initial?.ewpDays ?? 0);
   const [summaryDays, setSummaryDays] = useState(initial?.summaryDays ?? 0);
+  const [btVehicleEnabled, setBtVehicleEnabled] = useState(initial?.btVehicleEnabled ?? false);
+  const [btVehicleUnitPrice, setBtVehicleUnitPrice] = useState(initial?.btVehicleUnitPrice ?? 0);
+  const [ewpVehicleEnabled, setEwpVehicleEnabled] = useState(initial?.ewpVehicleEnabled ?? false);
+  const [ewpVehicleUnitPrice, setEwpVehicleUnitPrice] = useState(initial?.ewpVehicleUnitPrice ?? 0);
+  const [trafficGuardEnabled, setTrafficGuardEnabled] = useState(initial?.trafficGuardEnabled ?? false);
+  const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
+  const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
+  const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
+  const [safetyCoordinationEnabled, setSafetyCoordinationEnabled] = useState(initial?.safetyCoordinationEnabled ?? false);
+  const [submitted, setSubmitted] = useState(initial?.submitted ?? false);
+  const [submitAnimating, setSubmitAnimating] = useState(false);
+  const [inspectionType, setInspectionType] = useState<InspectionType>(initial?.inspectionType ?? '橋梁点検');
+  const [roadAccessoryCount, setRoadAccessoryCount] = useState(initial?.roadAccessoryCount ?? 0);
+  const [roadAccessoryDays, setRoadAccessoryDays] = useState(initial?.roadAccessoryDays ?? 0);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
+  const [toastVisible, setToastVisible] = useState(false);
+  const [subcontractMode, setSubcontractMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
+  useEffect(() => {
+    setRoadAccessoryDays(Math.ceil(roadAccessoryCount / 12) || 0);
+  }, [roadAccessoryCount]);
 
   // 明細の再計算
   const buildParams = useCallback((overrides?: Partial<WorkParams>): WorkParams => ({
     surveyDays,
-    inspectionDays,
+    walkingDays,
+    btDays,
+    ewpDays,
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    btVehicleEnabled,
+    btVehicleUnitPrice,
+    ewpVehicleEnabled,
+    ewpVehicleUnitPrice,
+    trafficGuardEnabled,
+    trafficGuardUnitPrice,
+    barrierEnabled,
+    barrierUnitPrice,
+    safetyCoordinationEnabled,
+    inspectionType,
+    roadAccessoryCount,
+    roadAccessoryDays,
     ...overrides,
-  }), [surveyDays, inspectionDays, summaryDays, kokusokenEnabled, mextEnabled]);
+  }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
+       btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
+       trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
+       safetyCoordinationEnabled, inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -82,8 +131,8 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
   }, [bridges, recalculate]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges);
-  }, [bridges, recalculate]);
+    recalculate(bridges, { inspectionType, roadAccessoryCount, roadAccessoryDays });
+  }, [bridges, recalculate, inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -119,14 +168,29 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
     id: initial?.id ?? genId(),
     quotationNumber,
     date,
+    inspectionType,
+    roadAccessoryCount,
+    roadAccessoryDays,
     ordererCategory,
     clientName,
     projectName,
     surveyDays,
-    inspectionDays,
+    walkingDays,
+    btDays,
+    ewpDays,
     summaryDays,
     kokusokenEnabled,
     mextEnabled,
+    btVehicleEnabled,
+    btVehicleUnitPrice,
+    ewpVehicleEnabled,
+    ewpVehicleUnitPrice,
+    trafficGuardEnabled,
+    trafficGuardUnitPrice,
+    barrierEnabled,
+    barrierUnitPrice,
+    safetyCoordinationEnabled,
+    submitted,
     bridges,
     items,
     subtotal: totals.subtotal,
@@ -138,28 +202,75 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
 
   const handleSave = () => {
     onSave(buildQuotation());
+    setToastVisible(true);
+    setTimeout(() => setToastVisible(false), 2500);
   };
 
   const handlePrint = () => {
     window.print();
   };
 
+  const [pdfSaving, setPdfSaving] = useState(false);
+  const [recalcSpinning, setRecalcSpinning] = useState(false);
+
+  const handleSavePDF = async () => {
+    const el = document.getElementById('quotation-print-area');
+    if (!el || pdfSaving) return;
+    setPdfSaving(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const imgW = 210;
+      const imgH = (canvas.height / canvas.width) * imgW;
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+      pdf.save(`見積書_${quotationNumber}.pdf`);
+    } finally {
+      setPdfSaving(false);
+    }
+  };
+
   if (view === 'preview') {
     const q = buildQuotation();
+    const displayQ = subcontractMode ? buildSubcontractQuotation(q, settings) : q;
     return (
       <div>
+        {toastVisible && (
+          <div className="toast-saved">保存しました ✓</div>
+        )}
         <div className="preview-toolbar no-print">
-          <button onClick={() => setView('form')} className="btn-secondary">← 編集に戻る</button>
-          <button onClick={handlePrint} className="btn-primary">🖨 PDF出力（印刷）</button>
+          <button onClick={() => { setView('form'); setSubcontractMode(false); }} className="btn-secondary">← 編集に戻る</button>
+          <button
+            onClick={() => setSubcontractMode(v => !v)}
+            className={subcontractMode ? 'btn-subcontract active' : 'btn-subcontract'}
+          >
+            {subcontractMode ? '通常表示に戻る' : '再委託用'}
+          </button>
+          <button onClick={handlePrint} className="btn-secondary">🖨 印刷</button>
+          <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
+            {pdfSaving ? '生成中...' : '📄 PDF保存'}
+          </button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
-        <QuotationPreview quotation={q} settings={settings} />
+        <QuotationPreview quotation={displayQ} settings={settings} isSubcontract={subcontractMode} />
       </div>
     );
   }
 
   return (
     <div className="quotation-form">
+      {toastVisible && (
+        <div className="toast-saved">保存しました ✓</div>
+      )}
       <div className="form-toolbar">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
         <div className="form-toolbar-right">
@@ -174,7 +285,7 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
           <h3>基本情報</h3>
           <div className="field-row">
             <label>見積日</label>
-            <input type="date" value={date} onChange={e => setDate(e.target.value)} />
+            <DatePicker value={date} onChange={setDate} />
           </div>
           <div className="field-row">
             <label>見積番号</label>
@@ -199,12 +310,20 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
           </div>
           <div className="field-row">
             <label>発注者名</label>
-            <input
-              type="text"
+            <select
               value={clientName}
               onChange={e => setClientName(e.target.value)}
-              placeholder="例: 株式会社福山コンサルタント"
-            />
+              style={{ flex: 1 }}
+            >
+              <option value="">-- 選択してください --</option>
+              {(settings.clients ?? [])
+                .filter(c => c.name.trim())
+                .map(c => <option key={c.id} value={c.name}>{c.name}</option>)
+              }
+              {clientName && !(settings.clients ?? []).some(c => c.name === clientName) && (
+                <option value={clientName}>{clientName}</option>
+              )}
+            </select>
           </div>
           <div className="field-row">
             <label>件名</label>
@@ -215,46 +334,78 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
               placeholder="例: 令和8年度 秋田・湯沢管内橋梁点検業務"
             />
           </div>
-        </section>
-
-        {/* CSVインポート（右寄せ） */}
-        <section className="form-section csv-section csv-compact">
-          <h3>橋梁データ（CSV読込）</h3>
-
-          <div className="csv-row">
-            <div className="csv-upload-area-compact"
-              onClick={() => fileInputRef.current?.click()}
-              onDragOver={e => e.preventDefault()}
-              onDrop={e => {
-                e.preventDefault();
-                const file = e.dataTransfer.files[0];
-                if (file) handleCSVUpload(file);
+          <div className="field-row">
+            <label>提出状況</label>
+            <button
+              className={`status-btn ${submitted ? 'submitted' : 'not-submitted'} ${submitAnimating ? 'pikoon' : ''}`}
+              onClick={() => {
+                setSubmitAnimating(true);
+                setSubmitted(v => !v);
+                setTimeout(() => setSubmitAnimating(false), 600);
               }}
             >
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".csv"
-                style={{ display: 'none' }}
-                onChange={e => {
-                  const file = e.target.files?.[0];
+              {submitted ? '提出済' : '未提出'}
+            </button>
+          </div>
+          <div className="field-row">
+            <label>点検種別</label>
+            <div className="radio-group">
+              {(['橋梁点検', '道路附属物点検'] as InspectionType[]).map(type => (
+                <label key={type} className="radio-label">
+                  <input
+                    type="radio"
+                    name="inspectionType"
+                    value={type}
+                    checked={inspectionType === type}
+                    onChange={() => { setInspectionType(type); recalculate(bridges, { inspectionType: type }); }}
+                  />
+                  {type}
+                </label>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* CSVインポート（橋梁点検のみ） */}
+        {inspectionType === '橋梁点検' && (
+          <section className="form-section csv-section csv-compact">
+            <h3>橋梁データ（CSV読込）</h3>
+
+            <div className="csv-row">
+              <div className="csv-upload-area-compact"
+                onClick={() => fileInputRef.current?.click()}
+                onDragOver={e => e.preventDefault()}
+                onDrop={e => {
+                  e.preventDefault();
+                  const file = e.dataTransfer.files[0];
                   if (file) handleCSVUpload(file);
                 }}
-              />
-              <span className="csv-icon">📂</span>
-              <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".csv"
+                  style={{ display: 'none' }}
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) handleCSVUpload(file);
+                  }}
+                />
+                <span className="csv-icon">📂</span>
+                <span className="csv-label">{csvFileName || 'CSVを選択 / ドロップ'}</span>
+              </div>
+              {bridges.length > 0 && (
+                <span className="bridge-badge">{bridges.length} 橋</span>
+              )}
             </div>
-            {bridges.length > 0 && (
-              <span className="bridge-badge">{bridges.length} 橋</span>
+
+            {csvErrors.length > 0 && (
+              <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
             )}
-          </div>
 
-          {csvErrors.length > 0 && (
-            <div className="error-box">{csvErrors.map((e, i) => <div key={i}>{e}</div>)}</div>
-          )}
-
-          <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
-        </section>
+            <p className="hint" style={{ marginTop: '6px' }}>「橋長」列必須（m単位）。「橋梁名」列も使用可。</p>
+          </section>
+        )}
       </div>
 
       {/* 現場設定 ＋ 内業設定 */}
@@ -274,19 +425,154 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
               <span className="suffix">日 → {surveyDays * 2} 人工</span>
             </div>
           </div>
+          {inspectionType === '橋梁点検' && (
+            <>
+              <div className="field-row">
+                <label>点検（徒歩・梯子）</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={walkingDays}
+                    onChange={e => setWalkingDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {walkingDays * 2} 人工</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label>点検（BT-200）</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={btDays}
+                    onChange={e => setBtDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {btDays * 2} 人工</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label className="checkbox-label">
+                  <input type="checkbox" checked={btVehicleEnabled}
+                    onChange={e => setBtVehicleEnabled(e.target.checked)} />
+                  <span>橋梁点検車(BT-200)</span>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  value={btVehicleUnitPrice || ''}
+                  placeholder="単価（円）"
+                  disabled={!btVehicleEnabled}
+                  onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+                  style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
+                />
+              </div>
+            </>
+          )}
+
+          {inspectionType === '道路附属物点検' && (
+            <>
+              <div className="field-row">
+                <label>点検基数</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={roadAccessoryCount}
+                    onChange={e => setRoadAccessoryCount(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">基</span>
+                </div>
+              </div>
+              <div className="field-row">
+                <label>点検日数</label>
+                <div className="input-with-suffix">
+                  <input
+                    type="number"
+                    min="0"
+                    value={roadAccessoryDays}
+                    onChange={e => setRoadAccessoryDays(parseInt(e.target.value) || 0)}
+                  />
+                  <span className="suffix">日 → {roadAccessoryDays * 2} 人工（初期値: 12基/日）</span>
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* 高所作業車（両モード共通） */}
           <div className="field-row">
-            <label>点検日数</label>
+            <label>点検（高所作業車）</label>
             <div className="input-with-suffix">
               <input
                 type="number"
                 min="0"
-                value={inspectionDays}
-                onChange={e => setInspectionDays(parseInt(e.target.value) || 0)}
+                value={ewpDays}
+                onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
               />
-              <span className="suffix">日 → {inspectionDays * 2} 人工</span>
+              <span className="suffix">日 → {ewpDays * 2} 人工</span>
             </div>
           </div>
-          <p className="hint" style={{ marginBottom: '8px' }}>各日数 × 2人工 で計上。燃料は点検日数ベース。</p>
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={ewpVehicleEnabled}
+                onChange={e => setEwpVehicleEnabled(e.target.checked)} />
+              <span>高所作業車(12m)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={ewpVehicleUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!ewpVehicleEnabled}
+              onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={trafficGuardEnabled}
+                onChange={e => setTrafficGuardEnabled(e.target.checked)} />
+              <span>交通誘導員</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={trafficGuardUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!trafficGuardEnabled}
+              onChange={e => setTrafficGuardUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: trafficGuardEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={barrierEnabled}
+                onChange={e => setBarrierEnabled(e.target.checked)} />
+              <span>保安資材(車両等含む)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={barrierUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!barrierEnabled}
+              onChange={e => setBarrierUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: barrierEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={safetyCoordinationEnabled}
+                onChange={e => setSafetyCoordinationEnabled(e.target.checked)} />
+              <span>規制保安連絡調整</span>
+            </label>
+            {safetyCoordinationEnabled && (
+              <span className="suffix" style={{ fontSize: '0.85em', color: '#555' }}>3 人工 自動計上</span>
+            )}
+          </div>
         </section>
 
         {/* 内業設定 */}
@@ -305,43 +591,54 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
             </div>
           </div>
 
-          <div className="field-row" style={{ marginTop: '12px' }}>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={kokusokenEnabled}
-                onChange={e => setKokusokenEnabled(e.target.checked)}
-              />
-              <span>国総研様式</span>
-            </label>
-          </div>
-          {kokusokenEnabled && (
-            <div className="office-item-preview">
-              国総研様式作成(新様式含む) &nbsp;
-              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
-            </div>
-          )}
+          {inspectionType === '橋梁点検' && (
+            <>
+              <div className="field-row" style={{ marginTop: '12px' }}>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={kokusokenEnabled}
+                    onChange={e => setKokusokenEnabled(e.target.checked)}
+                  />
+                  <span>国総研様式</span>
+                </label>
+              </div>
+              {kokusokenEnabled && (
+                <div className="office-item-preview">
+                  国総研様式作成(新様式含む) &nbsp;
+                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
+                </div>
+              )}
 
-          <div className="field-row" style={{ marginTop: '8px' }}>
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={mextEnabled}
-                onChange={e => setMextEnabled(e.target.checked)}
-              />
-              <span>国交省様式</span>
-            </label>
-          </div>
-          {mextEnabled && (
-            <div className="office-item-preview">
-              国交省様式作成 &nbsp;
-              {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
-            </div>
+              <div className="field-row" style={{ marginTop: '8px' }}>
+                <label className="checkbox-label">
+                  <input
+                    type="checkbox"
+                    checked={mextEnabled}
+                    onChange={e => setMextEnabled(e.target.checked)}
+                  />
+                  <span>国交省様式</span>
+                </label>
+              </div>
+              {mextEnabled && (
+                <div className="office-item-preview">
+                  国交省様式作成 &nbsp;
+                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
+                </div>
+              )}
+            </>
           )}
 
           <div className="recalc-area" style={{ marginTop: '16px' }}>
-            <button onClick={handleRecalculate} className="btn-outline">
-              🔄 明細を再計算
+            <button
+              onClick={() => {
+                handleRecalculate();
+                setRecalcSpinning(true);
+                setTimeout(() => setRecalcSpinning(false), 500);
+              }}
+              className="btn-outline"
+            >
+              <span className={`recalc-icon${recalcSpinning ? ' spinning' : ''}`}>🔄</span> 明細を再計算
             </button>
             <span className="hint">※ 入力後に再計算ボタンを押してください</span>
           </div>
@@ -424,7 +721,21 @@ export default function QuotationForm({ settings, initial, onSave, onCancel }: P
         {/* 合計サマリ */}
         <div className="totals-summary">
           <div className="total-line">
-            <span>小計</span>
+            <span>直接費計</span>
+            <span>¥ {formatCurrency(totals.subtotalBeforeMisc)}</span>
+          </div>
+          <div className="total-line">
+            <span>諸経費 ({settings.miscExpensesRate}%)</span>
+            <span>¥ {formatCurrency(totals.miscExpenses)}</span>
+          </div>
+          {totals.discount > 0 && (
+            <div className="total-line discount-line">
+              <span>お値引き</span>
+              <span>- ¥ {formatCurrency(totals.discount)}</span>
+            </div>
+          )}
+          <div className="total-line subtotal-line">
+            <span>小計（税抜）</span>
             <span>¥ {formatCurrency(totals.subtotal)}</span>
           </div>
           <div className="total-line">

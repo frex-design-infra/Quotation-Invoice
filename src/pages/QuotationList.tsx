@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -6,13 +6,35 @@ interface Props {
   quotations: Quotation[];
   onNew: () => void;
   onEdit: (q: Quotation) => void;
+  onPreview: (q: Quotation) => void;
   onDelete: (id: string) => void;
+  onToggleSubmitted: (id: string) => void;
+  onCreateInvoice: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onDelete }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice }: Props) {
+  const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T00:00:00');
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  };
+
+  const handleToggle = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    onToggleSubmitted(id);
+    setAnimatingIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    setTimeout(() => {
+      setAnimatingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 400);
   };
 
   return (
@@ -56,9 +78,30 @@ export default function QuotationList({ quotations, onNew, onEdit, onDelete }: P
                 <td className="project-name-cell">{q.projectName}</td>
                 <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
                 <td className="center">{q.bridges.length}</td>
-                <td onClick={e => e.stopPropagation()}>
+                <td onClick={e => e.stopPropagation()} className="action-cell">
                   <button
-                    onClick={() => {
+                    className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
+                    onClick={e => handleToggle(e, q.id)}
+                  >
+                    {q.submitted ? '提出済' : '未提出'}
+                  </button>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onPreview(q); }}
+                    className="btn-outline btn-sm"
+                  >
+                    プレビュー
+                  </button>
+                  {q.submitted && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onCreateInvoice(q); }}
+                      className="btn-invoice btn-sm"
+                    >
+                      請求書作成
+                    </button>
+                  )}
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (confirm(`「${q.quotationNumber}」を削除しますか？`)) {
                         onDelete(q.id);
                       }
