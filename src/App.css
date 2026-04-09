@@ -807,7 +807,7 @@ button {
 .company-rep-seal-img {
   position: absolute;
   top: -30px;
-  right: 0;
+  right: 10px;
   width: 70px;
   height: 70px;
   object-fit: contain;
