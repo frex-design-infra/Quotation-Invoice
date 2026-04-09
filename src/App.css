@@ -780,7 +780,7 @@ button {
 .company-name-jp { font-size: 9.5pt; font-weight: 700; margin-bottom: 1px; }
 .company-name-en { font-size: 7.5pt; margin-bottom: 4px; color: #444; text-align: right; }
 .company-postal { font-size: 7.5pt; }
-.company-address { font-size: 7.5pt; margin-bottom: 3px; }
+.company-address { font-size: 7.5pt; margin-bottom: 3px; text-align: right; }
 .company-contact { font-size: 7.5pt; color: #333; }
 
 /* マスタ設定：ロゴアップロード */
