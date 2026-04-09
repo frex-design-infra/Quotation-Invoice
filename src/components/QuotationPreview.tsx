@@ -36,24 +36,12 @@ export default function QuotationPreview({ quotation, settings }: Props) {
 
   return (
     <div className="quotation-preview" id="quotation-print-area">
-      {/* 右上：ロゴ ＋ 日付・番号 */}
-      <div className="doc-top-right">
-        {settings.logoDataUrl ? (
-          <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
-        ) : (
-          <div className="logo-box">FRe:x Design</div>
-        )}
-        <div className="doc-date-block">
-          <div className="doc-date">{formatDate(quotation.date)}</div>
-          <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
-        </div>
-      </div>
-
-      {/* タイトル */}
+      {/* タイトル（最上部） */}
       <h1 className="doc-title">見　積　書</h1>
 
-      {/* 発注者 / 自社情報 */}
+      {/* ヘッダーグリッド */}
       <div className="doc-header-grid">
+        {/* 左：発注者情報 */}
         <div className="doc-client-area">
           <div className="client-name">{quotation.clientName} 御中</div>
           <div className="project-name">件名：{quotation.projectName}</div>
@@ -65,19 +53,33 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           </div>
         </div>
 
+        {/* 右：日付 → 見積番号 → ロゴ → 自社情報 */}
         <div className="doc-company-area">
-          <div className="company-name-jp">{settings.companyName}</div>
-          <div className="company-name-en">{settings.companyNameEn}</div>
-          <div className="company-postal">〒{settings.postalCode}</div>
-          <div className="company-address">
-            {settings.address.split('\n').map((line, i) => (
-              <div key={i}>{line}</div>
-            ))}
+          <div className="doc-date-block">
+            <div className="doc-date">{formatDate(quotation.date)}</div>
+            <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
           </div>
-          <div className="company-contact">
-            <div>TEL: {settings.tel}</div>
-            <div>{settings.email}</div>
-            <div>登録番号: {settings.registrationNumber}</div>
+          <div className="doc-logo-wrap">
+            {settings.logoDataUrl ? (
+              <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
+            ) : (
+              <div className="logo-box">FRe:x Design</div>
+            )}
+          </div>
+          <div className="company-info">
+            <div className="company-name-jp">{settings.companyName}</div>
+            <div className="company-name-en">{settings.companyNameEn}</div>
+            <div className="company-postal">〒{settings.postalCode}</div>
+            <div className="company-address">
+              {settings.address.split('\n').map((line, i) => (
+                <div key={i}>{line}</div>
+              ))}
+            </div>
+            <div className="company-contact">
+              <div>TEL: {settings.tel}</div>
+              <div>{settings.email}</div>
+              <div>登録番号: {settings.registrationNumber}</div>
+            </div>
           </div>
         </div>
       </div>
@@ -107,10 +109,8 @@ export default function QuotationPreview({ quotation, settings }: Props) {
             );
           })}
 
-          {/* 空行（諸経費前） */}
           <tr className="spacer-row"><td colSpan={4}></td></tr>
 
-          {/* 諸経費 */}
           <tr>
             <td>{miscExpensesItem.label}</td>
             <td className="col-qty">{miscExpensesItem.quantity} {miscExpensesItem.unit}</td>
@@ -118,7 +118,6 @@ export default function QuotationPreview({ quotation, settings }: Props) {
             <td className="col-amount">{formatCurrency(miscExpensesItem.amount)}</td>
           </tr>
 
-          {/* 値引き */}
           {discountItem && (
             <tr>
               <td>{discountItem.label}</td>
@@ -128,19 +127,16 @@ export default function QuotationPreview({ quotation, settings }: Props) {
             </tr>
           )}
 
-          {/* 小計 */}
           <tr className="subtotal-row">
             <td colSpan={3} className="subtotal-label">小計</td>
             <td className="col-amount">{formatCurrency(totals.subtotal)}</td>
           </tr>
 
-          {/* 消費税 */}
           <tr className="tax-row">
             <td colSpan={3} className="subtotal-label">消費税 ({settings.taxRate}%)</td>
             <td className="col-amount">{formatCurrency(totals.tax)}</td>
           </tr>
 
-          {/* 合計 */}
           <tr className="total-row">
             <td colSpan={3} className="subtotal-label">合計</td>
             <td className="col-amount">{formatCurrency(totals.total)}</td>
@@ -148,7 +144,6 @@ export default function QuotationPreview({ quotation, settings }: Props) {
         </tbody>
       </table>
 
-      {/* フッターコメント */}
       {settings.quotationFooterComment && (
         <div className="quotation-footer-comment">
           {settings.quotationFooterComment.split('\n').map((line, i) => (
