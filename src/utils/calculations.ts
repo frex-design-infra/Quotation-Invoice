@@ -524,6 +524,7 @@ export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings
   const isExcluded = (label: string) =>
     label === '現地踏査まとめ' ||
     label.startsWith('橋梁点検調書作成') ||
+    label.startsWith('道路附属物点検調書作成') ||
     label === '橋梁点検車(BT-200)' ||
     label.startsWith('橋梁点検車 運転手') ||
     label.startsWith('橋梁点検車(BT-200)燃料') ||
