@@ -37,10 +37,17 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
 
   return (
     <div className="quotation-preview" id="quotation-print-area">
-      {/* 日付・見積番号（最上部右寄せ） */}
+      {/* 日付・見積番号・ロゴ（最上部右寄せ） */}
       <div className="doc-date-area">
         <div className="doc-date">{formatDate(quotation.date)}</div>
         <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
+        <div className="doc-logo-wrap">
+          {settings.logoDataUrl ? (
+            <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
+          ) : (
+            <div className="logo-box">FRe:x Design</div>
+          )}
+        </div>
       </div>
 
       {/* タイトル */}
@@ -60,15 +67,8 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
           </div>
         </div>
 
-        {/* 右：ロゴ → 自社情報 */}
+        {/* 右：自社情報 */}
         <div className="doc-company-area">
-          <div className="doc-logo-wrap">
-            {settings.logoDataUrl ? (
-              <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
-            ) : (
-              <div className="logo-box">FRe:x Design</div>
-            )}
-          </div>
           <div className="company-info" style={{ position: 'relative' }}>
             {settings.sealDataUrl && (
               <img src={settings.sealDataUrl} alt="角印" className="company-seal-img" />

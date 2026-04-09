@@ -757,7 +757,8 @@ button {
   padding-left: 80px;
 }
 .doc-logo-wrap {
-  margin-bottom: 8px;
+  margin-top: 6px;
+  text-align: right;
 }
 .doc-logo-img {
   max-height: 52px;
