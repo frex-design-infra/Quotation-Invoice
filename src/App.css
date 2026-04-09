@@ -818,3 +818,9 @@ button {
   color: #b8f0c8;
   white-space: nowrap;
 }
+
+/* 同期ステータス */
+.sync-indicator { font-size: 11px; white-space: nowrap; }
+.sync-indicator.syncing { color: #ffd97d; }
+.sync-indicator.synced { color: #7ee8a2; }
+.sync-indicator.sync-err { color: #ffb3b3; }

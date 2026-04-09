@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import type { MasterSettings, Quotation, Invoice, OrdererCategory } from '../types';
+import { supabase } from '../lib/supabase';
 
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   laborUnitPrice: 34000,
@@ -72,49 +73,50 @@ const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
 const STORAGE_KEY_QUOTATIONS = 'quotation_list';
 const STORAGE_KEY_INVOICES = 'invoice_list';
 
+function applySettingsMigrations(parsed: Record<string, unknown>): MasterSettings {
+  // Migration: old array-format bridgeLengthTiers → delete and use default
+  if (Array.isArray(parsed.bridgeLengthTiers)) {
+    delete parsed.bridgeLengthTiers;
+  }
+
+  // Migration: per-category tiers with unitPrice instead of reportLaborDays
+  if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
+    const cats: OrdererCategory[] = ['国', '県', '市町村'];
+    for (const cat of cats) {
+      const tiers = (parsed.bridgeLengthTiers as Record<string, unknown[]>)[cat];
+      if (Array.isArray(tiers)) {
+        (parsed.bridgeLengthTiers as Record<string, unknown[]>)[cat] = (tiers as Record<string, unknown>[]).map((t: Record<string, unknown>) => {
+          if (typeof t.reportLaborDays === 'undefined' && typeof t.unitPrice === 'number') {
+            const laborUnitPrice = (parsed.laborUnitPrice as number) ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
+            return { ...t, reportLaborDays: laborUnitPrice > 0 ? Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 : 0 };
+          }
+          return t;
+        });
+      }
+    }
+  }
+
+  // Migration: clients string[] → Client[]
+  if (parsed.clients && Array.isArray(parsed.clients) && parsed.clients.length > 0 && typeof parsed.clients[0] === 'string') {
+    parsed.clients = (parsed.clients as string[]).map((name: string, i: number) => ({
+      id: `c${i}`,
+      name,
+      postalCode: '',
+      address: '',
+    }));
+  }
+
+  const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
+  delete (merged as Record<string, unknown>).discountAmount;
+  delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
+  return merged;
+}
+
 function loadSettings(): MasterSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
     if (!raw) return structuredClone(DEFAULT_MASTER_SETTINGS);
-    const parsed = JSON.parse(raw);
-
-    // Migration: old array-format bridgeLengthTiers → delete and use default
-    if (Array.isArray(parsed.bridgeLengthTiers)) {
-      delete parsed.bridgeLengthTiers;
-    }
-
-    // Migration: per-category tiers with unitPrice instead of reportLaborDays
-    if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
-      const cats: OrdererCategory[] = ['国', '県', '市町村'];
-      for (const cat of cats) {
-        const tiers = parsed.bridgeLengthTiers[cat];
-        if (Array.isArray(tiers)) {
-          parsed.bridgeLengthTiers[cat] = tiers.map((t: Record<string, unknown>) => {
-            if (typeof t.reportLaborDays === 'undefined' && typeof t.unitPrice === 'number') {
-              const laborUnitPrice = parsed.laborUnitPrice ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
-              return { ...t, reportLaborDays: laborUnitPrice > 0 ? Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 : 0 };
-            }
-            return t;
-          });
-        }
-      }
-    }
-
-    // Migration: clients string[] → Client[]
-    if (parsed.clients && Array.isArray(parsed.clients) && parsed.clients.length > 0 && typeof parsed.clients[0] === 'string') {
-      parsed.clients = (parsed.clients as string[]).map((name: string, i: number) => ({
-        id: `c${i}`,
-        name,
-        postalCode: '',
-        address: '',
-      }));
-    }
-
-    const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
-    // Remove legacy fields
-    delete (merged as Record<string, unknown>).discountAmount;
-    delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
-    return merged;
+    return applySettingsMigrations(JSON.parse(raw));
   } catch {
     return structuredClone(DEFAULT_MASTER_SETTINGS);
   }
@@ -131,19 +133,89 @@ function loadInvoices(): Invoice[] {
 function loadQuotations(): Quotation[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_QUOTATIONS);
-    if (raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw).map((q: Record<string, unknown>) => ({
+      inspectionType: '橋梁点検',
+      roadAccessoryCount: 0,
+      roadAccessoryDays: 0,
+      safetyCoordinationEnabled: false,
+      submitted: false,
+      ...q,
+    }));
   } catch {}
   return [];
+}
+
+// Supabase への保存（fire-and-forget）
+async function syncToSupabase(key: string, value: unknown) {
+  await supabase.from('app_data').upsert(
+    { key, value, updated_at: new Date().toISOString() },
+    { onConflict: 'key' }
+  );
 }
 
 export function useStore() {
   const [settings, setSettingsState] = useState<MasterSettings>(loadSettings);
   const [quotations, setQuotationsState] = useState<Quotation[]>(loadQuotations);
   const [invoices, setInvoicesState] = useState<Invoice[]>(loadInvoices);
+  const [syncing, setSyncing] = useState(true);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  // 起動時に Supabase から最新データを取得して上書き
+  useEffect(() => {
+    async function loadFromSupabase() {
+      setSyncing(true);
+      setSyncError(null);
+      try {
+        const { data, error } = await supabase.from('app_data').select('key, value');
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          // Supabase にデータなし → ローカルデータをアップロード
+          const currentSettings = loadSettings();
+          const currentQuotations = loadQuotations();
+          const currentInvoices = loadInvoices();
+          await Promise.all([
+            syncToSupabase('settings', currentSettings),
+            syncToSupabase('quotations', currentQuotations),
+            syncToSupabase('invoices', currentInvoices),
+          ]);
+        } else {
+          for (const row of data) {
+            if (row.key === 'settings' && row.value) {
+              const merged = applySettingsMigrations(row.value as Record<string, unknown>);
+              localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(merged));
+              setSettingsState(merged);
+            }
+            if (row.key === 'quotations' && row.value) {
+              const qs = (row.value as Record<string, unknown>[]).map(q => ({
+                inspectionType: '橋梁点検' as const,
+                roadAccessoryCount: 0,
+                roadAccessoryDays: 0,
+                safetyCoordinationEnabled: false,
+                submitted: false,
+                ...q,
+              })) as Quotation[];
+              localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(qs));
+              setQuotationsState(qs);
+            }
+            if (row.key === 'invoices' && row.value) {
+              localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(row.value));
+              setInvoicesState(row.value as Invoice[]);
+            }
+          }
+        }
+      } catch {
+        setSyncError('sync_error');
+      } finally {
+        setSyncing(false);
+      }
+    }
+    loadFromSupabase();
+  }, []);
 
   const saveSettings = useCallback((s: MasterSettings) => {
     setSettingsState(s);
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
+    syncToSupabase('settings', s);
   }, []);
 
   const saveQuotation = useCallback((q: Quotation) => {
@@ -153,6 +225,7 @@ export function useStore() {
         ? prev.map(x => x.id === q.id ? q : x)
         : [q, ...prev];
       localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(next));
+      syncToSupabase('quotations', next);
       return next;
     });
   }, []);
@@ -161,6 +234,7 @@ export function useStore() {
     setQuotationsState(prev => {
       const next = prev.filter(x => x.id !== id);
       localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(next));
+      syncToSupabase('quotations', next);
       return next;
     });
   }, []);
@@ -172,6 +246,7 @@ export function useStore() {
         ? prev.map(x => x.id === inv.id ? inv : x)
         : [inv, ...prev];
       localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      syncToSupabase('invoices', next);
       return next;
     });
   }, []);
@@ -180,6 +255,7 @@ export function useStore() {
     setInvoicesState(prev => {
       const next = prev.filter(x => x.id !== id);
       localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      syncToSupabase('invoices', next);
       return next;
     });
   }, []);
@@ -188,9 +264,9 @@ export function useStore() {
     const data = {
       version: 1,
       exportedAt: new Date().toISOString(),
-      settings: settings,
-      quotations: quotations,
-      invoices: invoices,
+      settings,
+      quotations,
+      invoices,
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
@@ -204,20 +280,24 @@ export function useStore() {
   const importData = useCallback((file: File): Promise<void> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         try {
           const data = JSON.parse(e.target?.result as string);
           if (data.settings) {
-            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(data.settings));
-            setSettingsState({ ...structuredClone(DEFAULT_MASTER_SETTINGS), ...data.settings });
+            const merged = applySettingsMigrations(data.settings);
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(merged));
+            setSettingsState(merged);
+            syncToSupabase('settings', merged);
           }
           if (data.quotations) {
             localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(data.quotations));
             setQuotationsState(data.quotations);
+            syncToSupabase('quotations', data.quotations);
           }
           if (data.invoices) {
             localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(data.invoices));
             setInvoicesState(data.invoices);
+            syncToSupabase('invoices', data.invoices);
           }
           resolve();
         } catch (err) {
@@ -229,5 +309,11 @@ export function useStore() {
     });
   }, []);
 
-  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData };
+  return {
+    settings, saveSettings,
+    quotations, saveQuotation, deleteQuotation,
+    invoices, saveInvoice, deleteInvoice,
+    exportData, importData,
+    syncing, syncError,
+  };
 }

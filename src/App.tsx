@@ -11,7 +11,7 @@ import './App.css';
 type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings';
 
 export default function App() {
-  const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData } = useStore();
+  const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
   const importInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState('');
   const [tab, setTab] = useState<Tab>('list');
@@ -116,6 +116,9 @@ export default function App() {
           </button>
         </div>
         <div className="nav-data-actions">
+          {syncing && <span className="sync-indicator syncing">同期中...</span>}
+          {!syncing && !syncError && <span className="sync-indicator synced">● 同期済</span>}
+          {syncError && <span className="sync-indicator sync-err">⚠ オフライン</span>}
           {importMsg && <span className="import-msg">{importMsg}</span>}
           <button className="btn-data" onClick={exportData} title="全データをJSONファイルとして保存">
             エクスポート
