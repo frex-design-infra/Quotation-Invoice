@@ -810,8 +810,8 @@ button {
   position: absolute;
   top: -30px;
   right: 10px;
-  width: 70px;
-  height: 70px;
+  width: 91px;
+  height: 91px;
   object-fit: contain;
   pointer-events: none;
 }
