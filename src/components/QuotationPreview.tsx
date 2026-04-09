@@ -54,6 +54,7 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           <div className="total-amount-area">
             <span className="total-label">お見積金額</span>
             <span className="total-value">¥ {formatCurrency(totals.total)} -</span>
+            <span className="total-tax-incl">（税込）</span>
           </div>
         </div>
 
