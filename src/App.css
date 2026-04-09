@@ -764,6 +764,9 @@ button {
   max-height: 52px;
   max-width: 130px;
   object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
 }
 .logo-box {
   border: 2px solid #333;
