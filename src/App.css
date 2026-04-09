@@ -780,17 +780,21 @@ button {
   align-items: flex-start;
   text-align: left;
   font-size: 8pt;
-  line-height: 1.6;
-  border-left: 1.5px solid #333;
-  padding-left: 14px;
+  line-height: 1.5;
+  padding-left: 80px;
+  padding-top: 46px;
 }
 .doc-logo-wrap {
-  margin-bottom: 6px;
+  margin-top: 6px;
+  text-align: right;
 }
 .doc-logo-img {
-  max-height: 80px;
+  max-height: 64px;
   max-width: 160px;
   object-fit: contain;
+  image-rendering: -webkit-optimize-contrast;
+  image-rendering: crisp-edges;
+  image-rendering: high-quality;
 }
 .logo-box {
   border: 2px solid #555;
