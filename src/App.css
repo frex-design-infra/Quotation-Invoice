@@ -792,8 +792,8 @@ button {
   position: absolute;
   top: -20px;
   right: 0;
-  width: 62px;
-  height: 62px;
+  width: 112px;
+  height: 112px;
   object-fit: contain;
   pointer-events: none;
 }
