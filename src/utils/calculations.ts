@@ -1,4 +1,4 @@
-import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, QuotationItem } from '../types';
+import type { BridgeData, BridgeLengthTier, MasterSettings, OrdererCategory, Quotation, QuotationItem } from '../types';
 
 export interface WorkParams {
   surveyDays: number;
@@ -349,4 +349,43 @@ export function calculateTotals(
 /** 金額を日本語表記でフォーマット */
 export function formatCurrency(amount: number): string {
   return amount.toLocaleString('ja-JP');
+}
+
+/** 再委託用見積書を生成（除外項目を除いて再計算） */
+export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings): Quotation {
+  const isExcluded = (label: string) =>
+    label === '現地踏査まとめ' ||
+    label.startsWith('橋梁点検調書作成') ||
+    label === '橋梁点検車(BT-200)' ||
+    label.startsWith('橋梁点検車 運転手') ||
+    label === '高所作業車(12m)' ||
+    label === '交通誘導員' ||
+    label.startsWith('規制材');
+
+  const filtered = q.items
+    .filter(item => item.isSeparator || !isExcluded(item.label))
+    .map(item =>
+      !item.isSeparator && item.label.startsWith('橋梁点検 (')
+        ? { ...item, label: item.label + ' 補助' }
+        : item
+    );
+
+  // 連続する空行・先頭・末尾の空行を除去
+  const cleaned = filtered.filter((item, i, arr) => {
+    if (!item.isSeparator) return true;
+    if (i === 0 || i === arr.length - 1) return false;
+    if (arr[i + 1]?.isSeparator) return false;
+    return true;
+  });
+
+  const totals = calculateTotals(cleaned, settings);
+
+  return {
+    ...q,
+    projectName: q.projectName + ' 補助業務',
+    items: cleaned,
+    subtotal: totals.subtotal,
+    tax: totals.tax,
+    total: totals.total,
+  };
 }

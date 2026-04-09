@@ -1,6 +1,6 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory } from '../types';
-import { calculateItems, calculateTotals, formatCurrency, type WorkParams } from '../utils/calculations';
+import { calculateItems, calculateTotals, formatCurrency, buildSubcontractQuotation, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
 import DatePicker from '../components/DatePicker';
@@ -65,6 +65,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [csvErrors, setCsvErrors] = useState<string[]>([]);
   const [csvFileName, setCsvFileName] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
+  const [subcontractMode, setSubcontractMode] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // 明細の再計算
@@ -193,17 +194,24 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
 
   if (view === 'preview') {
     const q = buildQuotation();
+    const displayQ = subcontractMode ? buildSubcontractQuotation(q, settings) : q;
     return (
       <div>
         {toastVisible && (
           <div className="toast-saved">保存しました ✓</div>
         )}
         <div className="preview-toolbar no-print">
-          <button onClick={() => setView('form')} className="btn-secondary">← 編集に戻る</button>
+          <button onClick={() => { setView('form'); setSubcontractMode(false); }} className="btn-secondary">← 編集に戻る</button>
+          <button
+            onClick={() => setSubcontractMode(v => !v)}
+            className={subcontractMode ? 'btn-subcontract active' : 'btn-subcontract'}
+          >
+            {subcontractMode ? '通常表示に戻る' : '再委託用'}
+          </button>
           <button onClick={handlePrint} className="btn-primary">🖨 PDF出力（印刷）</button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
-        <QuotationPreview quotation={q} settings={settings} />
+        <QuotationPreview quotation={displayQ} settings={settings} />
       </div>
     );
   }

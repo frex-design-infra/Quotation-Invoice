@@ -88,6 +88,10 @@ button {
 .btn-success { background: #2e7d32; color: white; }
 .btn-success:hover { background: #388e3c; }
 
+.btn-subcontract { background: white; color: #7b3f00; border: 1.5px solid #a0522d; }
+.btn-subcontract:hover { background: #fdf3ec; }
+.btn-subcontract.active { background: #a0522d; color: white; border-color: #a0522d; }
+
 .btn-danger { background: #c62828; color: white; }
 .btn-danger:hover { background: #e53935; }
 
