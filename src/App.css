@@ -710,7 +710,7 @@ button {
 /* タイトル */
 .doc-title {
   text-align: center;
-  font-size: 24pt;
+  font-size: 20pt;
   font-weight: 700;
   letter-spacing: 0.3em;
   margin: -62px 0 28px;
@@ -727,7 +727,7 @@ button {
 
 /* 発注者エリア */
 .client-name {
-  font-size: 14pt;
+  font-size: 12pt;
   font-weight: 700;
   display: inline-block;
   border-bottom: 2px solid #111;
@@ -745,7 +745,7 @@ button {
   margin-top: 8px;
 }
 .total-label { font-size: 12pt; font-weight: 700; white-space: nowrap; }
-.total-value { font-size: 16pt; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
+.total-value { font-size: 13pt; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
 .total-tax-incl { font-size: 9pt; color: #555; margin-left: 6px; white-space: nowrap; }
 
 /* 自社エリア */
