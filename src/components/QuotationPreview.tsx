@@ -36,14 +36,21 @@ export default function QuotationPreview({ quotation, settings }: Props) {
 
   return (
     <div className="quotation-preview" id="quotation-print-area">
-      {/* ヘッダー右上 */}
-      <div className="doc-date-area">
-        <div className="doc-date">{formatDate(quotation.date)}</div>
-        <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
+      {/* 右上：ロゴ ＋ 日付・番号 */}
+      <div className="doc-top-right">
+        {settings.logoDataUrl ? (
+          <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
+        ) : (
+          <div className="logo-box">FRe:x Design</div>
+        )}
+        <div className="doc-date-block">
+          <div className="doc-date">{formatDate(quotation.date)}</div>
+          <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
+        </div>
       </div>
 
       {/* タイトル */}
-      <h1 className="doc-title">見積書</h1>
+      <h1 className="doc-title">見　積　書</h1>
 
       {/* 発注者 / 自社情報 */}
       <div className="doc-header-grid">
@@ -59,23 +66,18 @@ export default function QuotationPreview({ quotation, settings }: Props) {
         </div>
 
         <div className="doc-company-area">
-          <div className="company-logo-placeholder">
-            <div className="logo-box">FRe:x Design</div>
+          <div className="company-name-jp">{settings.companyName}</div>
+          <div className="company-name-en">{settings.companyNameEn}</div>
+          <div className="company-postal">〒{settings.postalCode}</div>
+          <div className="company-address">
+            {settings.address.split('\n').map((line, i) => (
+              <div key={i}>{line}</div>
+            ))}
           </div>
-          <div className="company-info">
-            <div className="company-name-jp">{settings.companyName}</div>
-            <div className="company-name-en">{settings.companyNameEn}</div>
-            <div className="company-postal">〒{settings.postalCode}</div>
-            <div className="company-address">
-              {settings.address.split('\n').map((line, i) => (
-                <div key={i}>{line}</div>
-              ))}
-            </div>
-            <div className="company-contact">
-              <div>TEL: {settings.tel}</div>
-              <div>{settings.email}</div>
-              <div>登録番号: {settings.registrationNumber}</div>
-            </div>
+          <div className="company-contact">
+            <div>TEL: {settings.tel}</div>
+            <div>{settings.email}</div>
+            <div>登録番号: {settings.registrationNumber}</div>
           </div>
         </div>
       </div>

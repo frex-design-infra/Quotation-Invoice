@@ -181,6 +181,38 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           {textInput('TEL', form.tel, v => setForm(p => ({ ...p, tel: v })))}
           {textInput('メール', form.email, v => setForm(p => ({ ...p, email: v })))}
           {textInput('登録番号', form.registrationNumber, v => setForm(p => ({ ...p, registrationNumber: v })))}
+
+          <div className="settings-row">
+            <label>会社ロゴ</label>
+            <div className="logo-upload-area">
+              {form.logoDataUrl && (
+                <img src={form.logoDataUrl} alt="ロゴ" className="logo-preview-img" />
+              )}
+              <input
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                id="logo-file-input"
+                onChange={e => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = ev => {
+                    setForm(p => ({ ...p, logoDataUrl: ev.target?.result as string }));
+                  };
+                  reader.readAsDataURL(file);
+                }}
+              />
+              <label htmlFor="logo-file-input" className="btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                {form.logoDataUrl ? '画像を変更' : '画像をアップロード'}
+              </label>
+              {form.logoDataUrl && (
+                <button className="btn-danger btn-sm" onClick={() => setForm(p => ({ ...p, logoDataUrl: '' }))}>
+                  削除
+                </button>
+              )}
+            </div>
+          </div>
         </section>
 
         {/* 見積書フッターコメント */}

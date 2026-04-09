@@ -61,6 +61,7 @@ export interface MasterSettings {
   tel: string;
   email: string;
   registrationNumber: string;
+  logoDataUrl: string;          // base64ロゴ画像
 }
 
 // CSV から読み込んだ橋梁データ
