@@ -740,7 +740,7 @@ button {
 }
 .total-label { font-size: 12pt; font-weight: 700; white-space: nowrap; }
 .total-value { font-size: 16pt; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
-.total-tax-incl { font-size: 9pt; color: #555; margin-left: 6px; }
+.total-tax-incl { font-size: 9pt; color: #555; margin-left: 6px; white-space: nowrap; }
 
 /* 自社エリア */
 .doc-company-area {
