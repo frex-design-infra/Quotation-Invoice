@@ -61,7 +61,7 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
         </div>
 
         {/* 右：ロゴ → 自社情報 */}
-        <div className="doc-company-area" style={{ position: 'relative' }}>
+        <div className="doc-company-area">
           <div className="doc-logo-wrap">
             {settings.logoDataUrl ? (
               <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
@@ -69,10 +69,10 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
               <div className="logo-box">FRe:x Design</div>
             )}
           </div>
-          {settings.sealDataUrl && (
-            <img src={settings.sealDataUrl} alt="角印" className="company-seal-img" />
-          )}
-          <div className="company-info">
+          <div className="company-info" style={{ position: 'relative' }}>
+            {settings.sealDataUrl && (
+              <img src={settings.sealDataUrl} alt="角印" className="company-seal-img" />
+            )}
             <div className="company-name-jp">{settings.companyName}</div>
             <div className="company-name-en">{settings.companyNameEn}</div>
             <div className="company-postal">〒{settings.postalCode}</div>
