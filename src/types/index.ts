@@ -56,6 +56,7 @@ export interface MasterSettings {
   // 自社情報
   companyName: string;
   companyNameEn: string;
+  representativeName: string;   // 代表者名（再委託用）
   postalCode: string;
   address: string;
   tel: string;

@@ -5,9 +5,10 @@ import { calculateTotals, formatCurrency } from '../utils/calculations';
 interface Props {
   quotation: Quotation;
   settings: MasterSettings;
+  isSubcontract?: boolean;
 }
 
-export default function QuotationPreview({ quotation, settings }: Props) {
+export default function QuotationPreview({ quotation, settings, isSubcontract }: Props) {
   const totals = calculateTotals(quotation.items, settings);
 
   const formatDate = (dateStr: string) => {
@@ -78,6 +79,9 @@ export default function QuotationPreview({ quotation, settings }: Props) {
               ))}
             </div>
             <div className="company-contact">
+              {isSubcontract && settings.representativeName && (
+                <div>{settings.representativeName}</div>
+              )}
               <div>TEL: {settings.tel}</div>
               <div>{settings.email}</div>
               <div>登録番号: {settings.registrationNumber}</div>
@@ -148,9 +152,12 @@ export default function QuotationPreview({ quotation, settings }: Props) {
 
       {settings.quotationFooterComment && (
         <div className="quotation-footer-comment">
-          {settings.quotationFooterComment.split('\n').map((line, i) => (
-            <div key={i}>{line || '\u00A0'}</div>
-          ))}
+          {settings.quotationFooterComment
+            .split('\n')
+            .filter(line => !isSubcontract || !line.includes('写真整理および損傷図修正含む'))
+            .map((line, i) => (
+              <div key={i}>{line || '\u00A0'}</div>
+            ))}
         </div>
       )}
     </div>

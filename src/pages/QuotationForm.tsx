@@ -211,7 +211,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
           <button onClick={handlePrint} className="btn-primary">🖨 PDF出力（印刷）</button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
-        <QuotationPreview quotation={displayQ} settings={settings} />
+        <QuotationPreview quotation={displayQ} settings={settings} isSubcontract={subcontractMode} />
       </div>
     );
   }

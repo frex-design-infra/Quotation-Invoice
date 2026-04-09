@@ -169,6 +169,7 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           <h3>自社情報</h3>
           {textInput('会社名（日本語）', form.companyName, v => setForm(p => ({ ...p, companyName: v })))}
           {textInput('会社名（英語）', form.companyNameEn, v => setForm(p => ({ ...p, companyNameEn: v })))}
+          {textInput('代表者名（再委託用）', form.representativeName ?? '', v => setForm(p => ({ ...p, representativeName: v })))}
           {textInput('郵便番号', form.postalCode, v => setForm(p => ({ ...p, postalCode: v })))}
           <div className="settings-row">
             <label>住所</label>

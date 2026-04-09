@@ -52,6 +52,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
 
   companyName: '株式会社フレックスデザイン',
   companyNameEn: 'FRe:x Design inc.',
+  representativeName: '代表取締役　藤嶋 正博',
   postalCode: '0100904',
   address: '秋田県秋田保戸野原の町7-68\nアトレデルタ4F',
   tel: '050-3091-9584',
