@@ -738,8 +738,8 @@ button {
   gap: 24px;
   margin-top: 8px;
 }
-.total-label { font-size: 12pt; font-weight: 700; }
-.total-value { font-size: 16pt; font-weight: 700; letter-spacing: 0.05em; }
+.total-label { font-size: 12pt; font-weight: 700; white-space: nowrap; }
+.total-value { font-size: 16pt; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
 .total-tax-incl { font-size: 9pt; color: #555; margin-left: 6px; }
 
 /* 自社エリア */
