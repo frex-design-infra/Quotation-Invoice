@@ -973,7 +973,7 @@ button {
 }
 .inv-company-name { font-size: 10.5pt; font-weight: 700; }
 .inv-logo-img { max-height: 40px; max-width: 100px; object-fit: contain; }
-.inv-company-details { font-size: 8pt; line-height: 1.7; margin-top: 2px; }
+.inv-company-details { font-size: 8pt; line-height: 1.7; margin-top: 1em; }
 .inv-seal-img {
   position: absolute;
   top: -8px;
