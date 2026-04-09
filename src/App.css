@@ -802,7 +802,7 @@ button {
   width: 112px;
   height: auto;
   pointer-events: none;
-  filter: saturate(2) contrast(1.2);
+  filter: saturate(0.9);
 }
 
 /* 代表印（再委託用・代表者名の右上に絶対配置） */
@@ -813,7 +813,7 @@ button {
   width: 96px;
   height: auto;
   pointer-events: none;
-  filter: saturate(2) contrast(1.2);
+  filter: saturate(0.9);
 }
 
 /* 明細テーブル */
