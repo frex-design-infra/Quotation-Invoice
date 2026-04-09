@@ -60,7 +60,7 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
               <th>発注者名</th>
               <th>件名</th>
               <th>合計金額</th>
-              <th>橋梁数</th>
+              <th>橋数/基数</th>
               <th></th>
             </tr>
           </thead>
@@ -77,7 +77,11 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                 <td>{q.clientName}</td>
                 <td className="project-name-cell">{q.projectName}</td>
                 <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
-                <td className="center">{q.bridges.length}</td>
+                <td className="center">
+                  {q.inspectionType === '道路附属物点検'
+                    ? q.roadAccessoryCount || 0
+                    : q.bridges.length}
+                </td>
                 <td onClick={e => e.stopPropagation()} className="action-cell">
                   <button
                     className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
