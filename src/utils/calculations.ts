@@ -149,7 +149,7 @@ export function calculateItems(
     roadItems.push(separator());
 
     // 5a. 高所作業車(12m) 本体
-    if (ewpVehicleEnabled && ewpDays > 0) {
+    if (ewpDays > 0) {
       roadItems.push({
         id: genId(),
         label: '高所作業車(12m)',
@@ -162,7 +162,7 @@ export function calculateItems(
     }
 
     // 5b. 高所作業車燃料
-    if (settings.fuelEnabled && ewpDays > 0) {
+    if (ewpDays > 0) {
       const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * ewpDays;
       const fuelLabel = `道路附属物点検(高所作業車 12m)燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;
       roadItems.push({
