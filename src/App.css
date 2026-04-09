@@ -806,7 +806,7 @@ button {
 /* 代表印（再委託用・代表者名の右上に絶対配置） */
 .company-rep-seal-img {
   position: absolute;
-  top: -12px;
+  top: -25px;
   right: 0;
   width: 70px;
   height: 70px;
