@@ -358,9 +358,13 @@ export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings
     label.startsWith('橋梁点検調書作成') ||
     label === '橋梁点検車(BT-200)' ||
     label.startsWith('橋梁点検車 運転手') ||
+    label.startsWith('橋梁点検車(BT-200)燃料') ||
     label === '高所作業車(12m)' ||
+    label.startsWith('橋梁点検(高所作業車') ||
     label === '交通誘導員' ||
-    label.startsWith('規制材');
+    label.startsWith('規制材') ||
+    label.startsWith('国総研様式作成') ||
+    label.startsWith('国交省様式作成');
 
   const filtered = q.items
     .filter(item => item.isSeparator || !isExcluded(item.label))
