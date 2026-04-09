@@ -865,6 +865,13 @@ button {
     min-height: 297mm;
   }
 
+  /* 明細テーブル：フォント縮小＋数値右揃え */
+  .items-table { font-size: 7.5pt; }
+  .items-table th { font-size: 7.5pt; }
+  .items-table .col-qty   { text-align: right; }
+  .items-table .col-price { text-align: right; }
+  .items-table .col-amount { text-align: right; }
+
   @page {
     size: A4 portrait;
     margin: 0;
