@@ -795,7 +795,7 @@ button {
 /* 角印（会社情報エリア右上に絶対配置・文字に重なる） */
 .company-seal-img {
   position: absolute;
-  top: -40px;
+  top: -41px;
   right: 0;
   width: 112px;
   height: 112px;
