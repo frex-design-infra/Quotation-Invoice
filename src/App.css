@@ -844,18 +844,22 @@ button {
     padding: 0;
     background: white;
     width: 210mm;
+    display: flex;
+    justify-content: center;
   }
 
   .app-main {
     padding: 0 !important;
-    margin: 0 !important;
+    margin: 0 auto !important;
     max-width: none !important;
     background: white !important;
+    display: flex;
+    justify-content: center;
   }
 
   .quotation-preview {
     box-shadow: none;
-    margin: 0;
+    margin: 0 auto;
     padding: 20mm 18mm;
     width: 210mm;
     min-height: 297mm;
