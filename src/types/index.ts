@@ -21,6 +21,14 @@ export interface SpecialReportType {
   enabled: boolean;
 }
 
+// 発注者（クライアント）
+export interface Client {
+  id: string;
+  name: string;
+  postalCode: string;
+  address: string;
+}
+
 // マスタ設定
 export interface MasterSettings {
   // 人工単価
@@ -48,7 +56,7 @@ export interface MasterSettings {
   btFuelEnabled: boolean;
 
   // 発注者リスト
-  clients: string[];
+  clients: Client[];
 
   // 見積書フッターコメント
   quotationFooterComment: string;
@@ -71,6 +79,33 @@ export interface MasterSettings {
   logoDataUrl: string;          // base64ロゴ画像
   sealDataUrl: string;          // base64角印画像
   repSealDataUrl: string;       // base64代表印画像（再委託用）
+
+  // 請求書用
+  bankInfo: string;              // お振込先テキスト（複数行）
+  deliveryPersonDefault: string; // 納品担当者デフォルト
+}
+
+// 納品書兼請求書
+export interface Invoice {
+  id: string;
+  invoiceNumber: string;
+  issueDate: string;               // YYYY-MM-DD
+  quotationId?: string;
+  clientName: string;
+  clientPostalCode: string;
+  clientAddress: string;
+  projectName: string;
+  originalContractTotal: number;   // 当初契約額（税込）
+  changeAmount: number;            // 変更増減額（税込、0/±）
+  deliveryDate: string;
+  deliveryPerson: string;
+  deliveryDescription: string;     // 改行区切り
+  billingDate: string;
+  previousBillingTotal: number;    // 中間既請求額（税込）
+  paymentDueDate: string;
+  taxRate: number;
+  createdAt: string;
+  updatedAt: string;
 }
 
 // CSV から読み込んだ橋梁データ
@@ -117,7 +152,7 @@ export interface Quotation {
   ewpVehicleUnitPrice: number;
   trafficGuardEnabled: boolean;    // 交通誘導員
   trafficGuardUnitPrice: number;
-  barrierEnabled: boolean;         // 規制材(車両等含む)
+  barrierEnabled: boolean;         // 保安資材(車両等含む)
   barrierUnitPrice: number;
   bridges: BridgeData[];
   items: QuotationItem[];

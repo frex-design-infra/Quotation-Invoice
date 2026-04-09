@@ -9,27 +9,32 @@ interface Props {
   onPreview: (q: Quotation) => void;
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
+  onCreateInvoice: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
 
   const formatDate = (dateStr: string) => {
-    const d = new Date(dateStr);
+    const d = new Date(dateStr + 'T00:00:00');
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   };
 
   const handleToggle = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    setAnimatingIds(prev => new Set(prev).add(id));
     onToggleSubmitted(id);
+    setAnimatingIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
     setTimeout(() => {
       setAnimatingIds(prev => {
         const next = new Set(prev);
         next.delete(id);
         return next;
       });
-    }, 600);
+    }, 400);
   };
 
   return (
@@ -54,7 +59,7 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
               <th>発注者名</th>
               <th>件名</th>
               <th>合計金額</th>
-              <th>橋梁数</th>
+              <th>橋数/基数</th>
               <th></th>
             </tr>
           </thead>
@@ -66,7 +71,11 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                 <td>{q.clientName}</td>
                 <td className="project-name-cell">{q.projectName}</td>
                 <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
-                <td className="center">{q.bridges.length}</td>
+                <td className="center">
+                  {q.inspectionType === '道路附属物点検'
+                    ? q.roadAccessoryCount || 0
+                    : q.bridges.length}
+                </td>
                 <td onClick={e => e.stopPropagation()} className="action-cell">
                   <button
                     className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
@@ -75,13 +84,22 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                     {q.submitted ? '提出済' : '未提出'}
                   </button>
                   <button
-                    onClick={() => onPreview(q)}
+                    onClick={(e) => { e.stopPropagation(); onPreview(q); }}
                     className="btn-outline btn-sm"
                   >
                     プレビュー
                   </button>
+                  {q.submitted && (
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onCreateInvoice(q); }}
+                      className="btn-invoice btn-sm"
+                    >
+                      請求書作成
+                    </button>
+                  )}
                   <button
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       if (confirm(`「${q.quotationNumber}」を削除しますか？`)) {
                         onDelete(q.id);
                       }

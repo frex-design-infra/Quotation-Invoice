@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType } from '../types';
+import type { MasterSettings, BridgeLengthTier, OrdererCategory, SpecialReportType, Client } from '../types';
 import { DEFAULT_MASTER_SETTINGS } from '../stores/useStore';
 
 const CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
@@ -182,6 +182,16 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           {textInput('TEL', form.tel, v => setForm(p => ({ ...p, tel: v })))}
           {textInput('メール', form.email, v => setForm(p => ({ ...p, email: v })))}
           {textInput('登録番号', form.registrationNumber, v => setForm(p => ({ ...p, registrationNumber: v })))}
+          <div className="settings-row">
+            <label>お振込先</label>
+            <textarea
+              value={form.bankInfo ?? ''}
+              onChange={e => setForm(p => ({ ...p, bankInfo: e.target.value }))}
+              rows={4}
+              placeholder="銀行名・支店・口座番号など"
+            />
+          </div>
+          {textInput('納品担当者（デフォルト）', form.deliveryPersonDefault ?? '', v => setForm(p => ({ ...p, deliveryPersonDefault: v })))}
 
           <div className="settings-row">
             <label>会社ロゴ</label>
@@ -285,29 +295,64 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           <h3>発注者リスト</h3>
           <div className="client-list">
             {(form.clients ?? []).map((client, i) => (
-              <div key={i} className="client-list-row">
-                <input
-                  type="text"
-                  value={client}
-                  onChange={e => {
-                    const next = [...form.clients];
-                    next[i] = e.target.value;
-                    setForm(p => ({ ...p, clients: next }));
-                  }}
-                  placeholder="発注者名"
-                />
-                <button
-                  className="btn-danger btn-sm"
-                  onClick={() => setForm(p => ({ ...p, clients: p.clients.filter((_, j) => j !== i) }))}
-                >
-                  削除
-                </button>
+              <div key={client.id} className="client-list-row" style={{ flexDirection: 'column', alignItems: 'stretch', gap: '4px', marginBottom: '10px' }}>
+                <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                  <input
+                    type="text"
+                    value={client.name}
+                    onChange={e => {
+                      const next = [...form.clients] as Client[];
+                      next[i] = { ...next[i], name: e.target.value };
+                      setForm(p => ({ ...p, clients: next }));
+                    }}
+                    placeholder="発注者名"
+                    style={{ flex: 1 }}
+                  />
+                  <button
+                    className="btn-danger btn-sm"
+                    onClick={() => setForm(p => ({ ...p, clients: p.clients.filter((_, j) => j !== i) }))}
+                  >
+                    削除
+                  </button>
+                </div>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    type="text"
+                    value={client.postalCode}
+                    onChange={e => {
+                      const next = [...form.clients] as Client[];
+                      next[i] = { ...next[i], postalCode: e.target.value };
+                      setForm(p => ({ ...p, clients: next }));
+                    }}
+                    placeholder="郵便番号（例: 010-0904）"
+                    style={{ width: '160px' }}
+                  />
+                  <input
+                    type="text"
+                    value={client.address}
+                    onChange={e => {
+                      const next = [...form.clients] as Client[];
+                      next[i] = { ...next[i], address: e.target.value };
+                      setForm(p => ({ ...p, clients: next }));
+                    }}
+                    placeholder="住所"
+                    style={{ flex: 1 }}
+                  />
+                </div>
               </div>
             ))}
             <button
               className="btn-secondary btn-sm"
               style={{ marginTop: '6px' }}
-              onClick={() => setForm(p => ({ ...p, clients: [...(p.clients ?? []), ''] }))}
+              onClick={() => setForm(p => ({
+                ...p,
+                clients: [...(p.clients ?? []), {
+                  id: `c${Date.now()}`,
+                  name: '',
+                  postalCode: '',
+                  address: '',
+                }],
+              }))}
             >
               ＋ 追加
             </button>

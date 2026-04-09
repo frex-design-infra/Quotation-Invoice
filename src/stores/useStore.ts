@@ -1,5 +1,6 @@
-import { useState, useCallback } from 'react';
-import type { MasterSettings, Quotation, OrdererCategory } from '../types';
+import { useState, useCallback, useEffect } from 'react';
+import type { MasterSettings, Quotation, Invoice, OrdererCategory } from '../types';
+import { supabase } from '../lib/supabase';
 
 export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   laborUnitPrice: 34000,
@@ -45,7 +46,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   btFuelUnitPrice: 160,
   btFuelEnabled: true,
 
-  clients: [],
+  clients: [] as import('../types').Client[],
 
   quotationFooterComment: `※現地踏査および定期点検は実稼働日数による精算とする\n※写真整理および損傷図修正含む\n※移動にかかる燃料費,車両維持費およびソフトウェア等は諸経費に含む\n\nこのたびの御見積につきましては、昨今の燃料費・資材価格の高騰および技術者の人件費上昇に伴い、誠に不本意ながら前年度より一部価格の改定を行わせていただきました。これまで価格の据え置きに努めてまいりましたが、安定した点検品質を維持するためのやむを得ない措置としてご判断いただけますと幸いです。お客様にご負担をおかけすることとなり、深くお詫び申し上げます。何卒ご理解賜りますようお願い申し上げます。`,
 
@@ -63,47 +64,70 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   logoDataUrl: '',
   sealDataUrl: '',
   repSealDataUrl: '',
+
+  bankInfo: '秋田信用金庫\u3000本店\u3000店番001\n普通\u30000057179\u3000カ)フレックスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
+  deliveryPersonDefault: '',
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
 const STORAGE_KEY_QUOTATIONS = 'quotation_list';
+const STORAGE_KEY_INVOICES = 'invoice_list';
+
+function applySettingsMigrations(parsed: Record<string, unknown>): MasterSettings {
+  // Migration: old array-format bridgeLengthTiers → delete and use default
+  if (Array.isArray(parsed.bridgeLengthTiers)) {
+    delete parsed.bridgeLengthTiers;
+  }
+
+  // Migration: per-category tiers with unitPrice instead of reportLaborDays
+  if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
+    const cats: OrdererCategory[] = ['国', '県', '市町村'];
+    for (const cat of cats) {
+      const tiers = (parsed.bridgeLengthTiers as Record<string, unknown[]>)[cat];
+      if (Array.isArray(tiers)) {
+        (parsed.bridgeLengthTiers as Record<string, unknown[]>)[cat] = (tiers as Record<string, unknown>[]).map((t: Record<string, unknown>) => {
+          if (typeof t.reportLaborDays === 'undefined' && typeof t.unitPrice === 'number') {
+            const laborUnitPrice = (parsed.laborUnitPrice as number) ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
+            return { ...t, reportLaborDays: laborUnitPrice > 0 ? Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 : 0 };
+          }
+          return t;
+        });
+      }
+    }
+  }
+
+  // Migration: clients string[] → Client[]
+  if (parsed.clients && Array.isArray(parsed.clients) && parsed.clients.length > 0 && typeof parsed.clients[0] === 'string') {
+    parsed.clients = (parsed.clients as string[]).map((name: string, i: number) => ({
+      id: `c${i}`,
+      name,
+      postalCode: '',
+      address: '',
+    }));
+  }
+
+  const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
+  delete (merged as Record<string, unknown>).discountAmount;
+  delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
+  return merged;
+}
 
 function loadSettings(): MasterSettings {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_SETTINGS);
     if (!raw) return structuredClone(DEFAULT_MASTER_SETTINGS);
-    const parsed = JSON.parse(raw);
-
-    // Migration: old array-format bridgeLengthTiers → delete and use default
-    if (Array.isArray(parsed.bridgeLengthTiers)) {
-      delete parsed.bridgeLengthTiers;
-    }
-
-    // Migration: per-category tiers with unitPrice instead of reportLaborDays
-    if (parsed.bridgeLengthTiers && typeof parsed.bridgeLengthTiers === 'object') {
-      const cats: OrdererCategory[] = ['国', '県', '市町村'];
-      for (const cat of cats) {
-        const tiers = parsed.bridgeLengthTiers[cat];
-        if (Array.isArray(tiers)) {
-          parsed.bridgeLengthTiers[cat] = tiers.map((t: Record<string, unknown>) => {
-            if (typeof t.reportLaborDays === 'undefined' && typeof t.unitPrice === 'number') {
-              const laborUnitPrice = parsed.laborUnitPrice ?? DEFAULT_MASTER_SETTINGS.laborUnitPrice;
-              return { ...t, reportLaborDays: laborUnitPrice > 0 ? Math.round((t.unitPrice as number) / laborUnitPrice * 10) / 10 : 0 };
-            }
-            return t;
-          });
-        }
-      }
-    }
-
-    const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
-    // Remove legacy fields
-    delete (merged as Record<string, unknown>).discountAmount;
-    delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
-    return merged;
+    return applySettingsMigrations(JSON.parse(raw));
   } catch {
     return structuredClone(DEFAULT_MASTER_SETTINGS);
   }
+}
+
+function loadInvoices(): Invoice[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_INVOICES);
+    if (raw) return JSON.parse(raw);
+  } catch {}
+  return [];
 }
 
 function loadQuotations(): Quotation[] {
@@ -114,19 +138,84 @@ function loadQuotations(): Quotation[] {
       roadAccessoryCount: 0,
       roadAccessoryDays: 0,
       safetyCoordinationEnabled: false,
+      submitted: false,
       ...q,
     }));
   } catch {}
   return [];
 }
 
+// Supabase への保存（fire-and-forget）
+async function syncToSupabase(key: string, value: unknown) {
+  await supabase.from('app_data').upsert(
+    { key, value, updated_at: new Date().toISOString() },
+    { onConflict: 'key' }
+  );
+}
+
 export function useStore() {
   const [settings, setSettingsState] = useState<MasterSettings>(loadSettings);
   const [quotations, setQuotationsState] = useState<Quotation[]>(loadQuotations);
+  const [invoices, setInvoicesState] = useState<Invoice[]>(loadInvoices);
+  const [syncing, setSyncing] = useState(true);
+  const [syncError, setSyncError] = useState<string | null>(null);
+
+  // 起動時に Supabase から最新データを取得して上書き
+  useEffect(() => {
+    async function loadFromSupabase() {
+      setSyncing(true);
+      setSyncError(null);
+      try {
+        const { data, error } = await supabase.from('app_data').select('key, value');
+        if (error) throw error;
+        if (!data || data.length === 0) {
+          // Supabase にデータなし → ローカルデータをアップロード
+          const currentSettings = loadSettings();
+          const currentQuotations = loadQuotations();
+          const currentInvoices = loadInvoices();
+          await Promise.all([
+            syncToSupabase('settings', currentSettings),
+            syncToSupabase('quotations', currentQuotations),
+            syncToSupabase('invoices', currentInvoices),
+          ]);
+        } else {
+          for (const row of data) {
+            if (row.key === 'settings' && row.value) {
+              const merged = applySettingsMigrations(row.value as Record<string, unknown>);
+              localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(merged));
+              setSettingsState(merged);
+            }
+            if (row.key === 'quotations' && row.value) {
+              const qs = (row.value as Record<string, unknown>[]).map(q => ({
+                inspectionType: '橋梁点検' as const,
+                roadAccessoryCount: 0,
+                roadAccessoryDays: 0,
+                safetyCoordinationEnabled: false,
+                submitted: false,
+                ...q,
+              })) as Quotation[];
+              localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(qs));
+              setQuotationsState(qs);
+            }
+            if (row.key === 'invoices' && row.value) {
+              localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(row.value));
+              setInvoicesState(row.value as Invoice[]);
+            }
+          }
+        }
+      } catch {
+        setSyncError('sync_error');
+      } finally {
+        setSyncing(false);
+      }
+    }
+    loadFromSupabase();
+  }, []);
 
   const saveSettings = useCallback((s: MasterSettings) => {
     setSettingsState(s);
     localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(s));
+    syncToSupabase('settings', s);
   }, []);
 
   const saveQuotation = useCallback((q: Quotation) => {
@@ -136,6 +225,7 @@ export function useStore() {
         ? prev.map(x => x.id === q.id ? q : x)
         : [q, ...prev];
       localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(next));
+      syncToSupabase('quotations', next);
       return next;
     });
   }, []);
@@ -144,9 +234,86 @@ export function useStore() {
     setQuotationsState(prev => {
       const next = prev.filter(x => x.id !== id);
       localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(next));
+      syncToSupabase('quotations', next);
       return next;
     });
   }, []);
 
-  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation };
+  const saveInvoice = useCallback((inv: Invoice) => {
+    setInvoicesState(prev => {
+      const exists = prev.findIndex(x => x.id === inv.id);
+      const next = exists >= 0
+        ? prev.map(x => x.id === inv.id ? inv : x)
+        : [inv, ...prev];
+      localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      syncToSupabase('invoices', next);
+      return next;
+    });
+  }, []);
+
+  const deleteInvoice = useCallback((id: string) => {
+    setInvoicesState(prev => {
+      const next = prev.filter(x => x.id !== id);
+      localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(next));
+      syncToSupabase('invoices', next);
+      return next;
+    });
+  }, []);
+
+  const exportData = useCallback(() => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings,
+      quotations,
+      invoices,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quotation-data-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [settings, quotations, invoices]);
+
+  const importData = useCallback((file: File): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          if (data.settings) {
+            const merged = applySettingsMigrations(data.settings);
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(merged));
+            setSettingsState(merged);
+            syncToSupabase('settings', merged);
+          }
+          if (data.quotations) {
+            localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(data.quotations));
+            setQuotationsState(data.quotations);
+            syncToSupabase('quotations', data.quotations);
+          }
+          if (data.invoices) {
+            localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(data.invoices));
+            setInvoicesState(data.invoices);
+            syncToSupabase('invoices', data.invoices);
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  }, []);
+
+  return {
+    settings, saveSettings,
+    quotations, saveQuotation, deleteQuotation,
+    invoices, saveInvoice, deleteInvoice,
+    exportData, importData,
+    syncing, syncError,
+  };
 }

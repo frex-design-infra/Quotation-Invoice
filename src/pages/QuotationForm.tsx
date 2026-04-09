@@ -317,10 +317,10 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             >
               <option value="">-- 選択してください --</option>
               {(settings.clients ?? [])
-                .filter(c => c.trim())
-                .map(c => <option key={c} value={c}>{c}</option>)
+                .filter(c => c.name.trim())
+                .map(c => <option key={c.id} value={c.name}>{c.name}</option>)
               }
-              {clientName && !(settings.clients ?? []).includes(clientName) && (
+              {clientName && !(settings.clients ?? []).some(c => c.name === clientName) && (
                 <option value={clientName}>{clientName}</option>
               )}
             </select>

@@ -714,7 +714,7 @@ button {
   width: 210mm;
   min-height: 297mm;
   margin: 0 auto;
-  padding: 20mm 18mm;
+  padding: 16mm 18mm;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   position: relative;
   font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
@@ -726,153 +726,140 @@ button {
 .doc-date-area {
   text-align: right;
   font-size: 9pt;
-  margin-top: -8px;
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 .doc-number { font-weight: 600; }
 
 /* タイトル */
 .doc-title {
   text-align: center;
-  font-size: 20pt;
+  font-size: 26pt;
   font-weight: 700;
-  letter-spacing: 0.3em;
-  margin: -62px 0 28px;
+  letter-spacing: 0.5em;
+  margin: 6px 0 14px;
   border-bottom: none;
 }
 
-/* ヘッダーグリッド：品番・品名列幅 = 1fr、数量+単価+金額 = 260px に合わせる */
+/* ヘッダーグリッド：品番・品名列幅 = 1fr、数量+単価+金額 = 260px */
 .doc-header-grid {
   display: grid;
   grid-template-columns: 1fr 260px;
   gap: 0;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 /* 発注者エリア */
 .client-name {
-  font-size: 12pt;
+  font-size: 15pt;
   font-weight: 700;
   display: inline-block;
   border-bottom: 2px solid #111;
-  padding-bottom: 4px;
-  margin-bottom: 10px;
+  padding-bottom: 5px;
+  margin-bottom: 8px;
   white-space: nowrap;
 }
-.project-name { font-size: 10pt; margin-bottom: 8px; }
-.doc-intro { font-size: 10pt; margin-bottom: 16px; }
+.project-name { font-size: 9.5pt; margin-bottom: 6px; }
+.doc-intro { font-size: 9.5pt; margin-bottom: 14px; }
 
 .total-amount-area {
   display: flex;
   align-items: baseline;
-  gap: 24px;
-  margin-top: 8px;
+  gap: 20px;
+  border-bottom: 2px solid #111;
+  padding-bottom: 6px;
+  margin-top: 4px;
 }
-.total-label { font-size: 12pt; font-weight: 700; white-space: nowrap; }
-.total-value { font-size: 13pt; font-weight: 700; letter-spacing: 0.05em; white-space: nowrap; }
-.total-tax-incl { font-size: 9pt; color: #555; margin-left: 6px; white-space: nowrap; }
+.total-label { font-size: 11pt; font-weight: 700; white-space: nowrap; }
+.total-value { font-size: 18pt; font-weight: 700; letter-spacing: 0.03em; white-space: nowrap; }
+.total-tax-incl { font-size: 8.5pt; color: #555; white-space: nowrap; }
 
-/* 自社エリア */
+/* 自社エリア（左ボーダーで区切り） */
 .doc-company-area {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
   text-align: left;
   font-size: 8pt;
-  line-height: 1.5;
-  padding-left: 80px;
-  padding-top: 46px;
+  line-height: 1.6;
+  border-left: 1.5px solid #333;
+  padding-left: 14px;
 }
 .doc-logo-wrap {
-  margin-top: 6px;
-  text-align: right;
+  margin-bottom: 6px;
 }
 .doc-logo-img {
-  max-height: 64px;
+  max-height: 80px;
   max-width: 160px;
   object-fit: contain;
-  image-rendering: -webkit-optimize-contrast;
-  image-rendering: crisp-edges;
-  image-rendering: high-quality;
 }
 .logo-box {
-  border: 2px solid #333;
+  border: 2px solid #555;
   border-radius: 50%;
   width: 56px;
   height: 56px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 7pt;
+  font-size: 8.5pt;
   font-weight: 700;
-  color: #333;
+  color: #444;
+  letter-spacing: 0.05em;
 }
-.company-info { line-height: 1.5; }
-.company-name-jp { font-size: 9.5pt; font-weight: 700; margin-bottom: 1px; }
-.company-name-en { font-size: 7.5pt; margin-bottom: 4px; color: #444; text-align: right; }
-.company-postal { font-size: 7.5pt; }
-.company-address { font-size: 7.5pt; margin-bottom: 3px; text-align: right; }
-.company-contact { font-size: 7.5pt; color: #333; }
+.company-info { line-height: 1.6; }
+.company-name-jp { font-size: 10.5pt; font-weight: 700; margin-bottom: 1px; }
+.company-name-en { font-size: 8pt; margin-bottom: 6px; color: #444; }
+.company-postal { font-size: 8pt; }
+.company-address { font-size: 8pt; margin-bottom: 5px; }
+.company-contact { font-size: 8pt; color: #333; }
 
 /* マスタ設定：ロゴアップロード */
 .logo-upload-area { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .logo-preview-img { max-height: 50px; max-width: 120px; object-fit: contain; border: 1px solid #dde; border-radius: 4px; padding: 2px; }
 
-/* 角印（会社情報エリア右上に絶対配置・文字に重なる） */
-.company-seal-img {
-  position: absolute;
-  top: -46px;
-  right: 0;
-  width: 112px;
-  height: auto;
-  pointer-events: none;
-  filter: saturate(0.9);
-}
-
-/* 代表印（再委託用・代表者名の右上に絶対配置） */
-.company-rep-seal-img {
-  position: absolute;
-  top: -30px;
-  right: -18px;
-  width: 96px;
-  height: auto;
-  pointer-events: none;
-  filter: saturate(0.9);
-}
-
 /* 明細テーブル */
 .items-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 10.5pt;
+  font-size: 9pt;
 }
 .items-table th {
-  background: #e8ecf0;
-  padding: 6px 8px;
+  background: #dde3ea;
+  padding: 5px 8px;
   text-align: center;
   font-weight: 700;
-  border: 1px solid #999;
+  font-size: 9pt;
+  border: 1px solid #888;
 }
 .items-table td {
-  padding: 5px 8px;
-  border: 1px solid #ccc;
+  padding: 4px 8px;
+  border: 1px solid #bbb;
   vertical-align: middle;
 }
-.items-table .col-name { min-width: 240px; max-width: 0; }
-.items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
-.items-table td.col-qty { text-align: right; width: 80px; }
-.items-table td.col-price { text-align: right; width: 90px; }
-.items-table td.col-amount { text-align: right; width: 90px; }
+.items-table .col-name { min-width: 200px; }
+.items-table .col-qty  { text-align: center; width: 80px; }
+.items-table .col-price { text-align: center; width: 90px; }
+.items-table .col-amount { text-align: center; width: 90px; }
 
-.spacer-row td { height: 12px; border: none; background: none; padding: 0; }
+.spacer-row td { height: 8px; border: none !important; background: none; padding: 0; }
 
-.subtotal-row td, .tax-row td, .total-row td {
+/* 諸経費・値引き行 */
+.subtotal-row td, .tax-row td {
   border-left: none;
   border-right: none;
+  border-top: 1px solid #888;
+  border-bottom: none;
 }
-.subtotal-label { text-align: right; font-weight: 600; padding-right: 16px; }
+.subtotal-label { text-align: right; font-weight: 600; padding-right: 12px; }
 
-.total-row td { font-weight: 700; font-size: 11pt; background: #f5f5f5; }
+/* 合計行 */
+.total-row td {
+  border-left: none;
+  border-right: none;
+  border-top: 2px solid #333;
+  border-bottom: 2px solid #333;
+  font-weight: 700;
+  font-size: 10.5pt;
+}
 
 /* ============================================
    印刷スタイル
@@ -927,3 +914,162 @@ button {
     margin: 0;
   }
 }
+
+/* ============================================
+   請求書
+   ============================================ */
+
+/* btn-invoice: 紫/インディゴ系 */
+.btn-invoice {
+  background: white;
+  color: #4338ca;
+  border: 1.5px solid #4338ca;
+}
+.btn-invoice:hover {
+  background: #eef2ff;
+}
+
+/* ── InvoicePreview ── */
+.invoice-preview {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+  padding: 12mm 18mm 20mm;
+  box-sizing: border-box;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
+  font-size: 9pt;
+  position: relative;
+}
+
+/* Header */
+.inv-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+  border-bottom: 3px solid #1e3a5f;
+  padding-bottom: 4px;
+}
+.inv-title { font-size: 22pt; font-weight: 700; letter-spacing: 0.25em; }
+.inv-meta { text-align: right; font-size: 8pt; line-height: 2; }
+
+/* Parties */
+.inv-header-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin: 8px 0;
+}
+.inv-client-area { font-size: 8.5pt; }
+.inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 20px; display: block; }
+.inv-company-area { position: relative; text-align: right; }
+.inv-company-name-row {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+.inv-company-name { font-size: 14pt; font-weight: 700; }
+.inv-logo-img { max-height: 40px; max-width: 100px; object-fit: contain; }
+.inv-company-details { font-size: 8pt; line-height: 1.7; margin-top: 2px; }
+.inv-seal-img {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 80px;
+  height: auto;
+  filter: saturate(0.9);
+  pointer-events: none;
+}
+.inv-client-name-row { margin: 4px 0 8px; }
+.inv-intro { font-size: 9pt; margin: 4px 0 10px; }
+
+/* Tables */
+.inv-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 9pt;
+}
+.inv-table th,
+.inv-table td {
+  border: 1px solid #666;
+  padding: 5px 8px;
+}
+.inv-th {
+  background: #e8ecf0;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+.inv-th-w1 { width: 80px; }
+.inv-th-w2 { width: 100px; }
+.inv-th-side {
+  background: #e8ecf0;
+  font-weight: 600;
+  text-align: center;
+  width: 60px;
+}
+.inv-th-delivery { vertical-align: top; padding-top: 8px; }
+.inv-sub-label {
+  background: #f5f7f9;
+  padding-left: 16px;
+  width: 120px;
+}
+.inv-sub-label-bold { font-weight: 700; }
+.inv-amount { text-align: right; width: 130px; }
+.inv-amount-bold { font-weight: 700; }
+.inv-tax-label { text-align: center; font-size: 8pt; color: #444; width: 110px; }
+.inv-tax-amount { text-align: right; font-size: 8pt; color: #444; }
+.inv-date-cell { min-width: 80px; }
+.inv-td { }
+.inv-current-billing-row td { background: #f0f4ff; font-weight: 700; }
+.inv-delivery-content { vertical-align: top; line-height: 1.8; }
+.inv-delivery-line { min-height: 1.5em; }
+.inv-bank-info { line-height: 1.8; }
+.inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }
+
+@media print {
+  .invoice-preview {
+    box-shadow: none;
+    margin: 0;
+    padding: 10mm 18mm 20mm;
+    width: 210mm;
+    min-height: 297mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .inv-table { font-size: 8.5pt; }
+}
+
+/* データ操作ボタン */
+.nav-data-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding-left: 16px;
+}
+.btn-data {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-data:hover { background: rgba(255,255,255,0.28); }
+.import-msg {
+  font-size: 12px;
+  color: #b8f0c8;
+  white-space: nowrap;
+}
+
+/* 同期ステータス */
+.sync-indicator { font-size: 11px; white-space: nowrap; }
+.sync-indicator.syncing { color: #ffd97d; }
+.sync-indicator.synced { color: #7ee8a2; }
+.sync-indicator.sync-err { color: #ffb3b3; }
