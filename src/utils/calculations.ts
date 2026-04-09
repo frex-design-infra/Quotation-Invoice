@@ -366,10 +366,13 @@ export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings
     label.startsWith('国総研様式作成') ||
     label.startsWith('国交省様式作成');
 
+  const addsSuffix = (label: string) =>
+    label === '現地踏査' || label.startsWith('橋梁点検 (');
+
   const filtered = q.items
     .filter(item => item.isSeparator || !isExcluded(item.label))
     .map(item =>
-      !item.isSeparator && item.label.startsWith('橋梁点検 (')
+      !item.isSeparator && addsSuffix(item.label)
         ? { ...item, label: item.label + ' 補助' }
         : item
     );
