@@ -310,12 +310,20 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
           </div>
           <div className="field-row">
             <label>発注者名</label>
-            <input
-              type="text"
+            <select
               value={clientName}
               onChange={e => setClientName(e.target.value)}
-              placeholder="例: 株式会社福山コンサルタント"
-            />
+              style={{ flex: 1 }}
+            >
+              <option value="">-- 選択してください --</option>
+              {(settings.clients ?? [])
+                .filter(c => c.trim())
+                .map(c => <option key={c} value={c}>{c}</option>)
+              }
+              {clientName && !(settings.clients ?? []).includes(clientName) && (
+                <option value={clientName}>{clientName}</option>
+              )}
+            </select>
           </div>
           <div className="field-row">
             <label>件名</label>

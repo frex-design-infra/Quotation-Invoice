@@ -280,6 +280,40 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           </div>
         </section>
 
+        {/* 発注者リスト */}
+        <section className="settings-section">
+          <h3>発注者リスト</h3>
+          <div className="client-list">
+            {(form.clients ?? []).map((client, i) => (
+              <div key={i} className="client-list-row">
+                <input
+                  type="text"
+                  value={client}
+                  onChange={e => {
+                    const next = [...form.clients];
+                    next[i] = e.target.value;
+                    setForm(p => ({ ...p, clients: next }));
+                  }}
+                  placeholder="発注者名"
+                />
+                <button
+                  className="btn-danger btn-sm"
+                  onClick={() => setForm(p => ({ ...p, clients: p.clients.filter((_, j) => j !== i) }))}
+                >
+                  削除
+                </button>
+              </div>
+            ))}
+            <button
+              className="btn-secondary btn-sm"
+              style={{ marginTop: '6px' }}
+              onClick={() => setForm(p => ({ ...p, clients: [...(p.clients ?? []), ''] }))}
+            >
+              ＋ 追加
+            </button>
+          </div>
+        </section>
+
         {/* 見積書フッターコメント */}
         <section className="settings-section">
           <h3>見積書フッターコメント</h3>

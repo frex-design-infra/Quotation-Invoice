@@ -47,6 +47,9 @@ export interface MasterSettings {
   btFuelUnitPrice: number;
   btFuelEnabled: boolean;
 
+  // 発注者リスト
+  clients: string[];
+
   // 見積書フッターコメント
   quotationFooterComment: string;
 

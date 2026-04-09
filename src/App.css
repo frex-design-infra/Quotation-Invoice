@@ -418,6 +418,9 @@ button {
   gap: 12px;
   margin-bottom: 10px;
 }
+.client-list { display: flex; flex-direction: column; gap: 6px; }
+.client-list-row { display: flex; align-items: center; gap: 8px; }
+.client-list-row input { flex: 1; }
 .settings-row label:first-child {
   flex: 0 0 140px;
   font-weight: 600;
