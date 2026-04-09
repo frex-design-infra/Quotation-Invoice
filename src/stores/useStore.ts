@@ -111,6 +111,7 @@ function loadQuotations(): Quotation[] {
       inspectionType: '橋梁点検',
       roadAccessoryCount: 0,
       roadAccessoryDays: 0,
+      safetyCoordinationEnabled: false,
       ...q,
     }));
   } catch {}

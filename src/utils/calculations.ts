@@ -16,6 +16,7 @@ export interface WorkParams {
   trafficGuardUnitPrice: number;
   barrierEnabled: boolean;
   barrierUnitPrice: number;
+  safetyCoordinationEnabled?: boolean;
   inspectionType?: InspectionType;
   roadAccessoryCount?: number;
   roadAccessoryDays?: number;
@@ -52,7 +53,8 @@ export function calculateItems(
 ): QuotationItem[] {
   const { surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
           btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
-          trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice } = params;
+          trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
+          safetyCoordinationEnabled } = params;
 
   // ── 道路附属物点検モード ─────────────────────────
   if (params.inspectionType === '道路附属物点検') {
@@ -106,13 +108,27 @@ export function calculateItems(
     const inspectionQty = days * 2;
     roadItems.push({
       id: genId(),
-      label: `道路附属物点検 N=${count}（基本的には12基/日を初期値で計上）`,
+      label: `道路附属物点検 N=${count}`,
       quantity: inspectionQty,
       unit: '人工',
       unitPrice: settings.laborUnitPrice,
       amount: inspectionQty * settings.laborUnitPrice,
       isAutoCalculated: true,
     });
+
+    // 4a. 道路附属物点検（高所作業車 12m）
+    if (ewpDays > 0) {
+      const ewpQty = ewpDays * 2;
+      roadItems.push({
+        id: genId(),
+        label: '道路附属物点検 (高所作業車 12m)',
+        quantity: ewpQty,
+        unit: '人工',
+        unitPrice: settings.laborUnitPrice,
+        amount: ewpQty * settings.laborUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
 
     // separator
     roadItems.push(separator());
@@ -132,6 +148,34 @@ export function calculateItems(
     // separator
     roadItems.push(separator());
 
+    // 5a. 高所作業車(12m) 本体
+    if (ewpVehicleEnabled && ewpDays > 0) {
+      roadItems.push({
+        id: genId(),
+        label: '高所作業車(12m)',
+        quantity: 1,
+        unit: '式',
+        unitPrice: ewpVehicleUnitPrice,
+        amount: ewpVehicleUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    // 5b. 高所作業車燃料
+    if (settings.fuelEnabled && ewpDays > 0) {
+      const liters = settings.fuelHoursPerDay * settings.fuelLitersPerHour * ewpDays;
+      const fuelLabel = `道路附属物点検(高所作業車 12m)燃料 ${settings.fuelHoursPerDay}h/1日稼働時間×${settings.fuelLitersPerHour}L/h×日`;
+      roadItems.push({
+        id: genId(),
+        label: fuelLabel,
+        quantity: liters,
+        unit: 'L',
+        unitPrice: settings.fuelUnitPrice,
+        amount: liters * settings.fuelUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
     // 6. 交通誘導員（trafficGuardEnabled、既存と同じ）
     if (trafficGuardEnabled) {
       roadItems.push({
@@ -145,15 +189,28 @@ export function calculateItems(
       });
     }
 
-    // 7. 規制材（barrierEnabled、既存と同じ）
+    // 7. 保安資材（barrierEnabled、既存と同じ）
     if (barrierEnabled) {
       roadItems.push({
         id: genId(),
-        label: '規制材(車両等含む)',
+        label: '保安資材(車両等含む)',
         quantity: 1,
         unit: '式',
         unitPrice: barrierUnitPrice,
         amount: barrierUnitPrice,
+        isAutoCalculated: true,
+      });
+    }
+
+    // 8. 規制保安連絡調整
+    if (safetyCoordinationEnabled) {
+      roadItems.push({
+        id: genId(),
+        label: '規制保安連絡調整',
+        quantity: 3,
+        unit: '人工',
+        unitPrice: settings.laborUnitPrice,
+        amount: 3 * settings.laborUnitPrice,
         isAutoCalculated: true,
       });
     }
@@ -426,15 +483,28 @@ export function calculateItems(
     });
   }
 
-  // 11. 規制材(車両等含む)
+  // 11. 保安資材(車両等含む)
   if (barrierEnabled) {
     items.push({
       id: genId(),
-      label: '規制材(車両等含む)',
+      label: '保安資材(車両等含む)',
       quantity: 1,
       unit: '式',
       unitPrice: barrierUnitPrice,
       amount: barrierUnitPrice,
+      isAutoCalculated: true,
+    });
+  }
+
+  // 12. 規制保安連絡調整
+  if (safetyCoordinationEnabled) {
+    items.push({
+      id: genId(),
+      label: '規制保安連絡調整',
+      quantity: 3,
+      unit: '人工',
+      unitPrice: settings.laborUnitPrice,
+      amount: 3 * settings.laborUnitPrice,
       isAutoCalculated: true,
     });
   }
@@ -473,8 +543,10 @@ export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings
     label.startsWith('橋梁点検車(BT-200)燃料') ||
     label === '高所作業車(12m)' ||
     label.startsWith('橋梁点検(高所作業車') ||
+    label.startsWith('道路附属物点検(高所作業車') ||
     label === '交通誘導員' ||
-    label.startsWith('規制材') ||
+    label.startsWith('保安資材') ||
+    label === '規制保安連絡調整' ||
     label.startsWith('国総研様式作成') ||
     label.startsWith('国交省様式作成');
 

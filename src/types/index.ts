@@ -121,6 +121,7 @@ export interface Quotation {
   subtotal: number;
   tax: number;
   total: number;
+  safetyCoordinationEnabled: boolean; // 規制保安連絡調整
   submitted: boolean;           // 提出済フラグ
   createdAt: string;
   updatedAt: string;

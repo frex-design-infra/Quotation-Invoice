@@ -57,6 +57,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [trafficGuardUnitPrice, setTrafficGuardUnitPrice] = useState(initial?.trafficGuardUnitPrice ?? 0);
   const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
   const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
+  const [safetyCoordinationEnabled, setSafetyCoordinationEnabled] = useState(initial?.safetyCoordinationEnabled ?? false);
   const [submitted, setSubmitted] = useState(initial?.submitted ?? false);
   const [submitAnimating, setSubmitAnimating] = useState(false);
   const [inspectionType, setInspectionType] = useState<InspectionType>(initial?.inspectionType ?? '橋梁点検');
@@ -93,6 +94,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
+    safetyCoordinationEnabled,
     inspectionType,
     roadAccessoryCount,
     roadAccessoryDays,
@@ -100,7 +102,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
        btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
        trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
-       inspectionType, roadAccessoryCount, roadAccessoryDays]);
+       safetyCoordinationEnabled, inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
   const recalculate = useCallback((
     bridgeList: BridgeData[],
@@ -187,6 +189,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     trafficGuardUnitPrice,
     barrierEnabled,
     barrierUnitPrice,
+    safetyCoordinationEnabled,
     submitted,
     bridges,
     items,
@@ -440,20 +443,6 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
                 </div>
               </div>
               <div className="field-row">
-                <label>点検（高所作業車）</label>
-                <div className="input-with-suffix">
-                  <input
-                    type="number"
-                    min="0"
-                    value={ewpDays}
-                    onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
-                  />
-                  <span className="suffix">日 → {ewpDays * 2} 人工</span>
-                </div>
-              </div>
-              <p className="hint" style={{ marginBottom: '12px' }}>各日数 × 2人工 で計上。燃料は各点検日数ベース。</p>
-
-              <div className="field-row">
                 <label className="checkbox-label">
                   <input type="checkbox" checked={btVehicleEnabled}
                     onChange={e => setBtVehicleEnabled(e.target.checked)} />
@@ -467,23 +456,6 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
                   disabled={!btVehicleEnabled}
                   onChange={e => setBtVehicleUnitPrice(parseFloat(e.target.value) || 0)}
                   style={{ opacity: btVehicleEnabled ? 1 : 0.4 }}
-                />
-              </div>
-
-              <div className="field-row">
-                <label className="checkbox-label">
-                  <input type="checkbox" checked={ewpVehicleEnabled}
-                    onChange={e => setEwpVehicleEnabled(e.target.checked)} />
-                  <span>高所作業車(12m)</span>
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  value={ewpVehicleUnitPrice || ''}
-                  placeholder="単価（円）"
-                  disabled={!ewpVehicleEnabled}
-                  onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
-                  style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
                 />
               </div>
             </>
@@ -518,6 +490,36 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             </>
           )}
 
+          {/* 高所作業車（両モード共通） */}
+          <div className="field-row">
+            <label>点検（高所作業車）</label>
+            <div className="input-with-suffix">
+              <input
+                type="number"
+                min="0"
+                value={ewpDays}
+                onChange={e => setEwpDays(parseInt(e.target.value) || 0)}
+              />
+              <span className="suffix">日 → {ewpDays * 2} 人工</span>
+            </div>
+          </div>
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={ewpVehicleEnabled}
+                onChange={e => setEwpVehicleEnabled(e.target.checked)} />
+              <span>高所作業車(12m)</span>
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={ewpVehicleUnitPrice || ''}
+              placeholder="単価（円）"
+              disabled={!ewpVehicleEnabled}
+              onChange={e => setEwpVehicleUnitPrice(parseFloat(e.target.value) || 0)}
+              style={{ opacity: ewpVehicleEnabled ? 1 : 0.4 }}
+            />
+          </div>
+
           <div className="field-row">
             <label className="checkbox-label">
               <input type="checkbox" checked={trafficGuardEnabled}
@@ -539,7 +541,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             <label className="checkbox-label">
               <input type="checkbox" checked={barrierEnabled}
                 onChange={e => setBarrierEnabled(e.target.checked)} />
-              <span>規制材(車両等含む)</span>
+              <span>保安資材(車両等含む)</span>
             </label>
             <input
               type="number"
@@ -550,6 +552,17 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
               onChange={e => setBarrierUnitPrice(parseFloat(e.target.value) || 0)}
               style={{ opacity: barrierEnabled ? 1 : 0.4 }}
             />
+          </div>
+
+          <div className="field-row">
+            <label className="checkbox-label">
+              <input type="checkbox" checked={safetyCoordinationEnabled}
+                onChange={e => setSafetyCoordinationEnabled(e.target.checked)} />
+              <span>規制保安連絡調整</span>
+            </label>
+            {safetyCoordinationEnabled && (
+              <span className="suffix" style={{ fontSize: '0.85em', color: '#555' }}>3 人工 自動計上</span>
+            )}
           </div>
         </section>
 
