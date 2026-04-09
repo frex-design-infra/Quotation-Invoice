@@ -120,7 +120,7 @@ export function calculateItems(
     roadItems.push(separator());
 
     // 5. 道路附属物点検調書作成(xROAD登録含む)
-    const reportUnitPrice = Math.floor(settings.laborUnitPrice * 0.35 / 10) * 10;
+    const reportUnitPrice = Math.floor(settings.laborUnitPrice * 0.35 / 100) * 100;
     roadItems.push({
       id: genId(),
       label: '道路附属物点検調書作成(xROAD登録含む)',
