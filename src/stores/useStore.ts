@@ -184,5 +184,50 @@ export function useStore() {
     });
   }, []);
 
-  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice };
+  const exportData = useCallback(() => {
+    const data = {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      settings: settings,
+      quotations: quotations,
+      invoices: invoices,
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `quotation-data-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [settings, quotations, invoices]);
+
+  const importData = useCallback((file: File): Promise<void> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const data = JSON.parse(e.target?.result as string);
+          if (data.settings) {
+            localStorage.setItem(STORAGE_KEY_SETTINGS, JSON.stringify(data.settings));
+            setSettingsState({ ...structuredClone(DEFAULT_MASTER_SETTINGS), ...data.settings });
+          }
+          if (data.quotations) {
+            localStorage.setItem(STORAGE_KEY_QUOTATIONS, JSON.stringify(data.quotations));
+            setQuotationsState(data.quotations);
+          }
+          if (data.invoices) {
+            localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(data.invoices));
+            setInvoicesState(data.invoices);
+          }
+          resolve();
+        } catch (err) {
+          reject(err);
+        }
+      };
+      reader.onerror = () => reject(reader.error);
+      reader.readAsText(file);
+    });
+  }, []);
+
+  return { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData };
 }

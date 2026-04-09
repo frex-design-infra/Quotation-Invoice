@@ -793,3 +793,28 @@ button {
   }
   .inv-table { font-size: 8.5pt; }
 }
+
+/* データ操作ボタン */
+.nav-data-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  padding-left: 16px;
+}
+.btn-data {
+  background: rgba(255,255,255,0.15);
+  color: #fff;
+  border: 1px solid rgba(255,255,255,0.35);
+  border-radius: 6px;
+  padding: 5px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn-data:hover { background: rgba(255,255,255,0.28); }
+.import-msg {
+  font-size: 12px;
+  color: #b8f0c8;
+  white-space: nowrap;
+}
