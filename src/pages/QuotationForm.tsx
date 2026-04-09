@@ -211,6 +211,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   };
 
   const [pdfSaving, setPdfSaving] = useState(false);
+  const [recalcSpinning, setRecalcSpinning] = useState(false);
 
   const handleSavePDF = async () => {
     const el = document.getElementById('quotation-print-area');
@@ -621,8 +622,15 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
           )}
 
           <div className="recalc-area" style={{ marginTop: '16px' }}>
-            <button onClick={handleRecalculate} className="btn-outline">
-              🔄 明細を再計算
+            <button
+              onClick={() => {
+                handleRecalculate();
+                setRecalcSpinning(true);
+                setTimeout(() => setRecalcSpinning(false), 500);
+              }}
+              className="btn-outline"
+            >
+              <span className={`recalc-icon${recalcSpinning ? ' spinning' : ''}`}>🔄</span> 明細を再計算
             </button>
             <span className="hint">※ 入力後に再計算ボタンを押してください</span>
           </div>
