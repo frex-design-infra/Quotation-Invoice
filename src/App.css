@@ -750,6 +750,8 @@ button {
   text-align: left;
   font-size: 8pt;
   line-height: 1.5;
+  border-left: 1.5px solid #555;
+  padding-left: 8px;
 }
 .doc-logo-wrap {
   margin-bottom: 8px;
