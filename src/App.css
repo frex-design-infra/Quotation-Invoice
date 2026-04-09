@@ -800,8 +800,7 @@ button {
   top: -46px;
   right: 0;
   width: 112px;
-  height: 112px;
-  object-fit: contain;
+  height: auto;
   pointer-events: none;
   filter: saturate(2) contrast(1.2);
 }
@@ -812,8 +811,7 @@ button {
   top: -30px;
   right: -18px;
   width: 96px;
-  height: 96px;
-  object-fit: contain;
+  height: auto;
   pointer-events: none;
   filter: saturate(2) contrast(1.2);
 }
