@@ -36,7 +36,13 @@ export default function QuotationPreview({ quotation, settings }: Props) {
 
   return (
     <div className="quotation-preview" id="quotation-print-area">
-      {/* タイトル（最上部） */}
+      {/* 日付・見積番号（最上部右寄せ） */}
+      <div className="doc-date-area">
+        <div className="doc-date">{formatDate(quotation.date)}</div>
+        <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
+      </div>
+
+      {/* タイトル */}
       <h1 className="doc-title">見　積　書</h1>
 
       {/* ヘッダーグリッド */}
@@ -53,12 +59,8 @@ export default function QuotationPreview({ quotation, settings }: Props) {
           </div>
         </div>
 
-        {/* 右：日付 → 見積番号 → ロゴ → 自社情報 */}
+        {/* 右：ロゴ → 自社情報 */}
         <div className="doc-company-area">
-          <div className="doc-date-block">
-            <div className="doc-date">{formatDate(quotation.date)}</div>
-            <div className="doc-number">見積番号: {quotation.quotationNumber}</div>
-          </div>
           <div className="doc-logo-wrap">
             {settings.logoDataUrl ? (
               <img src={settings.logoDataUrl} alt="ロゴ" className="doc-logo-img" />
