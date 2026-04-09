@@ -803,7 +803,7 @@ button {
   height: 112px;
   object-fit: contain;
   pointer-events: none;
-  filter: saturate(0.90);
+  filter: saturate(1);
 }
 
 /* 代表印（再委託用・代表者名の右上に絶対配置） */
@@ -815,7 +815,7 @@ button {
   height: 96px;
   object-fit: contain;
   pointer-events: none;
-  filter: saturate(0.90);
+  filter: saturate(1);
 }
 
 /* 明細テーブル */
