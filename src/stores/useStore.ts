@@ -59,6 +59,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
   email: 'info@frex-design.co.jp',
   registrationNumber: 'T3410001013320',
   logoDataUrl: '',
+  sealDataUrl: '',
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
