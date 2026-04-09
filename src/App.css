@@ -712,11 +712,11 @@ button {
   border-bottom: none;
 }
 
-/* ヘッダーグリッド（左70%：発注者 / 右30%：自社） */
+/* ヘッダーグリッド：品番・品名列幅 = 1fr、数量+単価+金額 = 260px に合わせる */
 .doc-header-grid {
   display: grid;
-  grid-template-columns: 7fr 3fr;
-  gap: 16px;
+  grid-template-columns: 1fr 260px;
+  gap: 0;
   margin-bottom: 20px;
 }
 
