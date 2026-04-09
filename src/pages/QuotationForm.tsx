@@ -190,13 +190,40 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
 
   const handlePrint = () => {
     const el = document.getElementById('quotation-print-area');
-    // A4高さ（px @ 96dpi）に収まるよう自動スケール
     const a4H = 297 / 25.4 * 96;
     if (el && el.scrollHeight > a4H) {
       el.style.zoom = String(a4H / el.scrollHeight);
     }
     window.print();
     if (el) el.style.zoom = '';
+  };
+
+  const [pdfSaving, setPdfSaving] = useState(false);
+
+  const handleSavePDF = async () => {
+    const el = document.getElementById('quotation-print-area');
+    if (!el || pdfSaving) return;
+    setPdfSaving(true);
+    try {
+      const [{ default: html2canvas }, { jsPDF }] = await Promise.all([
+        import('html2canvas'),
+        import('jspdf'),
+      ]);
+      const canvas = await html2canvas(el, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      });
+      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const imgW = 210;
+      const imgH = (canvas.height / canvas.width) * imgW;
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
+      pdf.save(`見積書_${quotationNumber}.pdf`);
+    } finally {
+      setPdfSaving(false);
+    }
   };
 
   if (view === 'preview') {
@@ -215,7 +242,10 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
           >
             {subcontractMode ? '通常表示に戻る' : '再委託用'}
           </button>
-          <button onClick={handlePrint} className="btn-primary">🖨 PDF出力（印刷）</button>
+          <button onClick={handlePrint} className="btn-secondary">🖨 印刷</button>
+          <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
+            {pdfSaving ? '生成中...' : '📄 PDF保存'}
+          </button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
         <QuotationPreview quotation={displayQ} settings={settings} isSubcontract={subcontractMode} />

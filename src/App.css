@@ -863,6 +863,8 @@ button {
     padding: 20mm 18mm;
     width: 210mm;
     min-height: 297mm;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
 
   /* 明細テーブル：フォント縮小＋数値右揃え */
