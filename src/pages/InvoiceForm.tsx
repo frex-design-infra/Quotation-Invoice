@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import type { Invoice, MasterSettings, Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import InvoicePreview from '../components/InvoicePreview';
+import DatePicker from '../components/DatePicker';
 
 interface Props {
   settings: MasterSettings;
@@ -208,7 +209,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
 
           <div className="field-row">
             <label>発行日</label>
-            <input type="date" value={issueDate} onChange={e => setIssueDate(e.target.value)} className="date-input" />
+            <DatePicker value={issueDate} onChange={setIssueDate} />
           </div>
           <div className="field-row">
             <label>請求書番号</label>
@@ -311,7 +312,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
 
           <div className="field-row">
             <label>納品日</label>
-            <input type="date" value={deliveryDate} onChange={e => setDeliveryDate(e.target.value)} className="date-input" />
+            <DatePicker value={deliveryDate} onChange={setDeliveryDate} />
           </div>
           <div className="field-row">
             <label>納品担当者</label>
@@ -340,7 +341,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
 
           <div className="field-row">
             <label>請求日</label>
-            <input type="date" value={billingDate} onChange={e => setBillingDate(e.target.value)} className="date-input" />
+            <DatePicker value={billingDate} onChange={setBillingDate} />
           </div>
           <div className="field-row">
             <label>中間既請求額（税込）</label>
@@ -352,7 +353,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
           </div>
           <div className="field-row">
             <label>お支払期限</label>
-            <input type="date" value={paymentDueDate} onChange={e => setPaymentDueDate(e.target.value)} className="date-input" />
+            <DatePicker value={paymentDueDate} onChange={setPaymentDueDate} />
           </div>
         </section>
       </div>
