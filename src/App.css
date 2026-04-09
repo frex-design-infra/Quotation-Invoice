@@ -464,8 +464,8 @@ button {
 
 /* 見積書プレビュー：フッターコメント */
 .quotation-footer-comment {
-  margin-top: 20px;
-  padding: 12px 16px;
+  margin-top: 10px;
+  padding: 6px 16px;
   border-top: 1px solid #ccc;
   font-size: 11px;
   color: #444;
@@ -722,7 +722,7 @@ button {
   display: grid;
   grid-template-columns: 1fr 260px;
   gap: 0;
-  margin-bottom: 20px;
+  margin-bottom: 32px;
 }
 
 /* 発注者エリア */
