@@ -116,20 +116,6 @@ export function calculateItems(
       isAutoCalculated: true,
     });
 
-    // 4a. 道路附属物点検（高所作業車 12m）
-    if (ewpDays > 0) {
-      const ewpQty = ewpDays * 2;
-      roadItems.push({
-        id: genId(),
-        label: '道路附属物点検 (高所作業車 12m)',
-        quantity: ewpQty,
-        unit: '人工',
-        unitPrice: settings.laborUnitPrice,
-        amount: ewpQty * settings.laborUnitPrice,
-        isAutoCalculated: true,
-      });
-    }
-
     // separator
     roadItems.push(separator());
 
