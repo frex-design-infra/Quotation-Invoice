@@ -189,13 +189,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   };
 
   const handlePrint = () => {
-    const el = document.getElementById('quotation-print-area');
-    const a4H = 297 / 25.4 * 96;
-    if (el && el.scrollHeight > a4H) {
-      el.style.zoom = String(a4H / el.scrollHeight);
-    }
     window.print();
-    if (el) el.style.zoom = '';
   };
 
   const [pdfSaving, setPdfSaving] = useState(false);
