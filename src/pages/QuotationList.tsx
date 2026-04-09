@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { buildQuotationListCSV, downloadCSV } from '../utils/csvExport';
 
 interface Props {
   quotations: Quotation[];
@@ -13,6 +14,19 @@ interface Props {
 
 export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+  const [csvExporting, setCsvExporting] = useState(false);
+
+  const handleExportCSV = async () => {
+    if (csvExporting || quotations.length === 0) return;
+    setCsvExporting(true);
+    try {
+      const content = buildQuotationListCSV(quotations);
+      const date = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+      await downloadCSV(content, `見積書一覧_${date}.csv`);
+    } finally {
+      setCsvExporting(false);
+    }
+  };
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -36,7 +50,16 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
     <div className="quotation-list">
       <div className="list-header">
         <h2>見積書一覧</h2>
-        <button onClick={onNew} className="btn-primary">＋ 新規見積書作成</button>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
+            onClick={handleExportCSV}
+            className="btn-secondary"
+            disabled={csvExporting || quotations.length === 0}
+          >
+            {csvExporting ? '出力中...' : '📥 CSV出力'}
+          </button>
+          <button onClick={onNew} className="btn-primary">＋ 新規見積書作成</button>
+        </div>
       </div>
 
       {quotations.length === 0 ? (
