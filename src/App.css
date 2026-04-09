@@ -693,7 +693,7 @@ button {
   padding: 20mm 18mm;
   box-shadow: 0 4px 24px rgba(0,0,0,0.12);
   position: relative;
-  font-family: 'Hiragino Mincho ProN', 'Yu Mincho', 'MS Mincho', serif;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
   font-size: 10pt;
   color: #111;
 }
@@ -810,8 +810,8 @@ button {
   position: absolute;
   top: -30px;
   right: 10px;
-  width: 91px;
-  height: 91px;
+  width: 126px;
+  height: 126px;
   object-fit: contain;
   pointer-events: none;
 }
