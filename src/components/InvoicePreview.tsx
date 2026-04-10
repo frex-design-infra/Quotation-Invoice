@@ -83,6 +83,11 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           <div>請求書番号：{invoiceNumber}</div>
           <div>発　行　日：{formatDate(issueDate)}</div>
           <div>登録番号：T{settings.registrationNumber || ''}</div>
+          {settings.logoDataUrl && (
+            <div style={{ marginTop: '4px' }}>
+              <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
+            </div>
+          )}
         </div>
       </div>
 
@@ -103,9 +108,6 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
         {/* RIGHT: 自社情報 */}
         <div className="inv-company-area">
-          {settings.logoDataUrl && (
-            <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
-          )}
           <div className="inv-company-name-block">
             <div className="inv-company-name">{settings.companyName}</div>
             {settings.companyNameEn && (
