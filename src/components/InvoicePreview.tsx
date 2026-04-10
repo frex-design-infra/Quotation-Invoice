@@ -107,12 +107,14 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             )}
           </div>
           <div className="inv-company-name-block">
-            <div className="inv-company-name">{settings.companyName}</div>
+            <div className="inv-company-name-seal-wrap">
+              <div className="inv-company-name">{settings.companyName}</div>
+              {settings.sealDataUrl && (
+                <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
+              )}
+            </div>
             {settings.companyNameEn && (
               <div className="inv-company-name-en">{settings.companyNameEn}</div>
-            )}
-            {settings.sealDataUrl && (
-              <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
             )}
           </div>
           <div className="inv-company-details">
