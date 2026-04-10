@@ -1065,6 +1065,7 @@ button {
   width: 100%;
   border-collapse: collapse;
   font-size: 9pt;
+  margin-bottom: 12px !important;
 }
 .inv-table th,
 .inv-table td {
