@@ -196,8 +196,8 @@ export default function InvoicePreview({ invoice, settings }: Props) {
         <tbody>
           <tr>
             <th className="inv-th inv-th-w1">請求日</th>
-            <td className="inv-date-cell" colSpan={2} style={{ borderRight: 'none' }}>{formatDate(billingDate)}</td>
-            <td colSpan={2} style={{ border: 'none' }}></td>
+            <td className="inv-date-cell inv-billing-date-cell" colSpan={2}>{formatDate(billingDate)}</td>
+            <td colSpan={2} className="inv-billing-date-empty"></td>
           </tr>
           <tr>
             <th className="inv-th-side" rowSpan={4}>請求額</th>

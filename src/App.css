@@ -1019,6 +1019,7 @@ button {
   align-items: flex-start;
   margin-bottom: 8px;
   padding-bottom: 4px;
+  border-bottom: none !important;
 }
 .inv-title { font-size: 20pt; font-weight: 700; letter-spacing: 0.3em; }
 .inv-meta { text-align: right; font-size: 8pt; line-height: 2; }
@@ -1031,7 +1032,7 @@ button {
   margin: 8px 0;
 }
 .inv-client-area { font-size: 8.5pt; }
-.inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 20px; display: block; }
+.inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 20px; display: block; border: none; text-decoration: none; }
 .inv-company-area { position: relative; text-align: right; }
 .inv-logo-img { max-height: 44px; max-width: 110px; object-fit: contain; margin-bottom: 4px; display: inline-block; }
 .inv-company-name-block { position: relative; margin-bottom: 2px; }
@@ -1092,6 +1093,8 @@ button {
 .inv-delivery-content { vertical-align: top; line-height: 1.8; }
 .inv-delivery-line { min-height: 1.5em; }
 .inv-bank-info { line-height: 1.8; }
+.inv-billing-date-cell { border-right: none !important; }
+.inv-billing-date-empty { border: none !important; }
 .inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }
 
 @media print {
