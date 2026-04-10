@@ -1065,7 +1065,7 @@ button {
   width: 100%;
   border-collapse: collapse;
   font-size: 9pt;
-  margin-bottom: 20px !important;
+  margin-bottom: 12px !important;
 }
 .inv-table th,
 .inv-table td {
@@ -1102,6 +1102,8 @@ button {
 .inv-delivery-content { vertical-align: top; line-height: 1.8; }
 .inv-delivery-line { min-height: 1.5em; }
 .inv-bank-info { line-height: 1.8; }
+.inv-date-header-row th,
+.inv-date-header-row td { padding-top: 9px; padding-bottom: 9px; }
 .inv-billing-date-cell { text-align: center; }
 .inv-billing-date-empty { border: none !important; }
 .inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }

@@ -176,7 +176,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
       {/* ── 6. Table 3: 納品 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
         <tbody>
-          <tr>
+          <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">納品日</th>
             <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
             <th className="inv-th inv-th-w2">納品担当者</th>
@@ -196,7 +196,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
       {/* ── 7. Table 4: 請求額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
         <tbody>
-          <tr>
+          <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">請求日</th>
             <td className="inv-date-cell inv-billing-date-cell" colSpan={2}>{formatDate(billingDate)}</td>
             <td colSpan={2} className="inv-billing-date-empty"></td>
