@@ -1103,7 +1103,7 @@ button {
 .inv-delivery-line { min-height: 1.5em; }
 .inv-bank-info { line-height: 1.8; }
 .inv-date-header-row th,
-.inv-date-header-row td { padding-top: 14px; padding-bottom: 14px; }
+.inv-date-header-row td { padding-top: 20px; padding-bottom: 20px; }
 .inv-billing-date-cell { text-align: center; }
 .inv-billing-date-empty { border: none !important; }
 .inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }
