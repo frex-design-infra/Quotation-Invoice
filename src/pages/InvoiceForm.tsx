@@ -9,6 +9,8 @@ interface Props {
   initial?: Invoice;
   sourceQuotation?: Quotation;
   initialView?: 'form' | 'preview';
+  billingType?: 'single' | 'interim' | 'final';
+  interimInvoice?: Invoice;
   onSave: (inv: Invoice) => void;
   onCancel: () => void;
 }
@@ -28,11 +30,14 @@ function calcEndOfNextMonth(dateStr: string): string {
   return last.toISOString().slice(0, 10);
 }
 
-export default function InvoiceForm({ settings, initial, sourceQuotation, initialView, onSave, onCancel }: Props) {
+export default function InvoiceForm({ settings, initial, sourceQuotation, initialView, billingType: propBillingType, interimInvoice, onSave, onCancel }: Props) {
   const [view, setView] = useState<'form' | 'preview'>(initialView ?? 'form');
   const [toastVisible, setToastVisible] = useState(false);
   const [pdfSaving, setPdfSaving] = useState(false);
   const isFirstIssueDate = useRef(true);
+
+  // 請求種別
+  const billingType = initial?.billingType ?? propBillingType ?? 'single';
 
   // ── フォームフィールド ──
   const initIssueDate = initial?.issueDate ?? today();
@@ -88,7 +93,16 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   );
   const [deliveryDescription, setDeliveryDescription] = useState(initial?.deliveryDescription ?? '');
   const [billingDate, setBillingDate] = useState(initial?.billingDate ?? today());
-  const [previousBillingTotal, setPreviousBillingTotal] = useState(initial?.previousBillingTotal ?? 0);
+  // 最終請求の場合は中間請求書の今回請求額を自動セット
+  const resolveInterimAmount = () => {
+    if (!interimInvoice) return 0;
+    return interimInvoice.currentBillingAmount
+      ?? (interimInvoice.originalContractTotal + interimInvoice.changeAmount - interimInvoice.previousBillingTotal);
+  };
+  const [previousBillingTotal, setPreviousBillingTotal] = useState(
+    initial?.previousBillingTotal ?? (billingType === 'final' ? resolveInterimAmount() : 0)
+  );
+  const [currentBillingAmount, setCurrentBillingAmount] = useState(initial?.currentBillingAmount ?? 0);
   const [paymentDueDate, setPaymentDueDate] = useState(
     initial?.paymentDueDate ?? calcEndOfNextMonth(initIssueDate)
   );
@@ -125,12 +139,15 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
     invoiceNumber,
     issueDate,
     quotationId: initial?.quotationId ?? sourceQuotation?.id,
+    billingType,
+    submitted: initial?.submitted ?? false,
     clientName,
     clientPostalCode,
     clientAddress,
     projectName,
     originalContractTotal,
     changeAmount,
+    currentBillingAmount: billingType === 'interim' ? currentBillingAmount : undefined,
     deliveryDate,
     deliveryPerson,
     deliveryDescription,
@@ -180,7 +197,9 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   };
 
   const finalContractTotal = originalContractTotal + changeAmount;
-  const currentBillingTotal = finalContractTotal - previousBillingTotal;
+  const effectiveBillingTotal = billingType === 'interim'
+    ? currentBillingAmount
+    : finalContractTotal - previousBillingTotal;
 
   if (view === 'preview') {
     const inv = buildInvoice();
@@ -311,7 +330,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
             </div>
             <div className="total-line" style={{ display: 'flex', justifyContent: 'space-between', padding: '3px 0', fontSize: '13px' }}>
               <span>今回請求額（税込）</span>
-              <span style={{ fontWeight: 700, color: '#1e3a5f' }}>¥ {formatCurrency(currentBillingTotal)}</span>
+              <span style={{ fontWeight: 700, color: '#1e3a5f' }}>¥ {formatCurrency(effectiveBillingTotal)}</span>
             </div>
           </div>
         </section>
@@ -367,14 +386,27 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
             <label>請求日</label>
             <DatePicker value={billingDate} onChange={setBillingDate} />
           </div>
-          <div className="field-row">
-            <label>中間既請求額（税込）</label>
-            <input
-              type="number"
-              value={previousBillingTotal}
-              onChange={e => setPreviousBillingTotal(parseFloat(e.target.value) || 0)}
-            />
-          </div>
+          {billingType === 'interim' ? (
+            <div className="field-row">
+              <label>今回請求額・中間（税込）</label>
+              <input
+                type="number"
+                value={currentBillingAmount}
+                onChange={e => setCurrentBillingAmount(parseFloat(e.target.value) || 0)}
+              />
+            </div>
+          ) : (
+            <div className="field-row">
+              <label>中間既請求額（税込）</label>
+              <input
+                type="number"
+                value={previousBillingTotal}
+                readOnly={billingType === 'final' && !!interimInvoice}
+                style={billingType === 'final' && interimInvoice ? { background: '#f0f4f8' } : {}}
+                onChange={e => setPreviousBillingTotal(parseFloat(e.target.value) || 0)}
+              />
+            </div>
+          )}
           <div className="field-row">
             <label>お支払期限</label>
             <DatePicker value={paymentDueDate} onChange={setPaymentDueDate} />

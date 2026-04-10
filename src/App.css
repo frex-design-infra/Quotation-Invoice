@@ -943,6 +943,18 @@ button {
    請求書
    ============================================ */
 
+/* 請求種別バッジ */
+.billing-type-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.billing-type-interim { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
+.billing-type-final   { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
+
 /* btn-invoice: 紫/インディゴ系 */
 .btn-invoice {
   background: white;

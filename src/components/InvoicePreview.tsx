@@ -44,7 +44,9 @@ export default function InvoicePreview({ invoice, settings }: Props) {
   } = invoice;
 
   const finalContractTotal = originalContractTotal + changeAmount;
-  const currentBillingTotal = finalContractTotal - previousBillingTotal;
+  const currentBillingTotal = invoice.currentBillingAmount !== undefined
+    ? invoice.currentBillingAmount
+    : finalContractTotal - previousBillingTotal;
   const totalBilledAmount = previousBillingTotal + currentBillingTotal;
   const remainingAmount = finalContractTotal - totalBilledAmount;
 

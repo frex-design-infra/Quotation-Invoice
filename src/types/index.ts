@@ -98,12 +98,15 @@ export interface Invoice {
   invoiceNumber: string;
   issueDate: string;               // YYYY-MM-DD
   quotationId?: string;
+  billingType?: 'single' | 'interim' | 'final'; // 通常/中間/最終
+  submitted?: boolean;
   clientName: string;
   clientPostalCode: string;
   clientAddress: string;
   projectName: string;
   originalContractTotal: number;   // 当初契約額（税込）
   changeAmount: number;            // 変更増減額（税込、0/±）
+  currentBillingAmount?: number;   // 今回請求額（中間請求時のみ直接指定）
   deliveryDate: string;
   deliveryPerson: string;
   deliveryDescription: string;     // 改行区切り
@@ -168,6 +171,7 @@ export interface Quotation {
   tax: number;
   total: number;
   safetyCoordinationEnabled: boolean; // 規制保安連絡調整
+  hasInterimBilling: boolean;   // 中間請求あり
   submitted: boolean;           // 提出済フラグ
   createdAt: string;
   updatedAt: string;

@@ -20,6 +20,8 @@ export default function App() {
   const [editingInvoice, setEditingInvoice] = useState<Invoice | undefined>();
   const [invoiceSourceQuotation, setInvoiceSourceQuotation] = useState<Quotation | undefined>();
   const [invoiceInitialView, setInvoiceInitialView] = useState<'form' | 'preview'>('form');
+  const [invoiceBillingType, setInvoiceBillingType] = useState<'single' | 'interim' | 'final'>('single');
+  const [interimInvoiceForFinal, setInterimInvoiceForFinal] = useState<Invoice | undefined>();
 
   // Quotation handlers
   const handleNew = () => {
@@ -58,6 +60,8 @@ export default function App() {
   const handleNewInvoice = () => {
     setEditingInvoice(undefined);
     setInvoiceSourceQuotation(undefined);
+    setInvoiceBillingType('single');
+    setInterimInvoiceForFinal(undefined);
     setInvoiceInitialView('form');
     setTab('invoice-form');
   };
@@ -65,6 +69,8 @@ export default function App() {
   const handleEditInvoice = (inv: Invoice) => {
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
+    setInvoiceBillingType(inv.billingType ?? 'single');
+    setInterimInvoiceForFinal(undefined);
     setInvoiceInitialView('form');
     setTab('invoice-form');
   };
@@ -72,15 +78,28 @@ export default function App() {
   const handlePreviewInvoice = (inv: Invoice) => {
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
+    setInvoiceBillingType(inv.billingType ?? 'single');
+    setInterimInvoiceForFinal(undefined);
     setInvoiceInitialView('preview');
     setTab('invoice-form');
   };
 
-  const handleCreateInvoiceFromQuotation = (q: Quotation) => {
+  const handleCreateInvoiceFromQuotation = (q: Quotation, billingType: 'single' | 'interim' | 'final' = 'single') => {
     setEditingInvoice(undefined);
     setInvoiceSourceQuotation(q);
+    setInvoiceBillingType(billingType);
+    const interim = billingType === 'final'
+      ? invoices.find(inv => inv.quotationId === q.id && inv.billingType === 'interim')
+      : undefined;
+    setInterimInvoiceForFinal(interim);
     setInvoiceInitialView('form');
     setTab('invoice-form');
+  };
+
+  const handleToggleInvoiceSubmitted = (id: string) => {
+    const inv = invoices.find(x => x.id === id);
+    if (!inv) return;
+    saveInvoice({ ...inv, submitted: !inv.submitted });
   };
 
   const handleCancelInvoice = () => {
@@ -177,6 +196,7 @@ export default function App() {
             onEdit={handleEditInvoice}
             onPreview={handlePreviewInvoice}
             onDelete={deleteInvoice}
+            onToggleSubmitted={handleToggleInvoiceSubmitted}
           />
         )}
         {tab === 'invoice-form' && (
@@ -185,6 +205,8 @@ export default function App() {
             initial={editingInvoice}
             sourceQuotation={invoiceSourceQuotation}
             initialView={invoiceInitialView}
+            billingType={invoiceBillingType}
+            interimInvoice={interimInvoiceForFinal}
             onSave={saveInvoice}
             onCancel={handleCancelInvoice}
           />

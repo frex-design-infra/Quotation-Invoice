@@ -58,6 +58,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [barrierEnabled, setBarrierEnabled] = useState(initial?.barrierEnabled ?? false);
   const [barrierUnitPrice, setBarrierUnitPrice] = useState(initial?.barrierUnitPrice ?? 0);
   const [safetyCoordinationEnabled, setSafetyCoordinationEnabled] = useState(initial?.safetyCoordinationEnabled ?? false);
+  const [hasInterimBilling, setHasInterimBilling] = useState(initial?.hasInterimBilling ?? false);
   const [submitted, setSubmitted] = useState(initial?.submitted ?? false);
   const [submitAnimating, setSubmitAnimating] = useState(false);
   const [inspectionType, setInspectionType] = useState<InspectionType>(initial?.inspectionType ?? '橋梁点検');
@@ -190,6 +191,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     barrierEnabled,
     barrierUnitPrice,
     safetyCoordinationEnabled,
+    hasInterimBilling,
     submitted,
     bridges,
     items,
@@ -333,6 +335,17 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
               onChange={e => setProjectName(e.target.value)}
               placeholder="例: 令和8年度 秋田・湯沢管内橋梁点検業務"
             />
+          </div>
+          <div className="field-row">
+            <label>中間請求</label>
+            <label className="toggle-label" style={{ gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={hasInterimBilling}
+                onChange={e => setHasInterimBilling(e.target.checked)}
+              />
+              <span>あり（中間・最終の2回請求）</span>
+            </label>
           </div>
           <div className="field-row">
             <label>提出状況</label>

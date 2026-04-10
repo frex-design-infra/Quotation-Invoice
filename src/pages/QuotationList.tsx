@@ -9,7 +9,7 @@ interface Props {
   onPreview: (q: Quotation) => void;
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
-  onCreateInvoice: (q: Quotation) => void;
+  onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
 }
 
 export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice }: Props) {
@@ -89,13 +89,29 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                   >
                     プレビュー
                   </button>
-                  {q.submitted && (
+                  {q.submitted && !q.hasInterimBilling && (
                     <button
-                      onClick={(e) => { e.stopPropagation(); onCreateInvoice(q); }}
+                      onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'single'); }}
                       className="btn-invoice btn-sm"
                     >
                       請求書作成
                     </button>
+                  )}
+                  {q.submitted && q.hasInterimBilling && (
+                    <>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'interim'); }}
+                        className="btn-invoice btn-sm"
+                      >
+                        中間請求書
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'final'); }}
+                        className="btn-invoice btn-sm"
+                      >
+                        最終請求書
+                      </button>
+                    </>
                   )}
                   <button
                     onClick={(e) => {

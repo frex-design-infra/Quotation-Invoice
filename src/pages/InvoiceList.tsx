@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import type { Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -8,13 +8,39 @@ interface Props {
   onEdit: (inv: Invoice) => void;
   onPreview: (inv: Invoice) => void;
   onDelete: (id: string) => void;
+  onToggleSubmitted: (id: string) => void;
 }
 
-export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete }: Props) {
+const BILLING_LABEL: Record<string, string> = {
+  interim: '中間',
+  final: '最終',
+  single: '',
+};
+
+export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
+  const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
     const d = new Date(dateStr + 'T00:00:00');
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  };
+
+  const handleToggle = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    onToggleSubmitted(id);
+    setAnimatingIds(prev => {
+      const next = new Set(prev);
+      next.add(id);
+      return next;
+    });
+    setTimeout(() => {
+      setAnimatingIds(prev => {
+        const next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }, 400);
   };
 
   return (
@@ -38,21 +64,43 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
               <th>発行日</th>
               <th>発注者名</th>
               <th>業務名</th>
-              <th>ご請求金額</th>
+              <th>種別</th>
+              <th>今回請求額</th>
               <th></th>
             </tr>
           </thead>
           <tbody>
             {invoices.map(inv => {
               const finalContractTotal = inv.originalContractTotal + inv.changeAmount;
+              const billingAmount = inv.billingType === 'interim'
+                ? (inv.currentBillingAmount ?? 0)
+                : finalContractTotal - inv.previousBillingTotal;
+              const typeLabel = BILLING_LABEL[inv.billingType ?? 'single'];
               return (
                 <tr key={inv.id} onClick={() => onEdit(inv)} className="list-row">
                   <td className="mono">{inv.invoiceNumber}</td>
                   <td>{formatDate(inv.issueDate)}</td>
                   <td>{inv.clientName}</td>
                   <td className="project-name-cell">{inv.projectName}</td>
-                  <td className="amount-cell">¥ {formatCurrency(finalContractTotal)}</td>
+                  <td className="center">
+                    {typeLabel && (
+                      <span className={`billing-type-badge billing-type-${inv.billingType}`}>{typeLabel}</span>
+                    )}
+                  </td>
+                  <td className="amount-cell">¥ {formatCurrency(billingAmount)}</td>
                   <td onClick={e => e.stopPropagation()} className="action-cell">
+                    <button
+                      className={`status-btn ${inv.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(inv.id) ? 'pikoon' : ''}`}
+                      onClick={e => handleToggle(e, inv.id)}
+                    >
+                      {inv.submitted ? '提出済' : '未提出'}
+                    </button>
+                    <button
+                      onClick={(e) => { e.stopPropagation(); onEdit(inv); }}
+                      className="btn-outline btn-sm"
+                    >
+                      編集
+                    </button>
                     <button
                       onClick={() => onPreview(inv)}
                       className="btn-outline btn-sm"

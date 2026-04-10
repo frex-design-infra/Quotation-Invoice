@@ -148,7 +148,11 @@ function loadSettings(): MasterSettings {
 function loadInvoices(): Invoice[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_INVOICES);
-    if (raw) return JSON.parse(raw);
+    if (raw) return JSON.parse(raw).map((inv: Record<string, unknown>) => ({
+      billingType: 'single',
+      submitted: false,
+      ...inv,
+    }));
   } catch {}
   return [];
 }
@@ -161,6 +165,7 @@ function loadQuotations(): Quotation[] {
       roadAccessoryCount: 0,
       roadAccessoryDays: 0,
       safetyCoordinationEnabled: false,
+      hasInterimBilling: false,
       submitted: false,
       ...q,
     }));
@@ -221,8 +226,13 @@ export function useStore() {
               setQuotationsState(qs);
             }
             if (row.key === 'invoices' && row.value) {
-              localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(row.value));
-              setInvoicesState(row.value as Invoice[]);
+              const invs = (row.value as Record<string, unknown>[]).map(inv => ({
+                billingType: 'single',
+                submitted: false,
+                ...inv,
+              })) as Invoice[];
+              localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(invs));
+              setInvoicesState(invs);
             }
           }
         }
