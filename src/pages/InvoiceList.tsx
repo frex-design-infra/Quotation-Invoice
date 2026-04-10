@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -19,6 +19,18 @@ const BILLING_LABEL: Record<string, string> = {
 
 export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const formatDate = (dateStr: string) => {
     if (!dateStr) return '';
@@ -95,28 +107,36 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                     >
                       {inv.submitted ? '提出済' : '未提出'}
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onEdit(inv); }}
-                      className="btn-outline btn-sm"
-                    >
-                      編集
-                    </button>
-                    <button
-                      onClick={() => onPreview(inv)}
-                      className="btn-outline btn-sm"
-                    >
-                      プレビュー
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`「${inv.invoiceNumber}」を削除しますか？`)) {
-                          onDelete(inv.id);
-                        }
-                      }}
-                      className="btn-danger btn-sm"
-                    >
-                      削除
-                    </button>
+                    <div className="action-menu-wrap" ref={openMenuId === inv.id ? menuRef : undefined}>
+                      <button
+                        className="btn-outline btn-sm action-menu-btn"
+                        onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === inv.id ? null : inv.id); }}
+                      >
+                        操作 ▾
+                      </button>
+                      {openMenuId === inv.id && (
+                        <div className="action-dropdown">
+                          <button onClick={() => { onEdit(inv); setOpenMenuId(null); }}>
+                            編集
+                          </button>
+                          <button onClick={() => { onPreview(inv); setOpenMenuId(null); }}>
+                            プレビュー
+                          </button>
+                          <div className="dropdown-divider" />
+                          <button
+                            className="dropdown-danger"
+                            onClick={() => {
+                              if (confirm(`「${inv.invoiceNumber}」を削除しますか？`)) {
+                                onDelete(inv.id);
+                              }
+                              setOpenMenuId(null);
+                            }}
+                          >
+                            削除
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </td>
                 </tr>
               );

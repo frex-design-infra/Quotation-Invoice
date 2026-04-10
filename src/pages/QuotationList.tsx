@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import type { Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
 
@@ -14,6 +14,18 @@ interface Props {
 
 export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr + 'T00:00:00');
@@ -83,47 +95,48 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                   >
                     {q.submitted ? '提出済' : '未提出'}
                   </button>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); onPreview(q); }}
-                    className="btn-outline btn-sm"
-                  >
-                    プレビュー
-                  </button>
-                  {q.submitted && !q.hasInterimBilling && (
+                  <div className="action-menu-wrap" ref={openMenuId === q.id ? menuRef : undefined}>
                     <button
-                      onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'single'); }}
-                      className="btn-invoice btn-sm"
+                      className="btn-outline btn-sm action-menu-btn"
+                      onClick={e => { e.stopPropagation(); setOpenMenuId(openMenuId === q.id ? null : q.id); }}
                     >
-                      請求書作成
+                      操作 ▾
                     </button>
-                  )}
-                  {q.submitted && q.hasInterimBilling && (
-                    <>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'interim'); }}
-                        className="btn-invoice btn-sm"
-                      >
-                        中間請求
-                      </button>
-                      <button
-                        onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'final'); }}
-                        className="btn-invoice btn-sm"
-                      >
-                        最終請求
-                      </button>
-                    </>
-                  )}
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (confirm(`「${q.quotationNumber}」を削除しますか？`)) {
-                        onDelete(q.id);
-                      }
-                    }}
-                    className="btn-danger btn-sm"
-                  >
-                    削除
-                  </button>
+                    {openMenuId === q.id && (
+                      <div className="action-dropdown">
+                        <button onClick={() => { onPreview(q); setOpenMenuId(null); }}>
+                          プレビュー
+                        </button>
+                        {q.submitted && !q.hasInterimBilling && (
+                          <button onClick={() => { onCreateInvoice(q, 'single'); setOpenMenuId(null); }}>
+                            請求書作成
+                          </button>
+                        )}
+                        {q.submitted && q.hasInterimBilling && (
+                          <>
+                            <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                              中間請求書作成
+                            </button>
+                            <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
+                              最終請求書作成
+                            </button>
+                          </>
+                        )}
+                        <div className="dropdown-divider" />
+                        <button
+                          className="dropdown-danger"
+                          onClick={() => {
+                            if (confirm(`「${q.quotationNumber}」を削除しますか？`)) {
+                              onDelete(q.id);
+                            }
+                            setOpenMenuId(null);
+                          }}
+                        >
+                          削除
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </td>
               </tr>
             ))}

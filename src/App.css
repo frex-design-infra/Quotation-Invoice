@@ -529,10 +529,42 @@ button {
 .action-cell {
   display: flex;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 4px;
+  gap: 6px;
   white-space: nowrap;
 }
+.action-menu-wrap {
+  position: relative;
+  display: inline-block;
+}
+.action-menu-btn { min-width: 60px; }
+.action-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 4px);
+  background: #fff;
+  border: 1px solid #dde2e8;
+  border-radius: 8px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.13);
+  z-index: 200;
+  min-width: 150px;
+  overflow: hidden;
+}
+.action-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 9px 16px;
+  background: none;
+  border: none;
+  font-size: 13px;
+  cursor: pointer;
+  color: #1a1a1a;
+  font-family: inherit;
+}
+.action-dropdown button:hover { background: #f0f5ff; }
+.dropdown-divider { height: 1px; background: #eee; margin: 3px 0; }
+.action-dropdown .dropdown-danger { color: #dc2626; }
+.action-dropdown .dropdown-danger:hover { background: #fff5f5; }
 
 .tier-table {
   width: 100%;
