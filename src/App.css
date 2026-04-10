@@ -1042,7 +1042,7 @@ button {
 .inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 0; display: block; border: none; text-decoration: none; }
 .inv-company-area { position: relative; text-align: right; }
 .inv-logo-img { max-height: 64px; max-width: 160px; object-fit: contain; display: inline-block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
-.inv-company-name-block { margin-top: 1.4em; margin-bottom: 2px; }
+.inv-company-name-block { margin-top: 3.5em; margin-bottom: 2px; }
 .inv-company-name-seal-wrap { position: relative; display: inline-block; }
 .inv-company-name { font-size: 10.5pt; font-weight: 700; }
 .inv-company-name-en { font-size: 7.5pt; color: #444; }
@@ -1058,7 +1058,7 @@ button {
   pointer-events: none;
 }
 .inv-client-name-row { margin: 4px 0 8px; }
-.inv-intro { font-size: 9pt; margin: 4px 0 10px; }
+.inv-intro { font-size: 9pt; margin: 40px 0 10px; }
 
 /* Tables */
 .inv-table {
