@@ -226,7 +226,33 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
               >＋ 振込先を追加</button>
             </div>
           </div>
-          {textInput('納品担当者（デフォルト）', form.deliveryPersonDefault ?? '', v => setForm(p => ({ ...p, deliveryPersonDefault: v })))}
+          <div className="settings-row" style={{ alignItems: 'flex-start' }}>
+            <label>納品担当者リスト</label>
+            <div style={{ flex: 1 }}>
+              {(form.deliveryPersons ?? []).map((person, i) => (
+                <div key={i} className="client-list-row" style={{ marginBottom: '6px' }}>
+                  <input
+                    type="text"
+                    value={person}
+                    placeholder="担当者名"
+                    onChange={e => {
+                      const next = [...(form.deliveryPersons ?? [])];
+                      next[i] = e.target.value;
+                      setForm(p => ({ ...p, deliveryPersons: next }));
+                    }}
+                  />
+                  <button
+                    className="btn-danger btn-sm"
+                    onClick={() => setForm(p => ({ ...p, deliveryPersons: (p.deliveryPersons ?? []).filter((_, j) => j !== i) }))}
+                  >削除</button>
+                </div>
+              ))}
+              <button
+                className="btn-outline btn-sm"
+                onClick={() => setForm(p => ({ ...p, deliveryPersons: [...(p.deliveryPersons ?? []), ''] }))}
+              >＋ 担当者を追加</button>
+            </div>
+          </div>
 
           <div className="settings-row">
             <label>会社ロゴ</label>

@@ -77,7 +77,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
       info: '秋田信用金庫\u3000本店\u3000店番001\n普通\u30000057179\u3000カ)フレツクスデザイン\n株式会社フレックスデザイン\n代表取締役\u3000藤嶋 正博',
     },
   ] as BankAccount[],
-  deliveryPersonDefault: '',
+  deliveryPersons: [],
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
@@ -120,6 +120,12 @@ function applySettingsMigrations(parsed: Record<string, unknown>): MasterSetting
   const merged = { ...structuredClone(DEFAULT_MASTER_SETTINGS), ...parsed };
   delete (merged as Record<string, unknown>).discountAmount;
   delete (merged as Record<string, unknown>).inspectionAssistDaysPerBridge;
+  // Migration: deliveryPersonDefault string → deliveryPersons array
+  const m = merged as Record<string, unknown>;
+  if (!m.deliveryPersons && m.deliveryPersonDefault) {
+    m.deliveryPersons = [m.deliveryPersonDefault];
+  }
+  delete m.deliveryPersonDefault;
   // Migration: bankInfo string → bankAccounts array
   const legacy = merged as Record<string, unknown>;
   if (!legacy.bankAccounts && legacy.bankInfo) {

@@ -89,7 +89,7 @@ export interface MasterSettings {
 
   // 請求書用
   bankAccounts: BankAccount[];   // 振込先口座リスト
-  deliveryPersonDefault: string; // 納品担当者デフォルト
+  deliveryPersons: string[];     // 納品担当者リスト
 }
 
 // 納品書兼請求書

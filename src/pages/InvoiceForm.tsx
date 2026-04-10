@@ -84,7 +84,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   const [changeAmount, setChangeAmount] = useState(initial?.changeAmount ?? 0);
   const [deliveryDate, setDeliveryDate] = useState(initial?.deliveryDate ?? today());
   const [deliveryPerson, setDeliveryPerson] = useState(
-    initial?.deliveryPerson ?? settings.deliveryPersonDefault ?? ''
+    initial?.deliveryPerson ?? (settings.deliveryPersons?.[0] ?? '')
   );
   const [deliveryDescription, setDeliveryDescription] = useState(initial?.deliveryDescription ?? '');
   const [billingDate, setBillingDate] = useState(initial?.billingDate ?? today());
@@ -326,12 +326,26 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
           </div>
           <div className="field-row">
             <label>納品担当者</label>
-            <input
-              type="text"
-              value={deliveryPerson}
-              onChange={e => setDeliveryPerson(e.target.value)}
-              placeholder="担当者名"
-            />
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+              {(settings.deliveryPersons?.length ?? 0) > 0 && (
+                <select
+                  value={settings.deliveryPersons?.includes(deliveryPerson) ? deliveryPerson : ''}
+                  onChange={e => { if (e.target.value) setDeliveryPerson(e.target.value); }}
+                  style={{ width: '100%' }}
+                >
+                  <option value="">-- 登録済みから選択 --</option>
+                  {settings.deliveryPersons?.map(p => (
+                    <option key={p} value={p}>{p}</option>
+                  ))}
+                </select>
+              )}
+              <input
+                type="text"
+                value={deliveryPerson}
+                onChange={e => setDeliveryPerson(e.target.value)}
+                placeholder="担当者名"
+              />
+            </div>
           </div>
           <div className="field-row">
             <label>納品内容</label>
