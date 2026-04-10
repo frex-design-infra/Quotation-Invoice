@@ -103,14 +103,6 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           {settings.logoDataUrl && (
             <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
           )}
-          <div className="inv-company-details">
-            {settings.postalCode && (
-              <div>{formatPostal(settings.postalCode)}</div>
-            )}
-            {companyAddress.map((line, i) => (
-              <div key={i}>{line}</div>
-            ))}
-          </div>
           <div className="inv-company-name-block">
             <div className="inv-company-name">{settings.companyName}</div>
             {settings.companyNameEn && (
@@ -121,6 +113,12 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             )}
           </div>
           <div className="inv-company-details">
+            {settings.postalCode && (
+              <div>{formatPostal(settings.postalCode)}</div>
+            )}
+            {companyAddress.map((line, i) => (
+              <div key={i}>{line}</div>
+            ))}
             {settings.tel && <div>TEL: {settings.tel}</div>}
             {settings.email && <div>{settings.email}</div>}
           </div>

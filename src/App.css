@@ -782,6 +782,7 @@ button {
 }
 
 /* 発注者エリア */
+.client-address { font-size: 8.5pt; color: #333; line-height: 1.6; }
 .client-name {
   font-size: 15pt;
   font-weight: 700;

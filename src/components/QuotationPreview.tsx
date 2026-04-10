@@ -41,8 +41,16 @@ interface Props {
   isSubcontract?: boolean;
 }
 
+function formatPostal(pc: string): string {
+  if (!pc) return '';
+  const s = pc.replace(/[^0-9]/g, '');
+  if (s.length === 7) return `〒${s.slice(0, 3)}-${s.slice(3)}`;
+  return `〒${pc}`;
+}
+
 export default function QuotationPreview({ quotation, settings, isSubcontract }: Props) {
   const totals = calculateTotals(quotation.items, settings);
+  const clientRecord = (settings.clients ?? []).find(c => c.name === quotation.clientName);
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -90,6 +98,12 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
       <div className="doc-header-grid">
         {/* 左：発注者情報 */}
         <div className="doc-client-area">
+          {clientRecord?.postalCode && (
+            <div className="client-address">{formatPostal(clientRecord.postalCode)}</div>
+          )}
+          {clientRecord?.address && (
+            <div className="client-address">{clientRecord.address}</div>
+          )}
           <div className="client-name">{quotation.clientName} 御中</div>
           <div className="project-name">件名：{quotation.projectName}</div>
           <div className="doc-intro">下記のとおりお見積申し上げます。</div>
