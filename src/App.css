@@ -1005,7 +1005,7 @@ button {
   margin: 0 auto;
   background: white;
   box-shadow: 0 2px 16px rgba(0,0,0,0.12);
-  padding: 12mm 18mm 20mm;
+  padding: 22mm 18mm 20mm;
   box-sizing: border-box;
   font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', 'Meiryo', sans-serif;
   font-size: 9pt;
@@ -1104,7 +1104,7 @@ button {
   .invoice-preview {
     box-shadow: none;
     margin: 0;
-    padding: 10mm 18mm 20mm;
+    padding: 20mm 18mm 20mm;
     width: 210mm;
     min-height: 297mm;
     -webkit-print-color-adjust: exact;
