@@ -847,11 +847,18 @@ button {
 .company-address { font-size: 7.5pt; margin-bottom: 3px; text-align: right; }
 .company-contact { font-size: 7.5pt; color: #333; }
 
-/* 角印（会社情報エリア右上に絶対配置・文字に重なる） */
+/* 会社名＋角印のラッパー（テキスト幅に合わせてインラインブロック） */
+.company-name-seal-wrap {
+  position: relative;
+  display: inline-block;
+}
+
+/* 角印（会社名テキストの中央に配置） */
 .company-seal-img {
   position: absolute;
-  top: -46px;
-  right: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
   width: 112px;
   height: auto;
   pointer-events: none;
