@@ -1093,7 +1093,7 @@ button {
 .inv-delivery-content { vertical-align: top; line-height: 1.8; }
 .inv-delivery-line { min-height: 1.5em; }
 .inv-bank-info { line-height: 1.8; }
-.inv-billing-date-cell { border-right: none !important; }
+.inv-billing-date-cell { text-align: center; }
 .inv-billing-date-empty { border: none !important; }
 .inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }
 
