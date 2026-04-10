@@ -153,20 +153,17 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             <th className="inv-th-side" rowSpan={3}>注文金額</th>
             <td className="inv-sub-label">最終契約額</td>
             <td className="inv-amount">¥ {formatCurrency(finalContractTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">変更増減額</td>
             <td className="inv-amount">{changeAmount >= 0 ? '' : '▲ '}¥ {formatCurrency(Math.abs(changeAmount))}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">当初契約額</td>
             <td className="inv-amount">¥ {formatCurrency(originalContractTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
           </tr>
         </tbody>
       </table>
@@ -203,20 +200,17 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             <th className="inv-th-side" rowSpan={4}>請求額</th>
             <td className="inv-sub-label">中間既請求額</td>
             <td className="inv-amount">¥ {formatCurrency(previousBillingTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
           </tr>
           <tr className="inv-current-billing-row">
             <td className="inv-sub-label inv-sub-label-bold">今回請求額</td>
             <td className="inv-amount inv-amount-bold">¥ {formatCurrency(currentBillingTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求合計額</td>
             <td className="inv-amount">¥ {formatCurrency(totalBilledAmount)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
+            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求残額</td>
