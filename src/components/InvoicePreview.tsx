@@ -197,9 +197,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           <tr>
             <th className="inv-th inv-th-w1">請求日</th>
             <td className="inv-date-cell">{formatDate(billingDate)}</td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <td colSpan={3} style={{ border: 'none' }}></td>
           </tr>
           <tr>
             <th className="inv-th-side" rowSpan={4}>請求額</th>
@@ -223,8 +221,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           <tr>
             <td className="inv-sub-label">請求残額</td>
             <td className="inv-amount">¥ {formatCurrency(remainingAmount)}</td>
-            <td></td>
-            <td></td>
+            <td colSpan={2} style={{ border: 'none' }}></td>
           </tr>
         </tbody>
       </table>
