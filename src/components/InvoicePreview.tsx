@@ -29,8 +29,6 @@ export default function InvoicePreview({ invoice, settings }: Props) {
     invoiceNumber,
     issueDate,
     clientName,
-    clientPostalCode,
-    clientAddress,
     projectName,
     originalContractTotal,
     changeAmount,
@@ -42,6 +40,11 @@ export default function InvoicePreview({ invoice, settings }: Props) {
     paymentDueDate,
     taxRate,
   } = invoice;
+
+  // 住所はinvoiceに保存された値を優先、なければマスタから補完
+  const clientRecord = (settings.clients ?? []).find(c => c.name === clientName);
+  const clientPostalCode = invoice.clientPostalCode || clientRecord?.postalCode || '';
+  const clientAddress = invoice.clientAddress || clientRecord?.address || '';
 
   const finalContractTotal = originalContractTotal + changeAmount;
   const currentBillingTotal = invoice.currentBillingAmount !== undefined
