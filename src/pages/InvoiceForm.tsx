@@ -43,7 +43,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   const initIssueDate = initial?.issueDate ?? today();
   const [issueDate, setIssueDate] = useState(initIssueDate);
   const [invoiceNumber, setInvoiceNumber] = useState(
-    initial?.invoiceNumber ?? (initIssueDate.replace(/-/g, '') + '001')
+    initial?.invoiceNumber ?? (initIssueDate.replace(/-/g, '') + '-001')
   );
 
   // 発注者: select or free-text
@@ -119,7 +119,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   // 発行日変更時に請求書番号・支払期限を更新（初回スキップ）
   useEffect(() => {
     if (isFirstIssueDate.current) { isFirstIssueDate.current = false; return; }
-    setInvoiceNumber(issueDate.replace(/-/g, '') + '001');
+    setInvoiceNumber(issueDate.replace(/-/g, '') + '-001');
     setPaymentDueDate(calcEndOfNextMonth(issueDate));
   }, [issueDate]);
 
