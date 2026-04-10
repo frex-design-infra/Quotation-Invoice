@@ -103,13 +103,13 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                         onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'interim'); }}
                         className="btn-invoice btn-sm"
                       >
-                        中間請求書
+                        中間請求
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); onCreateInvoice(q, 'final'); }}
                         className="btn-invoice btn-sm"
                       >
-                        最終請求書
+                        最終請求
                       </button>
                     </>
                   )}

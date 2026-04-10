@@ -95,7 +95,7 @@ button {
 .btn-danger { background: #c62828; color: white; }
 .btn-danger:hover { background: #e53935; }
 
-.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-sm { padding: 3px 8px; font-size: 11px; }
 
 /* ============================================
    見積書一覧
@@ -529,7 +529,8 @@ button {
 .action-cell {
   display: flex;
   align-items: center;
-  gap: 6px;
+  flex-wrap: wrap;
+  gap: 4px;
   white-space: nowrap;
 }
 
