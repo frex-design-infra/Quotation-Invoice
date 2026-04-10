@@ -100,15 +100,16 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
         {/* RIGHT: 自社情報 */}
         <div className="inv-company-area">
-          <div className="inv-company-name-row">
-            <div>
-              <div className="inv-company-name">{settings.companyName}</div>
-              {settings.companyNameEn && (
-                <div className="inv-company-name-en">{settings.companyNameEn}</div>
-              )}
-            </div>
-            {settings.logoDataUrl && (
-              <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
+          {settings.logoDataUrl && (
+            <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
+          )}
+          <div className="inv-company-name-block">
+            <div className="inv-company-name">{settings.companyName}</div>
+            {settings.companyNameEn && (
+              <div className="inv-company-name-en">{settings.companyNameEn}</div>
+            )}
+            {settings.sealDataUrl && (
+              <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
             )}
           </div>
           <div className="inv-company-details">
@@ -121,9 +122,6 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             {settings.tel && <div>TEL: {settings.tel}</div>}
             {settings.email && <div>{settings.email}</div>}
           </div>
-          {settings.sealDataUrl && (
-            <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
-          )}
         </div>
       </div>
 
