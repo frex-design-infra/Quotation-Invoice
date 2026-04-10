@@ -1032,7 +1032,7 @@ button {
   margin: 8px 0;
 }
 .inv-client-area { font-size: 8.5pt; }
-.inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 20px; display: block; border: none; text-decoration: none; }
+.inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 0; display: block; border: none; text-decoration: none; }
 .inv-company-area { position: relative; text-align: right; padding-top: 1.4em; }
 .inv-logo-img { max-height: 64px; max-width: 160px; object-fit: contain; display: inline-block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
 .inv-company-name-block { position: relative; margin-bottom: 2px; }
