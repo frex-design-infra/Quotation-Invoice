@@ -1034,7 +1034,7 @@ button {
 .inv-client-area { font-size: 8.5pt; }
 .inv-client-name { font-size: 14pt; font-weight: 700; margin-top: 20px; display: block; border: none; text-decoration: none; }
 .inv-company-area { position: relative; text-align: right; padding-top: 1.4em; }
-.inv-logo-img { max-height: 44px; max-width: 110px; object-fit: contain; margin-bottom: 4px; display: inline-block; }
+.inv-logo-img { max-height: 64px; max-width: 160px; object-fit: contain; display: inline-block; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges; }
 .inv-company-name-block { position: relative; margin-bottom: 2px; }
 .inv-company-name { font-size: 10.5pt; font-weight: 700; }
 .inv-company-name-en { font-size: 7.5pt; color: #444; }
