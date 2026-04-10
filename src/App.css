@@ -1085,8 +1085,8 @@ button {
 .inv-sub-label-bold { font-weight: 700; }
 .inv-amount { text-align: right; width: 130px; }
 .inv-amount-bold { font-weight: 700; }
-.inv-tax-label { text-align: center; font-size: 8pt; color: #444; width: 110px; border-left: none; border-right: none; }
-.inv-tax-amount { text-align: right; font-size: 8pt; color: #444; border-left: none; }
+.inv-tax-label { text-align: center; font-size: 8pt; color: #444; width: 110px; border-left: none !important; border-right: none !important; }
+.inv-tax-amount { text-align: right; font-size: 8pt; color: #444; border-left: none !important; }
 .inv-date-cell { min-width: 80px; }
 .inv-td { }
 .inv-current-billing-row td { background: #f0f4ff; font-weight: 700; }
