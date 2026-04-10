@@ -75,7 +75,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
     <div className="invoice-preview" id="invoice-print-area">
       {/* ── 1. タイトル行 ── */}
       <div className="inv-top">
-        <div className="inv-title">納 品 書 兼 請 求 書</div>
+        <div className="inv-title">納品書 兼 請求書</div>
         <div className="inv-meta">
           <div>請求書番号：{invoiceNumber}</div>
           <div>発　行　日：{formatDate(issueDate)}</div>
