@@ -30,13 +30,13 @@ const COORD = {
   projNameX: 55,    // 27→37→50→60→55
 
   // 工期 着工
-  startY:    166,
+  startY:    167,
   startYearX: 63,   // 53→63（+10mm）
   startMoX:   85,   // 75→85（+10mm）
   startDayX:  97,   // 87→97（+10mm）
 
   // 工期 竣工
-  endY:      166,
+  endY:      167,
   endYearX:  138,   // 128→138（+10mm）
   endMoX:    159,   // 149→159（+10mm）
   endDayX:   172,   // 162→172（+10mm）
