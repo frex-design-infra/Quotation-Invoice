@@ -23,7 +23,7 @@ const COORD = {
   // 発行日（右上）- 請求書
   dateY:         36,
   // 発行日（右上）- 納品書
-  deliveryDateY: 40,
+  deliveryDateY: 38,
   dateYearX:   151,
   dateMoX:     174,
   dateDayX:    188,
