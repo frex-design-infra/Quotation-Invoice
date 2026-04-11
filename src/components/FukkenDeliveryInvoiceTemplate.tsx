@@ -59,7 +59,7 @@ const COORD = {
   // 業務内容（最大5行）
   workX:        40,
   workY0:       192,  // 納品書用
-  invoiceWorkY0: 189, // 請求書用（192-3）
+  invoiceWorkY0: 188.85, // 請求書用
   workLineH:     8,   // 行間
 
   // 納品書: 納期
