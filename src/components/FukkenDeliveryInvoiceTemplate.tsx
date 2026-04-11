@@ -30,8 +30,8 @@ const COORD = {
 
   // テーブル行の Y 座標（実測値に合わせて全体 -38mm 補正）
   jobNumY:     121,   // 156→121
-  projNameY:   130,   // 167→130
-  locationY:   139,   // 179→139
+  projNameY:   133,   // 167→130→133
+  locationY:   142,   // 179→139→142
 
   amountY:     150,   // 190→150
   subtotalY:   161,   // 201→161
