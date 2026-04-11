@@ -46,9 +46,9 @@ const COORD = {
 
   // 納品書: 納期
   deliveryNaikiY:    194,   // 190→194（+4mm）
-  deliveryYearX:     132,   // 122→132（+10mm）
-  deliveryMoX:       153,   // 143→153（+10mm）
-  deliveryDayX:      167,   // 157→167（+10mm）
+  deliveryYearX:     147,   // 122→132→147（+15mm）
+  deliveryMoX:       168,   // 143→153→168（+15mm）
+  deliveryDayX:      182,   // 157→167→182（+15mm）
 
   // 請求書: 振込先テキスト（振込銀行欄の右側）
   bankX:       119,
