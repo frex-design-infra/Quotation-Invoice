@@ -14,7 +14,7 @@ function buildFukkenInvoice(q: Quotation, settings: MasterSettings, existing?: I
   const now = new Date().toISOString();
   return {
     id: existing?.id ?? (q.id + '-fukken'),
-    invoiceNumber: existing?.invoiceNumber ?? ((q.fukkenDeliveryInvoiceDate || now.slice(0, 10)).replace(/-/g, '') + '-001'),
+    invoiceNumber: (q.fukkenDeliveryInvoiceDate || now.slice(0, 10)).replace(/-/g, '') + '-001',
     issueDate: q.fukkenDeliveryInvoiceDate || now.slice(0, 10),
     quotationId: q.id,
     billingType: 'single',
