@@ -6,24 +6,32 @@ import { uploadFukuyamaTemplate, deleteFukuyamaTemplate } from '../lib/storage';
 
 interface Props {
   quotation: Quotation;
+  billingType?: 'single' | 'interim' | 'final';
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
+
+const BILLING_TITLE: Record<string, string> = {
+  single:  '納品書兼請求書',
+  interim: '中間請求書',
+  final:   '最終請求書',
+};
 
 function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
-  const [pdfSaving,     setPdfSaving]     = useState(false);
-  const [toastVisible,  setToastVisible]  = useState(false);
-  const [uploading,     setUploading]     = useState(false);
-  const [uploadError,   setUploadError]   = useState('');
+export default function FukuyamaPage({ quotation, billingType = 'single', onSave, onCancel }: Props) {
+  const [pdfSaving,    setPdfSaving]    = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
+  const [uploading,    setUploading]    = useState(false);
+  const [deleting,     setDeleting]     = useState(false);
+  const [uploadError,  setUploadError]  = useState('');
 
-  const [issueDate,     setIssueDate]     = useState(quotation.fukuyamaIssueDate    ?? today());
-  const [workContent,   setWorkContent]   = useState(quotation.fukuyamaWorkContent  ?? '');
-  const [templateUrl,   setTemplateUrl]   = useState(quotation.fukuyamaTemplateUrl  ?? '');
-  const [storagePath,   setStoragePath]   = useState(quotation.fukuyamaTemplateStoragePath ?? '');
+  const [issueDate,    setIssueDate]    = useState(quotation.fukuyamaIssueDate           ?? today());
+  const [workContent,  setWorkContent]  = useState(quotation.fukuyamaWorkContent         ?? '');
+  const [templateUrl,  setTemplateUrl]  = useState(quotation.fukuyamaTemplateUrl         ?? '');
+  const [storagePath,  setStoragePath]  = useState(quotation.fukuyamaTemplateStoragePath ?? '');
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +49,6 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
     setUploading(true);
     setUploadError('');
     try {
-      // 既存ファイルを削除
       if (storagePath) await deleteFukuyamaTemplate(storagePath);
       const { url, path } = await uploadFukuyamaTemplate(file, quotation.id);
       setTemplateUrl(url);
@@ -50,6 +57,20 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
       setUploadError(e instanceof Error ? e.message : 'アップロード失敗');
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleDeleteTemplate = async () => {
+    if (!confirm('テンプレート画像を削除しますか？\nSupabase Storage からも削除されます。')) return;
+    setDeleting(true);
+    try {
+      if (storagePath) await deleteFukuyamaTemplate(storagePath);
+      setTemplateUrl('');
+      setStoragePath('');
+    } catch (e: unknown) {
+      setUploadError(e instanceof Error ? e.message : '削除失敗');
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -66,7 +87,7 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height / canvas.width) * 210);
-      pdf.save(`納品書兼請求書_${quotation.projectName}.pdf`);
+      pdf.save(`${BILLING_TITLE[billingType]}_${quotation.projectName}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -79,6 +100,7 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
   };
 
   const q = buildUpdated();
+  const title = BILLING_TITLE[billingType];
 
   return (
     <div className="fukken-form-page">
@@ -94,7 +116,7 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
 
       <div className="fukken-layout">
         <div className="fukken-fields-panel no-print">
-          <h3 className="fukken-panel-title">納品書兼請求書 入力</h3>
+          <h3 className="fukken-panel-title">{title} 入力</h3>
 
           {/* テンプレート画像アップロード */}
           <div className="fk-field-group">
@@ -106,10 +128,20 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
               <button
                 className="btn-outline btn-sm"
                 onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+                disabled={uploading || deleting}
               >
                 {uploading ? 'アップロード中...' : templateUrl ? '画像を変更' : '画像をアップロード'}
               </button>
+              {templateUrl && (
+                <button
+                  className="btn-sm"
+                  style={{ background: 'none', border: '1px solid #e53e3e', color: '#e53e3e', borderRadius: '4px', padding: '4px 10px', cursor: 'pointer', fontSize: '12px' }}
+                  onClick={handleDeleteTemplate}
+                  disabled={deleting || uploading}
+                >
+                  {deleting ? '削除中...' : '画像を削除'}
+                </button>
+              )}
               {uploadError && <div style={{ color: '#e53e3e', fontSize: '12px' }}>{uploadError}</div>}
               <input
                 ref={fileInputRef}
@@ -119,6 +151,7 @@ export default function FukuyamaPage({ quotation, onSave, onCancel }: Props) {
                 onChange={e => {
                   const file = e.target.files?.[0];
                   if (file) handleUpload(file);
+                  e.target.value = '';
                 }}
               />
               <div className="fk-field-hint">福山コンサルタントから届いた書式をアップロード</div>

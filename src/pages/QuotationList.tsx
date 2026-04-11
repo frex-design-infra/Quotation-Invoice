@@ -12,7 +12,7 @@ interface Props {
   onToggleSubmitted: (id: string) => void;
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
   onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
-  onOpenFukuyama: (q: Quotation) => void;
+  onOpenFukuyama: (q: Quotation, billingType?: 'single' | 'interim' | 'final') => void;
 }
 
 export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama }: Props) {
@@ -122,12 +122,30 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                                 {q.submitted && (
                                   <>
                                     <div className="dropdown-divider" />
-                                    <button
-                                      className="dropdown-fukken"
-                                      onClick={() => { onOpenFukuyama(q); setOpenMenuId(null); }}
-                                    >
-                                      納品書兼請求書作成
-                                    </button>
+                                    {!q.hasInterimBilling && (
+                                      <button
+                                        className="dropdown-fukken"
+                                        onClick={() => { onOpenFukuyama(q, 'single'); setOpenMenuId(null); }}
+                                      >
+                                        納品書兼請求書作成
+                                      </button>
+                                    )}
+                                    {q.hasInterimBilling && (
+                                      <>
+                                        <button
+                                          className="dropdown-fukken"
+                                          onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
+                                        >
+                                          中間請求書作成
+                                        </button>
+                                        <button
+                                          className="dropdown-fukken"
+                                          onClick={() => { onOpenFukuyama(q, 'final'); setOpenMenuId(null); }}
+                                        >
+                                          最終請求書作成
+                                        </button>
+                                      </>
+                                    )}
                                   </>
                                 )}
                               </>

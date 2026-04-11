@@ -65,6 +65,7 @@ export default function App() {
   const [invoiceBillingType, setInvoiceBillingType] = useState<'single' | 'interim' | 'final'>('single');
   const [interimInvoiceForFinal, setInterimInvoiceForFinal] = useState<Invoice | undefined>();
   const [fukkenDeliveryInitialTab, setFukkenDeliveryInitialTab] = useState<'delivery' | 'invoice'>('delivery');
+  const [fukuyamaBillingType, setFukuyamaBillingType] = useState<'single' | 'interim' | 'final'>('single');
 
   // Quotation handlers
   const handleNew = () => {
@@ -241,7 +242,7 @@ export default function App() {
             onToggleSubmitted={handleToggleSubmitted}
             onCreateInvoice={handleCreateInvoiceFromQuotation}
             onOpenFukken={handleOpenFukken}
-            onOpenFukuyama={(q) => { setEditingQuotation(q); setTab('fukuyama'); }}
+            onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setTab('fukuyama'); }}
           />
         )}
         {tab === 'form' && (
@@ -294,6 +295,7 @@ export default function App() {
         {tab === 'fukuyama' && editingQuotation && (
           <FukuyamaPage
             quotation={editingQuotation}
+            billingType={fukuyamaBillingType}
             onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
             onCancel={() => setTab('list')}
           />
