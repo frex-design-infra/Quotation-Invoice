@@ -1,0 +1,145 @@
+/**
+ * 請書（提出用）テンプレートオーバーレイ
+ * 背景画像: /templates/seisho.png（公式書式）
+ * 変数テキストを mm 座標で絶対配置する
+ *
+ * 座標調整: 各 COORD_* 定数を変更してください（単位: mm）
+ */
+import React from 'react';
+import type { Quotation, MasterSettings } from '../types';
+
+interface Props {
+  quotation: Quotation;
+  settings: MasterSettings;
+}
+
+// ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
+const COORD = {
+  // 発行日（年月日ラベル行に合わせる）
+  dateY:     60,    // 57→60（+3mm）
+  dateYearX: 126,
+  dateMoX:   148,
+  dateDayX:  162,
+
+  // 件番（NO. 後の値）
+  jobNumY:   141,   // 138→141（+3mm）
+  jobNumX:   47,
+
+  // 件名
+  projNameY: 152,   // 150→152（+2mm）
+  projNameX: 27,
+
+  // 工期 着工（正しい位置）
+  startY:    163,
+  startYearX: 53,
+  startMoX:   75,
+  startDayX:  87,
+
+  // 工期 竣工
+  endY:      163,
+  endYearX:  128,
+  endMoX:    149,
+  endDayX:   162,
+
+  // 請負金額（正しい位置）
+  totalY:    179,
+  totalX:    55,
+  totalW:    78,
+
+  // 消費税額（正しい位置）
+  taxY:      195,
+  taxX:      55,
+  taxW:      78,
+};
+// ────────────────────────────────────────────────────────────────
+
+function dp(str: string) {
+  if (!str) return null;
+  const d = new Date(str + 'T00:00:00');
+  return { y: String(d.getFullYear()), m: String(d.getMonth() + 1), d: String(d.getDate()) };
+}
+
+function abs(top: number, left: number, extra?: React.CSSProperties): React.CSSProperties {
+  return { position: 'absolute', top: `${top}mm`, left: `${left}mm`, ...extra };
+}
+
+const TEXT: React.CSSProperties = {
+  fontFamily: '"Meiryo", "Yu Gothic", "游ゴシック", "Hiragino Kaku Gothic ProN", sans-serif',
+  fontSize: '10pt',
+  lineHeight: 1,
+  whiteSpace: 'nowrap',
+};
+
+export default function FukkenSeishoTemplate({ quotation, settings }: Props) {
+  // 設定画面でアップロードした画像を優先、なければ /templates/seisho.png
+  const templateSrc = settings.fukkenSeishoTemplateUrl || '/templates/seisho.png';
+  const issue  = dp(quotation.fukkenSeishoDate || quotation.date);
+  const start  = dp(quotation.fukkenStartDate || '');
+  const end    = dp(quotation.fukkenEndDate || '');
+
+  const totalFmt = quotation.total.toLocaleString('ja-JP');
+  const taxFmt   = quotation.tax.toLocaleString('ja-JP');
+
+  return (
+    <div
+      id="fukken-seisho-print-area"
+      style={{
+        width: '210mm',
+        height: '297mm',
+        position: 'relative',
+        backgroundImage: `url(${templateSrc})`,
+        backgroundSize: '100% 100%',
+        backgroundRepeat: 'no-repeat',
+        overflow: 'hidden',
+        backgroundColor: '#fff',
+      }}
+    >
+      {/* 発行日 */}
+      {issue && (
+        <>
+          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issue.y}</span>
+          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateMoX),  width: '10mm', textAlign: 'right' }}>{issue.m}</span>
+          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateDayX), width: '8mm',  textAlign: 'right' }}>{issue.d}</span>
+        </>
+      )}
+
+      {/* 件番 */}
+      <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.jobNumX) }}>
+        {quotation.fukkenJobNumber || ''}
+      </span>
+
+      {/* 件名 */}
+      <span style={{ ...TEXT, ...abs(COORD.projNameY, COORD.projNameX) }}>
+        {quotation.fukkenProjectName || quotation.projectName}
+      </span>
+
+      {/* 工期 着工 */}
+      {start && (
+        <>
+          <span style={{ ...TEXT, ...abs(COORD.startY, COORD.startYearX), width: '18mm', textAlign: 'right' }}>{start.y}</span>
+          <span style={{ ...TEXT, ...abs(COORD.startY, COORD.startMoX),  width: '8mm',  textAlign: 'right' }}>{start.m}</span>
+          <span style={{ ...TEXT, ...abs(COORD.startY, COORD.startDayX), width: '8mm',  textAlign: 'right' }}>{start.d}</span>
+        </>
+      )}
+
+      {/* 工期 竣工 */}
+      {end && (
+        <>
+          <span style={{ ...TEXT, ...abs(COORD.endY, COORD.endYearX), width: '18mm', textAlign: 'right' }}>{end.y}</span>
+          <span style={{ ...TEXT, ...abs(COORD.endY, COORD.endMoX),  width: '8mm',  textAlign: 'right' }}>{end.m}</span>
+          <span style={{ ...TEXT, ...abs(COORD.endY, COORD.endDayX), width: '8mm',  textAlign: 'right' }}>{end.d}</span>
+        </>
+      )}
+
+      {/* 請負金額 */}
+      <span style={{ ...TEXT, ...abs(COORD.totalY, COORD.totalX), width: `${COORD.totalW}mm`, textAlign: 'right', fontWeight: 'bold', fontSize: '11pt' }}>
+        {totalFmt}
+      </span>
+
+      {/* 消費税額 */}
+      <span style={{ ...TEXT, ...abs(COORD.taxY, COORD.taxX), width: `${COORD.taxW}mm`, textAlign: 'right' }}>
+        {taxFmt}
+      </span>
+    </div>
+  );
+}
