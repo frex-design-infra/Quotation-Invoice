@@ -22,7 +22,7 @@ interface Props {
 const COORD = {
   // 発行日（右上）
   dateY:       36,
-  dateYearX:   152,
+  dateYearX:   151,
   dateMoX:     174,
   dateDayX:    188,
 
