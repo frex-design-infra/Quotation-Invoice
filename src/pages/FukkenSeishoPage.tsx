@@ -17,6 +17,8 @@ function today(): string {
 export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel }: Props) {
   const [pdfSaving, setPdfSaving] = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
+  const [submitted, setSubmitted] = useState(quotation.fukkenSeishoSubmitted ?? false);
+  const [pikoon, setPikoon] = useState(false);
   const [fukkenJobNumber,   setFukkenJobNumber]   = useState(quotation.fukkenJobNumber   ?? '');
   const [fukkenProjectName, setFukkenProjectName] = useState(quotation.fukkenProjectName ?? quotation.projectName ?? '');
   const [fukkenStartDate,   setFukkenStartDate]   = useState(quotation.fukkenStartDate   ?? '');
@@ -31,8 +33,17 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
     fukkenStartDate,
     fukkenEndDate,
     fukkenSeishoDate,
+    fukkenSeishoSubmitted: submitted,
     updatedAt: new Date().toISOString(),
   });
+
+  const handleToggleSubmitted = () => {
+    const next = !submitted;
+    setSubmitted(next);
+    setPikoon(true);
+    setTimeout(() => setPikoon(false), 600);
+    onSave({ ...buildUpdated(), fukkenSeishoSubmitted: next });
+  };
 
   const handleSavePDF = async () => {
     const el = document.getElementById('fukken-seisho-print-area');
@@ -68,6 +79,12 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>
         <button onClick={() => { onSave(buildUpdated()); setToastVisible(true); setTimeout(() => setToastVisible(false), 2500); }} className="btn-success">保存</button>
+        <button
+          className={`status-btn ${submitted ? 'submitted' : 'not-submitted'} ${pikoon ? 'pikoon' : ''}`}
+          onClick={handleToggleSubmitted}
+        >
+          {submitted ? '提出済' : '未提出'}
+        </button>
       </div>
 
       <div className="fukken-layout">

@@ -192,6 +192,7 @@ export interface Quotation {
   fukkenEndDate?: string;            // 工期竣工 YYYY-MM-DD
   fukkenWorkContent?: string;        // 業務内容（改行区切り）
   fukkenSeishoDate?: string;         // 請書発行日 YYYY-MM-DD
+  fukkenSeishoSubmitted?: boolean;   // 請書提出済フラグ
   fukkenDeliveryDate?: string;       // 納品日 YYYY-MM-DD
   fukkenDeliveryInvoiceDate?: string; // 納品書/請求書発行日 YYYY-MM-DD
 }
