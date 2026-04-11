@@ -27,7 +27,7 @@ const COORD = {
 
   // 件名
   projNameY: 152,   // 150→152（+2mm）
-  projNameX: 50,    // 27→37→50
+  projNameX: 60,    // 27→37→50→60
 
   // 工期 着工
   startY:    163,   // 正しい位置
