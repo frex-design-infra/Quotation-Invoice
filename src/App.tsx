@@ -270,6 +270,7 @@ export default function App() {
             initialView={invoiceInitialView}
             billingType={invoiceBillingType}
             interimInvoice={interimInvoiceForFinal}
+            allInvoices={invoices}
             onSave={saveInvoice}
             onCancel={handleCancelInvoice}
           />
