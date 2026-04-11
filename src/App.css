@@ -1065,6 +1065,7 @@ button {
   width: 100%;
   border-collapse: collapse;
   font-size: 9pt;
+  table-layout: fixed;
   margin-bottom: 12px !important;
 }
 .inv-table th,
@@ -1095,7 +1096,7 @@ button {
 .inv-sub-label-bold { font-weight: 700; }
 .inv-amount { text-align: right; width: 130px; }
 .inv-amount-bold { font-weight: 700; }
-.inv-tax-combined { font-size: 8pt; color: #444; text-align: left; white-space: nowrap; }
+.inv-tax-combined { font-size: 8pt; color: #444; text-align: left; }
 .inv-date-cell { text-align: center; }
 .inv-td { }
 .inv-current-billing-row td { background: #f0f4ff; font-weight: 700; }

@@ -231,6 +231,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 8. Table 5: 振込先 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col /><col style={{ width: '90px' }} /><col style={{ width: '130px' }} /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th-side" style={{ whiteSpace: 'nowrap', verticalAlign: 'middle' }}>お振込先</th>
