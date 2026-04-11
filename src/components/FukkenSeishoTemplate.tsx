@@ -17,7 +17,7 @@ interface Props {
 const COORD = {
   // 発行日（年月日ラベル行に合わせる）
   dateY:     60,    // 57→60（+3mm）
-  dateYearX: 135,   // 126→135（+9mm: 年ラベル直前に揃える）
+  dateYearX: 136,   // 126→135→136
   dateMoX:   159,   // 148→159（+11mm: 年ラベルの後ろへ）
   dateDayX:  172,   // 162→171→175→172（-3mm）
 
