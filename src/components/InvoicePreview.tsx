@@ -135,6 +135,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 4. Table 1: 業務名 + ご請求金額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th inv-th-w1">業務名</th>
@@ -153,6 +154,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 5. Table 2: 注文金額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th-side" rowSpan={3}>注文金額</th>
@@ -175,6 +177,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 6. Table 3: 納品 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">納品日</th>
@@ -195,6 +198,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 7. Table 4: 請求額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">請求日</th>
