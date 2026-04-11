@@ -255,6 +255,17 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
           </div>
 
           <div className="settings-row">
+            <label>復建 業者コード</label>
+            <input
+              type="text"
+              value={form.fukkenVendorCode ?? ''}
+              onChange={e => setForm(p => ({ ...p, fukkenVendorCode: e.target.value }))}
+              placeholder="例: G-000029"
+              style={{ flex: 1, maxWidth: '200px' }}
+            />
+          </div>
+
+          <div className="settings-row">
             <label>会社ロゴ</label>
             <div className="logo-upload-area">
               {form.logoDataUrl && (

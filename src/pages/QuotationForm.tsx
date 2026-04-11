@@ -71,6 +71,7 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
   const [csvFileName, setCsvFileName] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [subcontractMode, setSubcontractMode] = useState(false);
+  const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
@@ -200,6 +201,16 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
     total: totals.total,
     createdAt: initial?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    fukkenEnabled,
+    // Preserve existing Fukken fields when saving from quotation form
+    fukkenJobNumber: initial?.fukkenJobNumber,
+    fukkenLocation: initial?.fukkenLocation,
+    fukkenStartDate: initial?.fukkenStartDate,
+    fukkenEndDate: initial?.fukkenEndDate,
+    fukkenWorkContent: initial?.fukkenWorkContent,
+    fukkenSeishoDate: initial?.fukkenSeishoDate,
+    fukkenDeliveryDate: initial?.fukkenDeliveryDate,
+    fukkenDeliveryInvoiceDate: initial?.fukkenDeliveryInvoiceDate,
   });
 
   const handleSave = () => {
@@ -314,7 +325,13 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             <label>発注者名</label>
             <select
               value={clientName}
-              onChange={e => setClientName(e.target.value)}
+              onChange={e => {
+                const name = e.target.value;
+                setClientName(name);
+                if (name.includes('復建技術コンサルタント')) {
+                  setFukkenEnabled(true);
+                }
+              }}
               style={{ flex: 1 }}
             >
               <option value="">-- 選択してください --</option>
@@ -345,6 +362,17 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
                 onChange={e => setHasInterimBilling(e.target.checked)}
               />
               <span>あり（中間・最終の2回請求）</span>
+            </label>
+          </div>
+          <div className="field-row">
+            <label>復建様式</label>
+            <label className="toggle-label" style={{ gap: '8px' }}>
+              <input
+                type="checkbox"
+                checked={fukkenEnabled}
+                onChange={e => setFukkenEnabled(e.target.checked)}
+              />
+              <span>復建技術コンサルタント所定様式を使用</span>
             </label>
           </div>
           <div className="field-row">
