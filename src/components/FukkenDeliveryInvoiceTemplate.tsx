@@ -22,9 +22,9 @@ interface Props {
 const COORD = {
   // 発行日（右上）
   dateY:       36,
-  dateYearX:   140,
-  dateMoX:     162,
-  dateDayX:    175,
+  dateYearX:   155,
+  dateMoX:     177,
+  dateDayX:    190,
 
   // テーブル行の Y 座標（実測値に合わせて全体 -38mm 補正）
   jobNumY:     121,   // 156→121
