@@ -35,7 +35,12 @@ const COORD = {
   subtotalY:   161,   // 201→161
   taxY:        172,   // 213→172
 
-  // テーブル左カラム（件番・件名・施工場所・金額）の値 X
+  // テーブル左カラム（件番・件名・施工場所）の値 X
+  jobNumX:     50,
+  projNameX:   50,
+  locationX:   50,
+
+  // 金額セル
   valueX:      30,
   valueW:      85,    // 金額セルの幅（右寄せ用）
 
@@ -122,17 +127,17 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       )}
 
       {/* 件番 */}
-      <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.jobNumX) }}>
         {quotation.fukkenJobNumber || ''}
       </span>
 
       {/* 件名 */}
-      <span style={{ ...TEXT, ...abs(COORD.projNameY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(COORD.projNameY, COORD.projNameX) }}>
         {quotation.fukkenProjectName || quotation.projectName}
       </span>
 
       {/* 施工場所 */}
-      <span style={{ ...TEXT, ...abs(COORD.locationY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(COORD.locationY, COORD.locationX) }}>
         {quotation.fukkenLocation || ''}
       </span>
 
