@@ -22,8 +22,8 @@ interface Props {
 const COORD = {
   // 発行日（右上）
   dateY:       36,
-  dateYearX:   153,
-  dateMoX:     175,
+  dateYearX:   152,
+  dateMoX:     174,
   dateDayX:    188,
 
   // テーブル行の Y 座標（実測値に合わせて全体 -38mm 補正）
