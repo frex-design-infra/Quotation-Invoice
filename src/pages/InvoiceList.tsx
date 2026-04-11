@@ -95,9 +95,11 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                   <td>{inv.clientName}</td>
                   <td className="project-name-cell">{inv.projectName}</td>
                   <td className="center">
-                    {typeLabel && (
+                    {inv.isFukken ? (
+                      <span className="billing-type-badge billing-type-fukken">復建</span>
+                    ) : typeLabel ? (
                       <span className={`billing-type-badge billing-type-${inv.billingType}`}>{typeLabel}</span>
-                    )}
+                    ) : null}
                   </td>
                   <td className="amount-cell">¥ {formatCurrency(billingAmount)}</td>
                   <td onClick={e => e.stopPropagation()} className="action-cell">

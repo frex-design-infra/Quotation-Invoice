@@ -121,6 +121,7 @@ export interface Invoice {
   paymentDueDate: string;
   bankInfo: string;                // 選択した振込先テキスト
   taxRate: number;
+  isFukken?: boolean;             // 復建様式の納品書/請求書フラグ
   createdAt: string;
   updatedAt: string;
 }

@@ -20,6 +20,7 @@ function today(): string {
 export default function FukkenDeliveryInvoicePage({ quotation, settings, initialTab, onSave, onCancel }: Props) {
   const [activeTab,                setActiveTab]                = useState<DocTab>(initialTab ?? 'delivery');
   const [pdfSaving,                setPdfSaving]                = useState(false);
+  const [toastVisible,             setToastVisible]             = useState(false);
   const [fukkenJobNumber,          setFukkenJobNumber]          = useState(quotation.fukkenJobNumber          ?? '');
   const [fukkenProjectName,        setFukkenProjectName]        = useState(quotation.fukkenProjectName        ?? quotation.projectName ?? '');
   const [fukkenLocation,           setFukkenLocation]           = useState(quotation.fukkenLocation           ?? '');
@@ -68,6 +69,7 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
 
   return (
     <div className="fukken-form-page">
+      {toastVisible && <div className="toast-saved">保存しました ✓</div>}
       <div className="preview-toolbar no-print">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
         <div className="fukken-tab-group">
@@ -84,7 +86,7 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>
-        <button onClick={() => onSave(buildUpdated())} className="btn-success">保存</button>
+        <button onClick={() => { onSave(buildUpdated()); setToastVisible(true); setTimeout(() => setToastVisible(false), 2500); }} className="btn-success">保存</button>
       </div>
 
       <div className="fukken-layout">

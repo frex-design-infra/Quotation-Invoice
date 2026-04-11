@@ -16,6 +16,7 @@ function today(): string {
 
 export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel }: Props) {
   const [pdfSaving, setPdfSaving] = useState(false);
+  const [toastVisible, setToastVisible] = useState(false);
   const [fukkenJobNumber,   setFukkenJobNumber]   = useState(quotation.fukkenJobNumber   ?? '');
   const [fukkenProjectName, setFukkenProjectName] = useState(quotation.fukkenProjectName ?? quotation.projectName ?? '');
   const [fukkenStartDate,   setFukkenStartDate]   = useState(quotation.fukkenStartDate   ?? '');
@@ -58,6 +59,7 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
 
   return (
     <div className="fukken-form-page">
+      {toastVisible && <div className="toast-saved">保存しました ✓</div>}
       <div className="preview-toolbar no-print">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
         <span className="fukken-page-title">請書（提出用）</span>
@@ -65,7 +67,7 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>
-        <button onClick={() => onSave(buildUpdated())} className="btn-success">保存</button>
+        <button onClick={() => { onSave(buildUpdated()); setToastVisible(true); setTimeout(() => setToastVisible(false), 2500); }} className="btn-success">保存</button>
       </div>
 
       <div className="fukken-layout">

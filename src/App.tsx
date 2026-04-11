@@ -7,8 +7,37 @@ import InvoiceForm from './pages/InvoiceForm';
 import MasterSettingsPanel from './components/MasterSettings';
 import FukkenSeishoPage from './pages/FukkenSeishoPage';
 import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
-import type { Quotation, Invoice } from './types';
+import type { Quotation, Invoice, MasterSettings } from './types';
 import './App.css';
+
+function buildFukkenInvoice(q: Quotation, settings: MasterSettings, existing?: Invoice): Invoice {
+  const now = new Date().toISOString();
+  return {
+    id: existing?.id ?? (q.id + '-fukken'),
+    invoiceNumber: q.fukkenJobNumber || q.quotationNumber,
+    issueDate: q.fukkenDeliveryInvoiceDate || now.slice(0, 10),
+    quotationId: q.id,
+    billingType: 'single',
+    isFukken: true,
+    submitted: existing?.submitted ?? false,
+    clientName: q.clientName,
+    clientPostalCode: '',
+    clientAddress: '',
+    projectName: q.fukkenProjectName || q.projectName,
+    originalContractTotal: q.total,
+    changeAmount: 0,
+    deliveryDate: q.fukkenDeliveryDate || '',
+    deliveryPerson: '',
+    deliveryDescription: q.fukkenWorkContent || '',
+    billingDate: q.fukkenDeliveryInvoiceDate || now.slice(0, 10),
+    previousBillingTotal: 0,
+    paymentDueDate: '',
+    bankInfo: settings.bankAccounts?.[0]?.info ?? '',
+    taxRate: settings.taxRate,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
 
 type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery';
 
@@ -81,6 +110,10 @@ export default function App() {
   };
 
   const handleEditInvoice = (inv: Invoice) => {
+    if (inv.isFukken) {
+      const q = quotations.find(x => x.id === inv.quotationId);
+      if (q) { setEditingQuotation(q); setFukkenDeliveryInitialTab('invoice'); setTab('fukken-delivery'); return; }
+    }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
     setInvoiceBillingType(inv.billingType ?? 'single');
@@ -90,6 +123,10 @@ export default function App() {
   };
 
   const handlePreviewInvoice = (inv: Invoice) => {
+    if (inv.isFukken) {
+      const q = quotations.find(x => x.id === inv.quotationId);
+      if (q) { setEditingQuotation(q); setFukkenDeliveryInitialTab('invoice'); setTab('fukken-delivery'); return; }
+    }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
     setInvoiceBillingType(inv.billingType ?? 'single');
@@ -245,7 +282,12 @@ export default function App() {
             quotation={editingQuotation}
             settings={settings}
             initialTab={fukkenDeliveryInitialTab}
-            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
+            onSave={(q) => {
+              saveQuotation(q);
+              setEditingQuotation(q);
+              const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukken);
+              saveInvoice(buildFukkenInvoice(q, settings, existing));
+            }}
             onCancel={() => setTab('list')}
           />
         )}
