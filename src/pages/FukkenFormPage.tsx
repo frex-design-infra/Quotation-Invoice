@@ -4,11 +4,10 @@ import FukkenSeishoPreview from '../components/FukkenSeishoPreview';
 import FukkenDeliveryInvoicePreview from '../components/FukkenDeliveryInvoicePreview';
 import DatePicker from '../components/DatePicker';
 
-type DocTab = 'seisho' | 'delivery' | 'invoice';
-
 interface Props {
   quotation: Quotation;
   settings: MasterSettings;
+  initialTab?: 'seisho' | 'delivery' | 'invoice';
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
@@ -17,8 +16,8 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function FukkenFormPage({ quotation, settings, onSave, onCancel }: Props) {
-  const [activeTab, setActiveTab] = useState<DocTab>('seisho');
+export default function FukkenFormPage({ quotation, settings, initialTab, onSave, onCancel }: Props) {
+  const [activeTab, setActiveTab] = useState<DocTab>(initialTab ?? 'seisho');
   const [pdfSaving, setPdfSaving] = useState(false);
 
   // 編集中フィールド

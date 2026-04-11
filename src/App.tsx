@@ -23,6 +23,7 @@ export default function App() {
   const [invoiceInitialView, setInvoiceInitialView] = useState<'form' | 'preview'>('form');
   const [invoiceBillingType, setInvoiceBillingType] = useState<'single' | 'interim' | 'final'>('single');
   const [interimInvoiceForFinal, setInterimInvoiceForFinal] = useState<Invoice | undefined>();
+  const [fukkenInitialTab, setFukkenInitialTab] = useState<'seisho' | 'delivery' | 'invoice'>('seisho');
 
   // Quotation handlers
   const handleNew = () => {
@@ -58,8 +59,9 @@ export default function App() {
   };
 
   // Fukken handlers
-  const handleOpenFukken = (q: Quotation) => {
+  const handleOpenFukken = (q: Quotation, tab: 'seisho' | 'delivery' | 'invoice' = 'seisho') => {
     setEditingQuotation(q);
+    setFukkenInitialTab(tab);
     setTab('fukken');
   };
 
@@ -229,6 +231,7 @@ export default function App() {
           <FukkenFormPage
             quotation={editingQuotation}
             settings={settings}
+            initialTab={fukkenInitialTab}
             onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
             onCancel={() => setTab('list')}
           />

@@ -10,7 +10,7 @@ interface Props {
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
-  onOpenFukken: (q: Quotation) => void;
+  onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
 }
 
 export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken }: Props) {
@@ -108,32 +108,49 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                         <button onClick={() => { onPreview(q); setOpenMenuId(null); }}>
                           プレビュー
                         </button>
-                        {q.submitted && !q.hasInterimBilling && (
-                          <button onClick={() => { onCreateInvoice(q, 'single'); setOpenMenuId(null); }}>
-                            請求書作成
-                          </button>
-                        )}
-                        {q.submitted && q.hasInterimBilling && (
-                          <>
-                            <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
-                              中間請求書作成
-                            </button>
-                            <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
-                              最終請求書作成
-                            </button>
-                          </>
-                        )}
-                        {(q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント')) && (
-                          <>
-                            <div className="dropdown-divider" />
-                            <button
-                              className="dropdown-fukken"
-                              onClick={() => { onOpenFukken(q); setOpenMenuId(null); }}
-                            >
-                              復建様式
-                            </button>
-                          </>
-                        )}
+                        {(() => {
+                          const isFukken = q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント');
+                          if (isFukken) {
+                            return (
+                              <>
+                                {q.submitted && (
+                                  <button
+                                    className="dropdown-fukken"
+                                    onClick={() => { onOpenFukken(q, 'seisho'); setOpenMenuId(null); }}
+                                  >
+                                    請書作成
+                                  </button>
+                                )}
+                                <div className="dropdown-divider" />
+                                <button
+                                  className="dropdown-fukken"
+                                  onClick={() => { onOpenFukken(q, 'delivery'); setOpenMenuId(null); }}
+                                >
+                                  納品書/請求書作成
+                                </button>
+                              </>
+                            );
+                          }
+                          return (
+                            <>
+                              {q.submitted && !q.hasInterimBilling && (
+                                <button onClick={() => { onCreateInvoice(q, 'single'); setOpenMenuId(null); }}>
+                                  請求書作成
+                                </button>
+                              )}
+                              {q.submitted && q.hasInterimBilling && (
+                                <>
+                                  <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                                    中間請求書作成
+                                  </button>
+                                  <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
+                                    最終請求書作成
+                                  </button>
+                                </>
+                              )}
+                            </>
+                          );
+                        })()}
                         <div className="dropdown-divider" />
                         <button
                           className="dropdown-danger"
