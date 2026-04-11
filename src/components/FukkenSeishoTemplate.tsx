@@ -16,17 +16,17 @@ interface Props {
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
   // 発行日（年月日ラベル行に合わせる）
-  dateY:     57,    // 47→57（+10mm）
-  dateYearX: 126,
-  dateMoX:   148,
-  dateDayX:  162,
+  dateY:     60,    // 57→60（+3mm）
+  dateYearX: 135,   // 126→135（+9mm: 年ラベル直前に揃える）
+  dateMoX:   159,   // 148→159（+11mm: 年ラベルの後ろへ）
+  dateDayX:  171,   // 162→171（+9mm: 月ラベルの後ろへ）
 
   // 件番（NO. 後の値）
-  jobNumY:   138,   // 132→138（+6mm）
+  jobNumY:   141,   // 138→141（+3mm）
   jobNumX:   47,
 
   // 件名
-  projNameY: 150,   // 147→150（+3mm）
+  projNameY: 152,   // 150→152（+2mm）
   projNameX: 27,
 
   // 工期 着工
