@@ -163,13 +163,6 @@ export default function FukuyamaPage({ quotation, billingType = 'single', onSave
             <DatePicker value={issueDate} onChange={setIssueDate} />
           </div>
 
-          <div className="fk-field-group">
-            <label className="fk-field-label">業務内容</label>
-            <textarea className="fk-field-textarea" value={workContent}
-              onChange={e => setWorkContent(e.target.value)}
-              rows={3} placeholder="例: 橋梁定期点検 一式" />
-          </div>
-
           <div className="fk-field-note">
             ※ 請負金額・消費税は見積書の合計から自動取得
           </div>

@@ -35,10 +35,6 @@ const COORD = {
   taxX:       30,
   taxW:       85,
 
-  // 業務内容
-  workX:      40,
-  workY0:     192,
-  workLineH:   8,
 };
 // ────────────────────────────────────────────────────────────────
 
@@ -62,7 +58,6 @@ const TEXT: React.CSSProperties = {
 export default function FukuyamaTemplate({ quotation }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
   const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
-  const workLines = (quotation.fukuyamaWorkContent || '').split('\n').slice(0, 5);
 
   const totalFmt    = quotation.total.toLocaleString('ja-JP');
   const subtotalFmt = quotation.subtotal.toLocaleString('ja-JP');
@@ -113,15 +108,6 @@ export default function FukuyamaTemplate({ quotation }: Props) {
         {taxFmt}
       </span>
 
-      {/* 業務内容 */}
-      {workLines.map((line, i) => (
-        <span
-          key={i}
-          style={{ ...TEXT, ...abs(COORD.workY0 + i * COORD.workLineH, COORD.workX), fontSize: '9.5pt' }}
-        >
-          {line}
-        </span>
-      ))}
     </div>
   );
 }
