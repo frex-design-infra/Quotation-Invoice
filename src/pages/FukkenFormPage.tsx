@@ -153,6 +153,25 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
           </div>
 
           <div className="fk-field-group">
+            <label className="fk-field-label">工期（着工）</label>
+            <DatePicker value={fukkenStartDate} onChange={setFukkenStartDate} />
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">工期（竣工）</label>
+            <DatePicker value={fukkenEndDate} onChange={setFukkenEndDate} />
+          </div>
+
+          <div className="fk-field-divider">— 請書 —</div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">請書発行日</label>
+            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
+          </div>
+
+          <div className="fk-field-divider">— 納品書 / 請求書 —</div>
+
+          <div className="fk-field-group">
             <label className="fk-field-label">施工場所</label>
             <input
               type="text"
@@ -161,16 +180,6 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
               onChange={e => setFukkenLocation(e.target.value)}
               placeholder="例: 秋田県秋田市保戸野鉄砲ほか"
             />
-          </div>
-
-          <div className="fk-field-group">
-            <label className="fk-field-label">工期（着工）</label>
-            <DatePicker value={fukkenStartDate} onChange={setFukkenStartDate} />
-          </div>
-
-          <div className="fk-field-group">
-            <label className="fk-field-label">工期（竣工）</label>
-            <DatePicker value={fukkenEndDate} onChange={setFukkenEndDate} />
           </div>
 
           <div className="fk-field-group">
@@ -183,15 +192,6 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
               placeholder="例: 橋梁定期点検 一式"
             />
           </div>
-
-          <div className="fk-field-divider">— 請書 —</div>
-
-          <div className="fk-field-group">
-            <label className="fk-field-label">請書発行日</label>
-            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
-          </div>
-
-          <div className="fk-field-divider">— 納品書 / 請求書 —</div>
 
           <div className="fk-field-group">
             <label className="fk-field-label">納品日</label>
