@@ -159,7 +159,7 @@ export default function FukuyamaPage({ quotation, billingType = 'single', onSave
           </div>
 
           <div className="fk-field-group">
-            <label className="fk-field-label">発行日</label>
+            <label className="fk-field-label">請求日</label>
             <DatePicker value={issueDate} onChange={setIssueDate} />
           </div>
 

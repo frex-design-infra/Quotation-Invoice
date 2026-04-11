@@ -14,11 +14,11 @@ interface Props {
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
-  // 発行日
-  dateY:      36,
-  dateYearX:  130,
-  dateMoX:    152,
-  dateDayX:   165,
+  // 請求日
+  dateY:      213,
+  dateYearX:  100,
+  dateMoX:    122,
+  dateDayX:   135,
 
   // 金額（合計）
   totalY:     150,
