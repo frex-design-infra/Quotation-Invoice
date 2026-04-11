@@ -158,17 +158,17 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             <th className="inv-th-side" rowSpan={3}>注文金額</th>
             <td className="inv-sub-label">最終契約額</td>
             <td className="inv-amount">¥ {formatCurrency(finalContractTotal)}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">変更増減額</td>
             <td className="inv-amount">{changeAmount >= 0 ? '' : '▲ '}¥ {formatCurrency(Math.abs(changeAmount))}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">当初契約額</td>
             <td className="inv-amount">¥ {formatCurrency(originalContractTotal)}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
           </tr>
         </tbody>
       </table>
@@ -180,11 +180,11 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             <th className="inv-th inv-th-w1">納品日</th>
             <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
             <th className="inv-th inv-th-w2">納品担当者</th>
-            <td colSpan={2}>{deliveryPerson}</td>
+            <td>{deliveryPerson}</td>
           </tr>
           <tr>
             <th className="inv-th-side inv-th-delivery" style={{ whiteSpace: 'nowrap' }}>納品内容</th>
-            <td colSpan={4} className="inv-delivery-content">
+            <td colSpan={3} className="inv-delivery-content">
               {displayLines.map((line, i) => (
                 <div key={i} className="inv-delivery-line">{line || '\u00a0'}</div>
               ))}
@@ -199,28 +199,28 @@ export default function InvoicePreview({ invoice, settings }: Props) {
           <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">請求日</th>
             <td className="inv-date-cell inv-billing-date-cell" colSpan={2}>{formatDate(billingDate)}</td>
-            <td colSpan={2} className="inv-billing-date-empty"></td>
+            <td className="inv-billing-date-empty"></td>
           </tr>
           <tr>
             <th className="inv-th-side" rowSpan={4}>請求額</th>
             <td className="inv-sub-label">中間既請求額</td>
             <td className="inv-amount">¥ {formatCurrency(previousBillingTotal)}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
           </tr>
           <tr className="inv-current-billing-row">
             <td className="inv-sub-label inv-sub-label-bold">今回請求額</td>
             <td className="inv-amount inv-amount-bold">¥ {formatCurrency(currentBillingTotal)}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求合計額</td>
             <td className="inv-amount">¥ {formatCurrency(totalBilledAmount)}</td>
-            <td colSpan={2} className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求残額</td>
             <td className="inv-amount">¥ {formatCurrency(remainingAmount)}</td>
-            <td colSpan={2} style={{ border: 'none' }}></td>
+            <td style={{ border: 'none' }}></td>
           </tr>
         </tbody>
       </table>
