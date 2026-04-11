@@ -1224,6 +1224,11 @@ button {
   border-top: 1px dashed #e0e0e0;
   padding-top: 10px;
 }
+.fk-field-hint {
+  font-size: 10px;
+  color: #888;
+  margin-top: 3px;
+}
 .fk-field-note {
   font-size: 10px;
   color: #aaa;
@@ -1265,7 +1270,7 @@ button {
   justify-content: center;
 }
 
-/* A4ページ */
+/* A4ページ（納品書/請求書共通） */
 .fukken-page {
   background: white;
   width: 210mm;
@@ -1279,132 +1284,195 @@ button {
   box-sizing: border-box;
 }
 
-/* タイトル行 */
-.fk-title-row {
+/* ============================================
+   復建 請書 (.fks-*)
+   ============================================ */
+
+/* A4ページ（請書） */
+.fks-page {
+  position: relative;
+  background: white;
+  width: 210mm;
+  min-height: 297mm;
+  padding: 18mm 22mm 20mm 22mm;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+  font-family: 'Hiragino Kaku Gothic ProN', 'Meiryo', 'Yu Gothic', sans-serif;
+  font-size: 10.5pt;
+  line-height: 1.8;
+  color: #000;
+  box-sizing: border-box;
+}
+
+/* 印紙欄（左上） */
+.fks-inshi-box {
+  position: absolute;
+  top: 18mm;
+  left: 22mm;
+  width: 18mm;
+  height: 20mm;
+  border: 1.5px dashed #000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 9pt;
+  line-height: 1.6;
+}
+
+/* タイトル */
+.fks-title {
+  text-align: center;
+  font-size: 20pt;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  margin-bottom: 4mm;
+  margin-top: 2mm;
+}
+
+/* 発行日 */
+.fks-date {
+  text-align: right;
+  font-size: 10.5pt;
+  margin-bottom: 8mm;
+}
+
+/* 甲 */
+.fks-kou {
+  font-size: 14pt;
+  font-weight: 700;
+  margin-bottom: 8mm;
+}
+.fks-kou-client {
+  letter-spacing: 0.08em;
+}
+
+/* 乙エリア */
+.fks-otsu-area {
   display: flex;
   justify-content: space-between;
   align-items: flex-end;
-  margin-bottom: 20px;
+  margin-left: 30mm;
+  margin-bottom: 10mm;
 }
-.fk-title {
-  font-size: 18pt;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  flex: 1;
-  text-align: center;
+.fks-otsu-content { flex: 1; }
+.fks-otsu-heading {
+  font-size: 10.5pt;
+  margin-bottom: 1mm;
 }
-.fk-issue-date {
-  font-size: 10pt;
-  white-space: nowrap;
-  min-width: 120px;
-  text-align: right;
-}
-
-/* 甲ライン */
-.fk-kou-line {
-  font-size: 12pt;
-  margin-bottom: 16px;
-  padding-left: 4mm;
-}
-
-/* 乙ボックス */
-.fk-otsu-box {
+.fks-otsu-field {
   display: flex;
-  gap: 12px;
-  border: 1px solid #000;
-  padding: 10px 14px;
-  margin-bottom: 24px;
-  margin-left: auto;
-  width: 75%;
+  gap: 6px;
+  font-size: 10.5pt;
+  min-height: 18px;
+  padding-left: 12mm;
 }
-.fk-otsu-label {
-  font-size: 11pt;
-  font-weight: 700;
-  padding-top: 2px;
+.fks-otsu-lbl {
   white-space: nowrap;
-}
-.fk-otsu-fields { flex: 1; }
-.fk-otsu-row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  min-height: 24px;
-}
-.fk-otsu-key {
-  font-size: 10pt;
-  white-space: nowrap;
-  min-width: 60px;
+  min-width: 52px;
   text-align: justify;
   text-align-last: justify;
 }
-.fk-otsu-val { font-size: 10pt; flex: 1; }
-.fk-otsu-name-seal {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  flex: 1;
-}
+.fks-otsu-val { flex: 1; }
 
 /* 代表印 */
-.fk-seal-img {
-  width: 48px;
-  height: 48px;
+.fks-otsu-seal {
+  padding-bottom: 4px;
+  padding-left: 8px;
+}
+.fks-seal-img {
+  width: 44px;
+  height: 44px;
   object-fit: contain;
   opacity: 0.85;
 }
-.fk-seal-placeholder {
-  width: 48px;
-  height: 48px;
-  border: 1px solid #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  color: #bbb;
-  border-radius: 50%;
+.fks-seal-circle {
+  display: inline-block;
+  font-size: 22px;
+  color: #333;
 }
 
-/* 本文項目 */
-.fk-body { margin-bottom: 24px; }
-
-.fk-item {
-  display: flex;
-  gap: 8px;
-  align-items: baseline;
-  margin-bottom: 4px;
-}
-.fk-num { font-size: 10.5pt; white-space: nowrap; min-width: 24px; }
-.fk-item-label {
+/* 項目テーブル */
+.fks-table {
+  width: 100%;
+  border-collapse: collapse;
   font-size: 10.5pt;
+  margin-bottom: 10mm;
+}
+.fks-table td { padding: 2px 6px; vertical-align: top; }
+.fks-num {
+  text-align: left;
   white-space: nowrap;
-  min-width: 70px;
+  vertical-align: top;
+  padding-top: 3px;
+  font-size: 10pt;
+}
+.fks-lbl {
+  white-space: nowrap;
   text-align: justify;
   text-align-last: justify;
+  padding-right: 8px;
+  vertical-align: top;
+  padding-top: 3px;
 }
-.fk-item-val { font-size: 10.5pt; flex: 1; }
-.fk-amount-line { font-weight: 700; font-size: 12pt; }
+.fks-val {
+  vertical-align: top;
+  padding-bottom: 4px;
+}
 
-.fk-item-sub {
-  margin-left: 100px;
-  font-size: 9.5pt;
-  color: #333;
-  margin-bottom: 2px;
+/* 値のアンダーライン */
+.fks-ul {
+  border-bottom: 1px solid #000;
+  display: block;
+  padding-bottom: 2px;
+  margin-bottom: 4px;
 }
-.fk-item-sub2 {
-  margin-left: 100px;
-  font-size: 9.5pt;
-  color: #333;
-  margin-bottom: 8px;
-  line-height: 1.7;
-}
-.fk-tax-line { font-weight: 600; }
 
-/* フッターテキスト */
-.fk-footer-text {
-  font-size: 10pt;
-  line-height: 1.9;
-  margin-top: 40px;
-  text-align: center;
+/* 工期の日付（太字） */
+.fks-date-bold {
+  font-weight: 700;
+  font-size: 12pt;
+  margin: 0 4px;
+}
+
+/* 請負金額の一金行 */
+.fks-kinku {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.fks-kinku-hitokane { white-space: nowrap; min-width: 2em; }
+.fks-kinku-amount {
+  font-size: 13pt;
+  font-weight: 700;
+  flex: 1;
+  text-align: right;
+  padding-right: 8px;
+}
+.fks-kinku-yen { white-space: nowrap; }
+
+/* 消費税ブロック */
+.fks-tax-block {
+  display: flex;
+  gap: 12px;
+  margin-top: 4px;
+  font-size: 9.5pt;
+}
+.fks-tax-label {
+  white-space: nowrap;
+  line-height: 1.5;
+}
+.fks-tax-right { flex: 1; }
+.fks-tax-rate {
+  font-size: 9pt;
+  margin-top: 2px;
+}
+
+/* フッター */
+.fks-footer {
+  margin-top: 14mm;
+  margin-left: 25mm;
+  font-size: 10.5pt;
+  line-height: 2;
 }
 
 /* ============================================

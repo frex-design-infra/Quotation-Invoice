@@ -127,7 +127,7 @@ export default function FukkenDeliveryInvoicePreview({ quotation, settings, docT
           {/* 件名 */}
           <tr>
             <td className="fkdi-th">件名</td>
-            <td colSpan={3}>{quotation.projectName}</td>
+            <td colSpan={3}>{quotation.fukkenProjectName || quotation.projectName}</td>
           </tr>
 
           {/* 施工場所 */}

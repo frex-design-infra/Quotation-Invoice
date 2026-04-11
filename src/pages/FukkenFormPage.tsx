@@ -22,6 +22,7 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
 
   // 編集中フィールド
   const [fukkenJobNumber, setFukkenJobNumber] = useState(quotation.fukkenJobNumber ?? '');
+  const [fukkenProjectName, setFukkenProjectName] = useState(quotation.fukkenProjectName ?? quotation.projectName ?? '');
   const [fukkenLocation, setFukkenLocation] = useState(quotation.fukkenLocation ?? '');
   const [fukkenStartDate, setFukkenStartDate] = useState(quotation.fukkenStartDate ?? '');
   const [fukkenEndDate, setFukkenEndDate] = useState(quotation.fukkenEndDate ?? '');
@@ -34,6 +35,7 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
     ...quotation,
     fukkenEnabled: true,
     fukkenJobNumber,
+    fukkenProjectName,
     fukkenLocation,
     fukkenStartDate,
     fukkenEndDate,
@@ -136,6 +138,18 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
               onChange={e => setFukkenJobNumber(e.target.value)}
               placeholder="例: 2573300301"
             />
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">件名</label>
+            <input
+              type="text"
+              className="fk-field-input"
+              value={fukkenProjectName}
+              onChange={e => setFukkenProjectName(e.target.value)}
+              placeholder="例: ○○橋梁定期点検業務"
+            />
+            <div className="fk-field-hint">注文書に合わせて変更可</div>
           </div>
 
           <div className="fk-field-group">

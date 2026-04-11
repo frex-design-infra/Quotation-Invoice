@@ -182,6 +182,7 @@ export interface Quotation {
   // 復建技術コンサルタント様式用（任意）
   fukkenEnabled?: boolean;           // 復建様式を使用するか
   fukkenJobNumber?: string;          // 件番 (NO.XXXXXXXXXX)
+  fukkenProjectName?: string;        // 件名（復建所定様式用・注文書に合わせて変更可）
   fukkenLocation?: string;           // 施工場所
   fukkenStartDate?: string;          // 工期着工 YYYY-MM-DD
   fukkenEndDate?: string;            // 工期竣工 YYYY-MM-DD
