@@ -183,7 +183,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
             <th className="inv-th inv-th-w1">納品日</th>
             <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
             <th className="inv-th inv-th-w2">納品担当者</th>
-            <td>{deliveryPerson}</td>
+            <td style={{ textAlign: 'center' }}>{deliveryPerson}</td>
             <td className="inv-delivery-empty"></td>
           </tr>
           <tr>
