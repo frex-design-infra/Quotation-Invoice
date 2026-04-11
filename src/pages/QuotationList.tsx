@@ -126,12 +126,14 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                                   </button>
                                 )}
                                 <div className="dropdown-divider" />
-                                <button
-                                  className="dropdown-fukken"
-                                  onClick={() => { onOpenFukken(q, 'delivery'); setOpenMenuId(null); }}
-                                >
-                                  納品書/請求書作成
-                                </button>
+                                {q.submitted && (
+                                  <button
+                                    className="dropdown-fukken"
+                                    onClick={() => { onOpenFukken(q, 'delivery'); setOpenMenuId(null); }}
+                                  >
+                                    納品書/請求書作成
+                                  </button>
+                                )}
                               </>
                             );
                           }
