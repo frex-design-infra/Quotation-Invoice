@@ -38,8 +38,8 @@ const COORD = {
   taxY:        172,   // 共通
 
   // 納品書専用
-  deliveryAmountY:   151.8,
-  deliverySubtotalY: 162.4,
+  deliveryAmountY:   151.7,
+  deliverySubtotalY: 162.3,
 
   // テーブル左カラム（件番・件名・施工場所）の値 X
   jobNumX:     64,
@@ -56,7 +56,7 @@ const COORD = {
   workLineH:    8,    // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    151.8,
+  deliveryNaikiY:    151.6,
   deliveryYearX:     142,
   deliveryMoX:       166,
   deliveryDayX:      179,
