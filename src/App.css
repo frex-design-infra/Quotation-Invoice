@@ -1107,6 +1107,7 @@ button {
 .inv-date-header-row td { padding-top: 20px; padding-bottom: 20px; }
 .inv-billing-date-cell { text-align: center; }
 .inv-billing-date-empty { border: none !important; }
+.inv-delivery-empty { border-top: none !important; border-right: none !important; border-bottom: none !important; }
 .inv-footer { text-align: right; margin-top: 8px; font-size: 8pt; color: #555; }
 
 @media print {

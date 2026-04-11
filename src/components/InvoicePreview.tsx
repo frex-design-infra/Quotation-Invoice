@@ -177,17 +177,18 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 6. Table 3: 納品 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
-        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">納品日</th>
             <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
             <th className="inv-th inv-th-w2">納品担当者</th>
             <td>{deliveryPerson}</td>
+            <td className="inv-delivery-empty"></td>
           </tr>
           <tr>
             <th className="inv-th-side inv-th-delivery" style={{ whiteSpace: 'nowrap' }}>納品内容</th>
-            <td colSpan={3} className="inv-delivery-content">
+            <td colSpan={4} className="inv-delivery-content">
               {displayLines.map((line, i) => (
                 <div key={i} className="inv-delivery-line">{line || '\u00a0'}</div>
               ))}
