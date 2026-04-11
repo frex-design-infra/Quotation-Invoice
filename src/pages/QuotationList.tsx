@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   quotations: Quotation[];
@@ -33,8 +34,11 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   };
 
-  const handleToggle = (e: React.MouseEvent, id: string) => {
+  const handleToggle = (e: React.MouseEvent, id: string, currentlySubmitted: boolean) => {
     e.stopPropagation();
+    if (!currentlySubmitted) {
+      triggerConfetti(e.currentTarget as HTMLElement);
+    }
     onToggleSubmitted(id);
     setAnimatingIds(prev => {
       const next = new Set(prev);
@@ -92,7 +96,7 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                 <td onClick={e => e.stopPropagation()} className="action-cell">
                   <button
                     className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
-                    onClick={e => handleToggle(e, q.id)}
+                    onClick={e => handleToggle(e, q.id, q.submitted)}
                   >
                     {q.submitted ? '提出済' : '未提出'}
                   </button>

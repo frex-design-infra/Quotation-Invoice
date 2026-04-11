@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   invoices: Invoice[];
@@ -38,8 +39,11 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   };
 
-  const handleToggle = (e: React.MouseEvent, id: string) => {
+  const handleToggle = (e: React.MouseEvent, id: string, currentlySubmitted: boolean) => {
     e.stopPropagation();
+    if (!currentlySubmitted) {
+      triggerConfetti(e.currentTarget as HTMLElement);
+    }
     onToggleSubmitted(id);
     setAnimatingIds(prev => {
       const next = new Set(prev);
@@ -105,7 +109,7 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                   <td onClick={e => e.stopPropagation()} className="action-cell">
                     <button
                       className={`status-btn ${inv.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(inv.id) ? 'pikoon' : ''}`}
-                      onClick={e => handleToggle(e, inv.id)}
+                      onClick={e => handleToggle(e, inv.id, inv.submitted ?? false)}
                     >
                       {inv.submitted ? '提出済' : '未提出'}
                     </button>
