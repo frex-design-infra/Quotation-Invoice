@@ -33,9 +33,13 @@ const COORD = {
   projNameY:   131,   // 167→130→133→131
   locationY:   141.2, // 179→139→142→141.2
 
-  amountY:     150,   // 190→150
-  subtotalY:   161,   // 201→161
-  taxY:        172,   // 213→172
+  amountY:     150,   // 請求書用
+  subtotalY:   161,   // 請求書用
+  taxY:        172,   // 共通
+
+  // 納品書専用
+  deliveryAmountY:   152,   // 150+2
+  deliverySubtotalY: 162,   // 161+1
 
   // テーブル左カラム（件番・件名・施工場所）の値 X
   jobNumX:     64,
@@ -48,11 +52,11 @@ const COORD = {
 
   // 業務内容（最大5行）
   workX:       40,
-  workY0:      193,   // 231→193
+  workY0:      192,   // 231→193→192
   workLineH:    8,    // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    150,   // 192→150（amountY と同列）
+  deliveryNaikiY:    152,   // 192→150→152
   deliveryYearX:     142,
   deliveryMoX:       166,
   deliveryDayX:      179,
@@ -144,12 +148,12 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       </span>
 
       {/* 金額（納品金額 or 請求金額）- 右寄せ */}
-      <span style={{ ...TEXT, ...abs(COORD.amountY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right', fontWeight: 'bold' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.amountY : COORD.deliveryAmountY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right', fontWeight: 'bold' }}>
         {totalFmt}
       </span>
 
       {/* 消費税率10%対象 */}
-      <span style={{ ...TEXT, ...abs(COORD.subtotalY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.subtotalY : COORD.deliverySubtotalY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
         {subtotalFmt}
       </span>
 
