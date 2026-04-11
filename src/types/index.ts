@@ -92,7 +92,10 @@ export interface MasterSettings {
   deliveryPersons: string[];     // 納品担当者リスト
 
   // 復建技術コンサルタント用
-  fukkenVendorCode?: string;     // 業者コード (例: G-000029)
+  fukkenVendorCode?: string;          // 業者コード (例: G-000029)
+  fukkenSeishoTemplateUrl?: string;   // 請書テンプレート画像 (base64)
+  fukkenSeikyushoTemplateUrl?: string; // 請求書テンプレート画像 (base64)
+  fukkenNouhinTemplateUrl?: string;   // 納品書テンプレート画像 (base64)
 }
 
 // 納品書兼請求書

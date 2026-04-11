@@ -76,7 +76,10 @@ const TEXT: React.CSSProperties = {
 
 export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, docType }: Props) {
   const isInvoice  = docType === 'invoice';
-  const templateSrc = isInvoice ? '/templates/seikyusho.png' : '/templates/nouhinnsho.png';
+  // 設定画面でアップロードした画像を優先、なければ /templates/ のファイル
+  const templateSrc = isInvoice
+    ? (settings.fukkenSeikyushoTemplateUrl || '/templates/seikyusho.png')
+    : (settings.fukkenNouhinTemplateUrl    || '/templates/nouhinnsho.png');
   const printId    = isInvoice ? 'fukken-invoice-print-area' : 'fukken-delivery-print-area';
 
   const issueDate = isInvoice

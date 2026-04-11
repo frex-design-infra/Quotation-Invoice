@@ -88,6 +88,8 @@ const TEXT: React.CSSProperties = {
 };
 
 export default function FukkenSeishoTemplate({ quotation, settings }: Props) {
+  // 設定画面でアップロードした画像を優先、なければ /templates/seisho.png
+  const templateSrc = settings.fukkenSeishoTemplateUrl || '/templates/seisho.png';
   const issue  = dp(quotation.fukkenSeishoDate || quotation.date);
   const start  = dp(quotation.fukkenStartDate || '');
   const end    = dp(quotation.fukkenEndDate || '');
@@ -107,7 +109,7 @@ export default function FukkenSeishoTemplate({ quotation, settings }: Props) {
         width: '210mm',
         height: '297mm',
         position: 'relative',
-        backgroundImage: 'url(/templates/seisho.png)',
+        backgroundImage: `url(${templateSrc})`,
         backgroundSize: '100% 100%',
         backgroundRepeat: 'no-repeat',
         overflow: 'hidden',
