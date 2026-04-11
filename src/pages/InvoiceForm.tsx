@@ -207,7 +207,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
       <div>
         {toastVisible && <div className="toast-saved">保存しました ✓</div>}
         <div className="preview-toolbar no-print">
-          <button onClick={() => setView('form')} className="btn-secondary">← 編集に戻る</button>
+          <button onClick={onCancel} className="btn-secondary">← 一覧表に戻る</button>
           <button onClick={handlePrint} className="btn-secondary">🖨 印刷</button>
           <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
             {pdfSaving ? '生成中...' : '📄 PDF保存'}
