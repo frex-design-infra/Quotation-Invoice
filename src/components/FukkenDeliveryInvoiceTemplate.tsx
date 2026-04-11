@@ -52,8 +52,8 @@ const COORD = {
   // 納品書: 納期
   deliveryNaikiY:    150,   // 192→150（amountY と同列）
   deliveryYearX:     142,
-  deliveryMoX:       163,
-  deliveryDayX:      177,
+  deliveryMoX:       165,
+  deliveryDayX:      179,
 
   // 請求書: 振込先テキスト（振込銀行欄の右側）
   bankX:       119,
