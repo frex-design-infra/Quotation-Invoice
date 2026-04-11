@@ -8,6 +8,7 @@ import MasterSettingsPanel from './components/MasterSettings';
 import FukkenSeishoPage from './pages/FukkenSeishoPage';
 import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import FukuyamaPage from './pages/FukuyamaPage';
+import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import './App.css';
 
@@ -88,7 +89,7 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
   };
 }
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation';
 
 export default function App() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
@@ -147,6 +148,11 @@ export default function App() {
       setFukkenDeliveryInitialTab(tab === 'invoice' ? 'invoice' : 'delivery');
       setTab('fukken-delivery');
     }
+  };
+
+  const handleOpenFukuyamaInterimQuotation = (q: Quotation) => {
+    setEditingQuotation(q);
+    setTab('fukuyama-interim-quotation');
   };
 
   // Invoice handlers
@@ -273,6 +279,7 @@ export default function App() {
         {tab === 'list' && (
           <QuotationList
             quotations={quotations}
+            invoices={invoices}
             onNew={handleNew}
             onEdit={handleEdit}
             onPreview={handlePreview}
@@ -281,6 +288,7 @@ export default function App() {
             onCreateInvoice={handleCreateInvoiceFromQuotation}
             onOpenFukken={handleOpenFukken}
             onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setTab('fukuyama'); }}
+            onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
           />
         )}
         {tab === 'form' && (
@@ -340,6 +348,17 @@ export default function App() {
               const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === fukuyamaBillingType);
               saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, existing));
               setTab('invoice-list');
+            }}
+            onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'fukuyama-interim-quotation' && editingQuotation && (
+          <FukuyamaInterimQuotationPage
+            quotation={editingQuotation}
+            onSave={(q) => {
+              saveQuotation(q);
+              setEditingQuotation(q);
+              setTab('list');
             }}
             onCancel={() => setTab('list')}
           />

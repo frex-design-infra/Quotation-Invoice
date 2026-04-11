@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Quotation } from '../types';
+import type { Quotation, Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   quotations: Quotation[];
+  invoices: Invoice[];
   onNew: () => void;
   onEdit: (q: Quotation) => void;
   onPreview: (q: Quotation) => void;
@@ -13,9 +14,10 @@ interface Props {
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
   onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
   onOpenFukuyama: (q: Quotation, billingType?: 'single' | 'interim' | 'final') => void;
+  onOpenFukuyamaInterimQuotation: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama }: Props) {
+export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -117,6 +119,10 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                           const isFukuyama = q.fukuyamaEnabled || q.clientName.includes('福山コンサルタント');
                           const isFukken = !isFukuyama && (q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント'));
                           if (isFukuyama) {
+                            const interimInvoice = invoices.find(
+                              inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === 'interim'
+                            );
+                            const interimInvoiceSubmitted = interimInvoice?.submitted ?? false;
                             return (
                               <>
                                 {q.submitted && (
@@ -130,22 +136,52 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                                         納品書兼請求書作成
                                       </button>
                                     )}
-                                    {q.hasInterimBilling && (
-                                      <>
-                                        <button
-                                          className="dropdown-fukken"
-                                          onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
-                                        >
-                                          中間請求書作成
-                                        </button>
-                                        <button
-                                          className="dropdown-fukken"
-                                          onClick={() => { onOpenFukuyama(q, 'final'); setOpenMenuId(null); }}
-                                        >
-                                          最終請求書作成
-                                        </button>
-                                      </>
-                                    )}
+                                    {q.hasInterimBilling && (() => {
+                                      if (!q.fukuyamaInterimQuotationSubmitted) {
+                                        return (
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyamaInterimQuotation(q); setOpenMenuId(null); }}
+                                          >
+                                            中間見積書作成
+                                          </button>
+                                        );
+                                      }
+                                      if (!interimInvoiceSubmitted) {
+                                        return (
+                                          <>
+                                            <button
+                                              className="dropdown-fukken"
+                                              onClick={() => { onOpenFukuyamaInterimQuotation(q); setOpenMenuId(null); }}
+                                            >
+                                              中間見積書を開く
+                                            </button>
+                                            <button
+                                              className="dropdown-fukken"
+                                              onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
+                                            >
+                                              中間請求書作成
+                                            </button>
+                                          </>
+                                        );
+                                      }
+                                      return (
+                                        <>
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
+                                          >
+                                            中間請求書を開く
+                                          </button>
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyama(q, 'final'); setOpenMenuId(null); }}
+                                          >
+                                            最終請求書作成
+                                          </button>
+                                        </>
+                                      );
+                                    })()}
                                   </>
                                 )}
                               </>

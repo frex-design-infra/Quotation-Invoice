@@ -203,4 +203,10 @@ export interface Quotation {
   fukuyamaTemplateStoragePath?: string; // Storage パス（削除用）
   fukuyamaIssueDate?: string;          // 発行日 YYYY-MM-DD
   fukuyamaWorkContent?: string;        // 業務内容
+
+  // 福山 中間見積書用
+  fukuyamaInterimQuotationTemplateUrl?: string;
+  fukuyamaInterimQuotationStoragePath?: string;
+  fukuyamaInterimQuotationIssueDate?: string;
+  fukuyamaInterimQuotationSubmitted?: boolean;
 }
