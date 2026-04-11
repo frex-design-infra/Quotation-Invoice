@@ -145,7 +145,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
               ご請求金額<br /><span style={{ fontSize: '7pt' }}>(税込)</span>
             </th>
             <td colSpan={3} className="inv-td-billing" style={{ background: '#1e3a5f', color: '#fff', fontSize: '16pt', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>
-              ¥ {formatCurrency(finalContractTotal)}
+              ¥ {formatCurrency(currentBillingTotal)}
             </td>
           </tr>
         </tbody>
