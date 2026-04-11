@@ -38,9 +38,10 @@ const COORD = {
   invoiceProjNameY: 129,
   invoiceLocationY: 139.2,
 
-  amountY:     150,   // 請求書用
-  subtotalY:   161,   // 請求書用
-  taxY:        172,   // 共通
+  amountY:     147.6, // 請求書用（150-2.4）
+  subtotalY:   158.6, // 請求書用（161-2.4）
+  taxY:        172,   // 納品書用（共通）
+  invoiceTaxY: 169.6, // 請求書用（172-2.4）
 
   // 納品書専用
   deliveryAmountY:   151.7,
@@ -163,7 +164,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       </span>
 
       {/* 内消費税額(10%) */}
-      <span style={{ ...TEXT, ...abs(COORD.taxY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceTaxY : COORD.taxY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
         {taxFmt}
       </span>
 
