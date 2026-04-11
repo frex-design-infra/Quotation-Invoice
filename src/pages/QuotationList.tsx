@@ -10,9 +10,10 @@ interface Props {
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
+  onOpenFukken: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -119,6 +120,17 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                             </button>
                             <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
                               最終請求書作成
+                            </button>
+                          </>
+                        )}
+                        {q.fukkenEnabled && (
+                          <>
+                            <div className="dropdown-divider" />
+                            <button
+                              className="dropdown-fukken"
+                              onClick={() => { onOpenFukken(q); setOpenMenuId(null); }}
+                            >
+                              復建様式
                             </button>
                           </>
                         )}

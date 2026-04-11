@@ -5,10 +5,11 @@ import QuotationForm from './pages/QuotationForm';
 import InvoiceList from './pages/InvoiceList';
 import InvoiceForm from './pages/InvoiceForm';
 import MasterSettingsPanel from './components/MasterSettings';
+import FukkenFormPage from './pages/FukkenFormPage';
 import type { Quotation, Invoice } from './types';
 import './App.css';
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken';
 
 export default function App() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
@@ -54,6 +55,12 @@ export default function App() {
 
   const handleCancel = () => {
     setTab('list');
+  };
+
+  // Fukken handlers
+  const handleOpenFukken = (q: Quotation) => {
+    setEditingQuotation(q);
+    setTab('fukken');
   };
 
   // Invoice handlers
@@ -178,6 +185,7 @@ export default function App() {
             onDelete={deleteQuotation}
             onToggleSubmitted={handleToggleSubmitted}
             onCreateInvoice={handleCreateInvoiceFromQuotation}
+            onOpenFukken={handleOpenFukken}
           />
         )}
         {tab === 'form' && (
@@ -215,6 +223,14 @@ export default function App() {
           <MasterSettingsPanel
             settings={settings}
             onSave={saveSettings}
+          />
+        )}
+        {tab === 'fukken' && editingQuotation && (
+          <FukkenFormPage
+            quotation={editingQuotation}
+            settings={settings}
+            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
+            onCancel={() => setTab('list')}
           />
         )}
       </main>

@@ -90,6 +90,9 @@ export interface MasterSettings {
   // 請求書用
   bankAccounts: BankAccount[];   // 振込先口座リスト
   deliveryPersons: string[];     // 納品担当者リスト
+
+  // 復建技術コンサルタント用
+  fukkenVendorCode?: string;     // 業者コード (例: G-000029)
 }
 
 // 納品書兼請求書
@@ -175,4 +178,15 @@ export interface Quotation {
   submitted: boolean;           // 提出済フラグ
   createdAt: string;
   updatedAt: string;
+
+  // 復建技術コンサルタント様式用（任意）
+  fukkenEnabled?: boolean;           // 復建様式を使用するか
+  fukkenJobNumber?: string;          // 件番 (NO.XXXXXXXXXX)
+  fukkenLocation?: string;           // 施工場所
+  fukkenStartDate?: string;          // 工期着工 YYYY-MM-DD
+  fukkenEndDate?: string;            // 工期竣工 YYYY-MM-DD
+  fukkenWorkContent?: string;        // 業務内容（改行区切り）
+  fukkenSeishoDate?: string;         // 請書発行日 YYYY-MM-DD
+  fukkenDeliveryDate?: string;       // 納品日 YYYY-MM-DD
+  fukkenDeliveryInvoiceDate?: string; // 納品書/請求書発行日 YYYY-MM-DD
 }

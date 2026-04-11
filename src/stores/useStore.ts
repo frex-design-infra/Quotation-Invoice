@@ -78,6 +78,7 @@ export const DEFAULT_MASTER_SETTINGS: MasterSettings = {
     },
   ] as BankAccount[],
   deliveryPersons: [],
+  fukkenVendorCode: '',
 };
 
 const STORAGE_KEY_SETTINGS = 'quotation_master_settings';
