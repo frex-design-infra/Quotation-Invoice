@@ -1086,7 +1086,7 @@ button {
   text-align: center;
   width: 80px;
 }
-.inv-th-delivery { vertical-align: top; padding-top: 8px; }
+.inv-th-delivery { vertical-align: middle; }
 .inv-sub-label {
   background: #f5f7f9;
   text-align: center;
@@ -1096,7 +1096,7 @@ button {
 .inv-amount { text-align: right; width: 130px; }
 .inv-amount-bold { font-weight: 700; }
 .inv-tax-combined { font-size: 8pt; color: #444; text-align: left; white-space: nowrap; }
-.inv-date-cell { width: 150px; }
+.inv-date-cell { width: 150px; text-align: center; }
 .inv-td { }
 .inv-current-billing-row td { background: #f0f4ff; font-weight: 700; }
 .inv-delivery-content { vertical-align: top; line-height: 1.8; }
