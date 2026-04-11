@@ -57,9 +57,10 @@ const COORD = {
   valueW:      85,    // 金額セルの幅（右寄せ用）
 
   // 業務内容（最大5行）
-  workX:       40,
-  workY0:      192,   // 231→193→192
-  workLineH:    8,    // 行間
+  workX:        40,
+  workY0:       192,  // 納品書用
+  invoiceWorkY0: 189, // 請求書用（192-3）
+  workLineH:     8,   // 行間
 
   // 納品書: 納期
   deliveryNaikiY:    151.3,
@@ -172,7 +173,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       {workLines.map((line, i) => (
         <span
           key={i}
-          style={{ ...TEXT, ...abs(COORD.workY0 + i * COORD.workLineH, COORD.workX), fontSize: '9.5pt' }}
+          style={{ ...TEXT, ...abs((isInvoice ? COORD.invoiceWorkY0 : COORD.workY0) + i * COORD.workLineH, COORD.workX), fontSize: '9.5pt' }}
         >
           {line}
         </span>
