@@ -45,10 +45,10 @@ const COORD = {
   workLineH:    8,    // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    190,
-  deliveryYearX:     122,
-  deliveryMoX:       143,
-  deliveryDayX:      157,
+  deliveryNaikiY:    194,   // 190→194（+4mm）
+  deliveryYearX:     132,   // 122→132（+10mm）
+  deliveryMoX:       153,   // 143→153（+10mm）
+  deliveryDayX:      167,   // 157→167（+10mm）
 
   // 請求書: 振込先テキスト（振込銀行欄の右側）
   bankX:       119,
