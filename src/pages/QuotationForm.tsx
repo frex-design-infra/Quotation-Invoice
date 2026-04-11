@@ -325,7 +325,13 @@ export default function QuotationForm({ settings, initial, initialView, onSave, 
             <label>発注者名</label>
             <select
               value={clientName}
-              onChange={e => setClientName(e.target.value)}
+              onChange={e => {
+                const name = e.target.value;
+                setClientName(name);
+                if (name.includes('復建技術コンサルタント')) {
+                  setFukkenEnabled(true);
+                }
+              }}
               style={{ flex: 1 }}
             >
               <option value="">-- 選択してください --</option>

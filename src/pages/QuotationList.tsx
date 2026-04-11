@@ -123,7 +123,7 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                             </button>
                           </>
                         )}
-                        {q.fukkenEnabled && (
+                        {(q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント')) && (
                           <>
                             <div className="dropdown-divider" />
                             <button
