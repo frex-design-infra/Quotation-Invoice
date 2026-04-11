@@ -56,7 +56,7 @@ const COORD = {
   workLineH:    8,    // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    151.5,
+  deliveryNaikiY:    151.3,
   deliveryYearX:     142,
   deliveryMoX:       166,
   deliveryDayX:      179,
