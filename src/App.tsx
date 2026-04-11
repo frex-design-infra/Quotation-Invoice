@@ -10,11 +10,21 @@ import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import './App.css';
 
-function buildFukkenInvoice(q: Quotation, settings: MasterSettings, existing?: Invoice): Invoice {
+function buildFukkenInvoice(q: Quotation, settings: MasterSettings, allInvoices: Invoice[], existing?: Invoice): Invoice {
   const now = new Date().toISOString();
+  const dateBase = (q.fukkenDeliveryInvoiceDate || now.slice(0, 10)).replace(/-/g, '');
+  // 同じ日付ベースの番号を持つ他のレコードを探し、最大連番+1を使う
+  const sameBase = allInvoices
+    .filter(inv => inv.id !== existing?.id && inv.invoiceNumber?.startsWith(dateBase + '-'))
+    .map(inv => parseInt(inv.invoiceNumber.slice(-3), 10))
+    .filter(n => !isNaN(n));
+  const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+  const invoiceNumber = existing?.invoiceNumber?.startsWith(dateBase + '-')
+    ? existing.invoiceNumber
+    : `${dateBase}-${String(seq).padStart(3, '0')}`;
   return {
     id: existing?.id ?? (q.id + '-fukken'),
-    invoiceNumber: (q.fukkenDeliveryInvoiceDate || now.slice(0, 10)).replace(/-/g, '') + '-001',
+    invoiceNumber,
     issueDate: q.fukkenDeliveryInvoiceDate || now.slice(0, 10),
     quotationId: q.id,
     billingType: 'single',
@@ -286,7 +296,7 @@ export default function App() {
               saveQuotation(q);
               setEditingQuotation(q);
               const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukken);
-              saveInvoice(buildFukkenInvoice(q, settings, existing));
+              saveInvoice(buildFukkenInvoice(q, settings, invoices, existing));
             }}
             onCancel={() => setTab('list')}
           />
