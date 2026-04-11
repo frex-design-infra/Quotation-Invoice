@@ -39,7 +39,7 @@ const COORD = {
 
   // 納品書専用
   deliveryAmountY:   151.8,
-  deliverySubtotalY: 162.5, // 161+1.5
+  deliverySubtotalY: 162.4,
 
   // テーブル左カラム（件番・件名・施工場所）の値 X
   jobNumX:     64,
