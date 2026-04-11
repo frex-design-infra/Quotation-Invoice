@@ -20,8 +20,10 @@ interface Props {
 
 // ─── 共通座標（納品書・請求書で同じ位置） ─────────────────────────
 const COORD = {
-  // 発行日（右上）
-  dateY:       36,
+  // 発行日（右上）- 請求書
+  dateY:         36,
+  // 発行日（右上）- 納品書
+  deliveryDateY: 40,
   dateYearX:   151,
   dateMoX:     174,
   dateDayX:    188,
@@ -120,9 +122,9 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       {/* 発行日 */}
       {issueDate && (
         <>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issueDate.y}</span>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateMoX),   width: '10mm', textAlign: 'right' }}>{issueDate.m}</span>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateDayX),  width: '8mm',  textAlign: 'right' }}>{issueDate.d}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issueDate.y}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateMoX),   width: '10mm', textAlign: 'right' }}>{issueDate.m}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateDayX),  width: '8mm',  textAlign: 'right' }}>{issueDate.d}</span>
         </>
       )}
 
