@@ -36,9 +36,9 @@ const COORD = {
   taxY:        172,   // 213→172
 
   // テーブル左カラム（件番・件名・施工場所）の値 X
-  jobNumX:     50,
-  projNameX:   50,
-  locationX:   50,
+  jobNumX:     55,
+  projNameX:   55,
+  locationX:   55,
 
   // 金額セル
   valueX:      30,
