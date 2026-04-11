@@ -247,6 +247,7 @@ export default function App() {
             settings={settings}
             initial={editingQuotation}
             initialView={formInitialView}
+            allQuotations={quotations}
             onSave={handleSave}
             onCancel={handleCancel}
           />

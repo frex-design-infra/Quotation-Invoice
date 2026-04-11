@@ -9,6 +9,7 @@ interface Props {
   settings: MasterSettings;
   initial?: Quotation;
   initialView?: 'form' | 'preview';
+  allQuotations?: Quotation[];
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
@@ -21,24 +22,28 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-function generateNumber(): string {
-  const d = new Date();
-  const yyyymmdd = d.toISOString().slice(0, 10).replace(/-/g, '');
-  return `${yyyymmdd}-001`;
+function generateNumber(dateStr?: string, existing?: Quotation[], excludeId?: string): string {
+  const yyyymmdd = (dateStr ?? new Date().toISOString().slice(0, 10)).replace(/-/g, '');
+  const sameBase = (existing ?? [])
+    .filter(q => q.id !== excludeId && q.quotationNumber?.startsWith(yyyymmdd + '-'))
+    .map(q => parseInt(q.quotationNumber.slice(-3), 10))
+    .filter(n => !isNaN(n));
+  const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+  return `${yyyymmdd}-${String(seq).padStart(3, '0')}`;
 }
 
 const ORDERER_CATEGORIES: OrdererCategory[] = ['国', '県', '市町村'];
 
-export default function QuotationForm({ settings, initial, initialView, onSave, onCancel }: Props) {
+export default function QuotationForm({ settings, initial, initialView, allQuotations, onSave, onCancel }: Props) {
   const [view, setView] = useState<'form' | 'preview'>(initialView ?? 'form');
   const [date, setDate] = useState(initial?.date ?? today());
-  const [quotationNumber, setQuotationNumber] = useState(initial?.quotationNumber ?? generateNumber());
+  const [quotationNumber, setQuotationNumber] = useState(initial?.quotationNumber ?? generateNumber(today(), allQuotations, initial?.id));
   const isFirstRender = useRef(true);
 
   // 日付変更時に見積番号をリアルタイム更新（初回はスキップ）
   useEffect(() => {
     if (isFirstRender.current) { isFirstRender.current = false; return; }
-    setQuotationNumber(`${date.replace(/-/g, '')}-001`);
+    setQuotationNumber(generateNumber(date, allQuotations, initial?.id));
   }, [date]);
   const [ordererCategory, setOrdererCategory] = useState<OrdererCategory>(initial?.ordererCategory ?? '県');
   const [clientName, setClientName] = useState(initial?.clientName ?? '');
