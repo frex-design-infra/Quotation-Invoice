@@ -73,6 +73,11 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
           <h3 className="fukken-panel-title">請書 入力</h3>
 
           <div className="fk-field-group">
+            <label className="fk-field-label">請書発行日</label>
+            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
+          </div>
+
+          <div className="fk-field-group">
             <label className="fk-field-label">件番</label>
             <input type="text" className="fk-field-input" value={fukkenJobNumber}
               onChange={e => setFukkenJobNumber(e.target.value)} placeholder="例: 2573300301" />
@@ -93,11 +98,6 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
           <div className="fk-field-group">
             <label className="fk-field-label">工期（竣工）</label>
             <DatePicker value={fukkenEndDate} onChange={setFukkenEndDate} />
-          </div>
-
-          <div className="fk-field-group">
-            <label className="fk-field-label">請書発行日</label>
-            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
           </div>
 
           <div className="fk-field-note">
