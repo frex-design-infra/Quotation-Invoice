@@ -38,8 +38,8 @@ const COORD = {
   invoiceProjNameY: 129,
   invoiceLocationY: 139.2,
 
-  amountY:     147.6, // 請求書用（150-2.4）
-  subtotalY:   158.6, // 請求書用（161-2.4）
+  amountY:     147.8, // 請求書用
+  subtotalY:   158.7, // 請求書用
   taxY:        172,   // 納品書用（共通）
   invoiceTaxY: 169.6, // 請求書用（172-2.4）
 
