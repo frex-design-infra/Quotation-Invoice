@@ -33,7 +33,7 @@ const COORD = {
   startY:    167,
   startYearX: 62,   // 53→63→62
   startMoX:   83,   // 75→85→83
-  startDayX:  97,   // 87→97（+10mm）
+  startDayX:  94,   // 87→97→94
 
   // 工期 竣工
   endY:      167,
