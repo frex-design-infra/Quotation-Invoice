@@ -265,6 +265,51 @@ export default function MasterSettingsPanel({ settings, onSave }: Props) {
             />
           </div>
 
+          {/* 復建 テンプレート画像 */}
+          {(['seisho', 'seikyusho', 'nouhinnsho'] as const).map(key => {
+            const fieldKey = key === 'seisho'
+              ? 'fukkenSeishoTemplateUrl'
+              : key === 'seikyusho'
+              ? 'fukkenSeikyushoTemplateUrl'
+              : 'fukkenNouhinTemplateUrl';
+            const label = key === 'seisho' ? '復建 請書テンプレート' : key === 'seikyusho' ? '復建 請求書テンプレート' : '復建 納品書テンプレート';
+            const inputId = `fukken-template-${key}`;
+            const dataUrl = (form as Record<string, unknown>)[fieldKey] as string | undefined;
+            return (
+              <div className="settings-row" key={key} style={{ alignItems: 'flex-start' }}>
+                <label style={{ paddingTop: '6px' }}>{label}</label>
+                <div className="logo-upload-area">
+                  {dataUrl && (
+                    <img src={dataUrl} alt={label} style={{ maxWidth: '120px', maxHeight: '80px', border: '1px solid #ddd', borderRadius: '4px' }} />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    id={inputId}
+                    onChange={e => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      const reader = new FileReader();
+                      reader.onload = ev => {
+                        setForm(p => ({ ...p, [fieldKey]: ev.target?.result as string }));
+                      };
+                      reader.readAsDataURL(file);
+                    }}
+                  />
+                  <label htmlFor={inputId} className="btn-secondary btn-sm" style={{ cursor: 'pointer', display: 'inline-block' }}>
+                    {dataUrl ? '画像を変更' : '画像をアップロード'}
+                  </label>
+                  {dataUrl && (
+                    <button className="btn-danger btn-sm" onClick={() => setForm(p => ({ ...p, [fieldKey]: '' }))}>
+                      削除
+                    </button>
+                  )}
+                </div>
+              </div>
+            );
+          })}
+
           <div className="settings-row">
             <label>会社ロゴ</label>
             <div className="logo-upload-area">

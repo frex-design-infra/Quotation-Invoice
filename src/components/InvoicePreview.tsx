@@ -29,8 +29,6 @@ export default function InvoicePreview({ invoice, settings }: Props) {
     invoiceNumber,
     issueDate,
     clientName,
-    clientPostalCode,
-    clientAddress,
     projectName,
     originalContractTotal,
     changeAmount,
@@ -42,6 +40,11 @@ export default function InvoicePreview({ invoice, settings }: Props) {
     paymentDueDate,
     taxRate,
   } = invoice;
+
+  // 住所はinvoiceに保存された値を優先、なければマスタから補完
+  const clientRecord = (settings.clients ?? []).find(c => c.name === clientName);
+  const clientPostalCode = invoice.clientPostalCode || clientRecord?.postalCode || '';
+  const clientAddress = invoice.clientAddress || clientRecord?.address || '';
 
   const finalContractTotal = originalContractTotal + changeAmount;
   const currentBillingTotal = invoice.currentBillingAmount !== undefined
@@ -73,43 +76,45 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
   return (
     <div className="invoice-preview" id="invoice-print-area">
-      {/* ── 1. タイトル行 ── */}
-      <div className="inv-top">
-        <div className="inv-title">納品書 兼 請求書</div>
-        <div className="inv-meta">
-          <div>請求書番号：{invoiceNumber}</div>
-          <div>発　行　日：{formatDate(issueDate)}</div>
-          <div>登録番号：T{settings.registrationNumber || ''}</div>
-        </div>
-      </div>
-
-      {/* ── 2. ヘッダーグリッド ── */}
+      {/* ── 1+2. ヘッダー（タイトル・発注者・自社情報を2列で統合） ── */}
       <div className="inv-header-grid">
-        {/* LEFT: 発注者 */}
-        <div className="inv-client-area">
-          {clientPostalCode && (
-            <div>{formatPostal(clientPostalCode)}</div>
-          )}
-          {clientAddress && (
-            <div style={{ whiteSpace: 'pre-line' }}>{clientAddress}</div>
-          )}
-          <div className="inv-client-name-row">
-            <span className="inv-client-name">{clientName}&nbsp;御中</span>
+        {/* LEFT: タイトル + 発注者 */}
+        <div>
+          <div className="inv-title">納品書 兼 請求書</div>
+          <div className="inv-client-area">
+            {clientPostalCode && (
+              <div>{formatPostal(clientPostalCode)}</div>
+            )}
+            {clientAddress && (
+              <div style={{ whiteSpace: 'pre-line' }}>{clientAddress}</div>
+            )}
+            <div className="inv-client-name-row">
+              <span className="inv-client-name">{clientName}&nbsp;御中</span>
+            </div>
           </div>
         </div>
 
-        {/* RIGHT: 自社情報 */}
+        {/* RIGHT: メタ情報 + ロゴ + 自社情報 */}
         <div className="inv-company-area">
-          {settings.logoDataUrl && (
-            <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
-          )}
+          <div className="inv-meta">
+            <div>請求書番号：{invoiceNumber}</div>
+            <div>発　行　日：{formatDate(issueDate)}</div>
+            <div>登録番号：T{settings.registrationNumber || ''}</div>
+            {settings.logoDataUrl && (
+              <div style={{ marginTop: '4px' }}>
+                <img src={settings.logoDataUrl} alt="ロゴ" className="inv-logo-img" />
+              </div>
+            )}
+          </div>
           <div className="inv-company-name-block">
-            <div className="inv-company-name">{settings.companyName}</div>
+            <div className="inv-company-name-seal-wrap">
+              <div className="inv-company-name">{settings.companyName}</div>
+              {settings.sealDataUrl && (
+                <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
+              )}
+            </div>
             {settings.companyNameEn && (
               <div className="inv-company-name-en">{settings.companyNameEn}</div>
-            )}
-            {settings.sealDataUrl && (
-              <img src={settings.sealDataUrl} alt="角印" className="inv-seal-img" />
             )}
           </div>
           <div className="inv-company-details">
@@ -130,6 +135,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 4. Table 1: 業務名 + ご請求金額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th inv-th-w1">業務名</th>
@@ -140,7 +146,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
               ご請求金額<br /><span style={{ fontSize: '7pt' }}>(税込)</span>
             </th>
             <td colSpan={3} className="inv-td-billing" style={{ background: '#1e3a5f', color: '#fff', fontSize: '16pt', fontWeight: 700, textAlign: 'center', letterSpacing: '0.05em' }}>
-              ¥ {formatCurrency(finalContractTotal)}
+              ¥ {formatCurrency(currentBillingTotal)}
             </td>
           </tr>
         </tbody>
@@ -148,41 +154,41 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 5. Table 2: 注文金額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th-side" rowSpan={3}>注文金額</th>
             <td className="inv-sub-label">最終契約額</td>
             <td className="inv-amount">¥ {formatCurrency(finalContractTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(finalTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">変更増減額</td>
             <td className="inv-amount">{changeAmount >= 0 ? '' : '▲ '}¥ {formatCurrency(Math.abs(changeAmount))}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(Math.abs(changeTax))}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">当初契約額</td>
             <td className="inv-amount">¥ {formatCurrency(originalContractTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(originalTax)}&nbsp;を含む)</td>
           </tr>
         </tbody>
       </table>
 
       {/* ── 6. Table 3: 納品 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
-          <tr>
+          <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">納品日</th>
             <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
             <th className="inv-th inv-th-w2">納品担当者</th>
-            <td>{deliveryPerson}</td>
+            <td style={{ textAlign: 'center' }}>{deliveryPerson}</td>
+            <td className="inv-delivery-empty"></td>
           </tr>
           <tr>
             <th className="inv-th-side inv-th-delivery" style={{ whiteSpace: 'nowrap' }}>納品内容</th>
-            <td colSpan={3} className="inv-delivery-content">
+            <td colSpan={4} className="inv-delivery-content">
               {displayLines.map((line, i) => (
                 <div key={i} className="inv-delivery-line">{line || '\u00a0'}</div>
               ))}
@@ -193,41 +199,40 @@ export default function InvoicePreview({ invoice, settings }: Props) {
 
       {/* ── 7. Table 4: 請求額 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col style={{ width: '130px' }} /><col style={{ width: '130px' }} /><col /></colgroup>
         <tbody>
-          <tr>
+          <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">請求日</th>
             <td className="inv-date-cell inv-billing-date-cell" colSpan={2}>{formatDate(billingDate)}</td>
-            <td colSpan={2} className="inv-billing-date-empty"></td>
+            <td className="inv-billing-date-empty"></td>
           </tr>
           <tr>
             <th className="inv-th-side" rowSpan={4}>請求額</th>
             <td className="inv-sub-label">中間既請求額</td>
             <td className="inv-amount">¥ {formatCurrency(previousBillingTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(previousTax)}&nbsp;を含む)</td>
           </tr>
           <tr className="inv-current-billing-row">
             <td className="inv-sub-label inv-sub-label-bold">今回請求額</td>
             <td className="inv-amount inv-amount-bold">¥ {formatCurrency(currentBillingTotal)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(currentTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求合計額</td>
             <td className="inv-amount">¥ {formatCurrency(totalBilledAmount)}</td>
-            <td className="inv-tax-label">(消費税({taxRate}%)</td>
-            <td className="inv-tax-amount">¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
+            <td className="inv-tax-combined">(消費税({taxRate}%)　¥ {formatCurrency(totalBilledTax)}&nbsp;を含む)</td>
           </tr>
           <tr>
             <td className="inv-sub-label">請求残額</td>
             <td className="inv-amount">¥ {formatCurrency(remainingAmount)}</td>
-            <td colSpan={2} style={{ border: 'none' }}></td>
+            <td style={{ border: 'none' }}></td>
           </tr>
         </tbody>
       </table>
 
       {/* ── 8. Table 5: 振込先 ── */}
       <table className="inv-table" style={{ marginBottom: '6px' }}>
+        <colgroup><col style={{ width: '80px' }} /><col /><col style={{ width: '90px' }} /><col style={{ width: '130px' }} /></colgroup>
         <tbody>
           <tr>
             <th className="inv-th-side" style={{ whiteSpace: 'nowrap', verticalAlign: 'middle' }}>お振込先</th>

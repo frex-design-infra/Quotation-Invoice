@@ -103,10 +103,12 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
         {/* 右：自社情報 */}
         <div className="doc-company-area">
           <div className="company-info" style={{ position: 'relative' }}>
-            {settings.sealDataUrl && (
-              <img src={settings.sealDataUrl} alt="角印" className="company-seal-img" />
-            )}
-            <div className="company-name-jp">{settings.companyName}</div>
+            <div className="company-name-seal-wrap">
+              <div className="company-name-jp">{settings.companyName}</div>
+              {settings.sealDataUrl && (
+                <img src={settings.sealDataUrl} alt="角印" className="company-seal-img" />
+              )}
+            </div>
             <div className="company-name-en">{settings.companyNameEn}</div>
             <div className="company-postal">〒{settings.postalCode}</div>
             <div className="company-address">

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Quotation, MasterSettings } from '../types';
-import FukkenSeishoPreview from '../components/FukkenSeishoPreview';
-import FukkenDeliveryInvoicePreview from '../components/FukkenDeliveryInvoicePreview';
+import FukkenSeishoTemplate from '../components/FukkenSeishoTemplate';
+import FukkenDeliveryInvoiceTemplate from '../components/FukkenDeliveryInvoiceTemplate';
 import DatePicker from '../components/DatePicker';
 
 interface Props {
@@ -22,6 +22,7 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
 
   // 編集中フィールド
   const [fukkenJobNumber, setFukkenJobNumber] = useState(quotation.fukkenJobNumber ?? '');
+  const [fukkenProjectName, setFukkenProjectName] = useState(quotation.fukkenProjectName ?? quotation.projectName ?? '');
   const [fukkenLocation, setFukkenLocation] = useState(quotation.fukkenLocation ?? '');
   const [fukkenStartDate, setFukkenStartDate] = useState(quotation.fukkenStartDate ?? '');
   const [fukkenEndDate, setFukkenEndDate] = useState(quotation.fukkenEndDate ?? '');
@@ -34,6 +35,7 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
     ...quotation,
     fukkenEnabled: true,
     fukkenJobNumber,
+    fukkenProjectName,
     fukkenLocation,
     fukkenStartDate,
     fukkenEndDate,
@@ -139,14 +141,15 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
           </div>
 
           <div className="fk-field-group">
-            <label className="fk-field-label">施工場所</label>
+            <label className="fk-field-label">件名</label>
             <input
               type="text"
               className="fk-field-input"
-              value={fukkenLocation}
-              onChange={e => setFukkenLocation(e.target.value)}
-              placeholder="例: 秋田県秋田市保戸野鉄砲ほか"
+              value={fukkenProjectName}
+              onChange={e => setFukkenProjectName(e.target.value)}
+              placeholder="例: ○○橋梁定期点検業務"
             />
+            <div className="fk-field-hint">注文書に合わせて変更可</div>
           </div>
 
           <div className="fk-field-group">
@@ -159,6 +162,26 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
             <DatePicker value={fukkenEndDate} onChange={setFukkenEndDate} />
           </div>
 
+          <div className="fk-field-divider">— 請書 —</div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">請書発行日</label>
+            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
+          </div>
+
+          <div className="fk-field-divider">— 納品書 / 請求書 —</div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">施工場所</label>
+            <input
+              type="text"
+              className="fk-field-input"
+              value={fukkenLocation}
+              onChange={e => setFukkenLocation(e.target.value)}
+              placeholder="例: 秋田県秋田市保戸野鉄砲ほか"
+            />
+          </div>
+
           <div className="fk-field-group">
             <label className="fk-field-label">業務内容</label>
             <textarea
@@ -169,15 +192,6 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
               placeholder="例: 橋梁定期点検 一式"
             />
           </div>
-
-          <div className="fk-field-divider">— 請書 —</div>
-
-          <div className="fk-field-group">
-            <label className="fk-field-label">請書発行日</label>
-            <DatePicker value={fukkenSeishoDate} onChange={setFukkenSeishoDate} />
-          </div>
-
-          <div className="fk-field-divider">— 納品書 / 請求書 —</div>
 
           <div className="fk-field-group">
             <label className="fk-field-label">納品日</label>
@@ -194,16 +208,16 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
           </div>
         </div>
 
-        {/* 右: プレビュー */}
+        {/* 右: プレビュー（公式テンプレート画像に変数テキストを重ねる） */}
         <div className="fukken-preview-area">
           {activeTab === 'seisho' && (
-            <FukkenSeishoPreview quotation={q} settings={settings} />
+            <FukkenSeishoTemplate quotation={q} settings={settings} />
           )}
           {activeTab === 'delivery' && (
-            <FukkenDeliveryInvoicePreview quotation={q} settings={settings} docType="delivery" />
+            <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType="delivery" />
           )}
           {activeTab === 'invoice' && (
-            <FukkenDeliveryInvoicePreview quotation={q} settings={settings} docType="invoice" />
+            <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType="invoice" />
           )}
         </div>
       </div>

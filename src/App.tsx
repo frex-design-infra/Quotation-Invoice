@@ -5,11 +5,12 @@ import QuotationForm from './pages/QuotationForm';
 import InvoiceList from './pages/InvoiceList';
 import InvoiceForm from './pages/InvoiceForm';
 import MasterSettingsPanel from './components/MasterSettings';
-import FukkenFormPage from './pages/FukkenFormPage';
+import FukkenSeishoPage from './pages/FukkenSeishoPage';
+import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import type { Quotation, Invoice } from './types';
 import './App.css';
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery';
 
 export default function App() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
@@ -23,7 +24,7 @@ export default function App() {
   const [invoiceInitialView, setInvoiceInitialView] = useState<'form' | 'preview'>('form');
   const [invoiceBillingType, setInvoiceBillingType] = useState<'single' | 'interim' | 'final'>('single');
   const [interimInvoiceForFinal, setInterimInvoiceForFinal] = useState<Invoice | undefined>();
-  const [fukkenInitialTab, setFukkenInitialTab] = useState<'seisho' | 'delivery' | 'invoice'>('seisho');
+  const [fukkenDeliveryInitialTab, setFukkenDeliveryInitialTab] = useState<'delivery' | 'invoice'>('delivery');
 
   // Quotation handlers
   const handleNew = () => {
@@ -61,8 +62,12 @@ export default function App() {
   // Fukken handlers
   const handleOpenFukken = (q: Quotation, tab: 'seisho' | 'delivery' | 'invoice' = 'seisho') => {
     setEditingQuotation(q);
-    setFukkenInitialTab(tab);
-    setTab('fukken');
+    if (tab === 'seisho') {
+      setTab('fukken-seisho');
+    } else {
+      setFukkenDeliveryInitialTab(tab === 'invoice' ? 'invoice' : 'delivery');
+      setTab('fukken-delivery');
+    }
   };
 
   // Invoice handlers
@@ -227,11 +232,19 @@ export default function App() {
             onSave={saveSettings}
           />
         )}
-        {tab === 'fukken' && editingQuotation && (
-          <FukkenFormPage
+        {tab === 'fukken-seisho' && editingQuotation && (
+          <FukkenSeishoPage
             quotation={editingQuotation}
             settings={settings}
-            initialTab={fukkenInitialTab}
+            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
+            onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'fukken-delivery' && editingQuotation && (
+          <FukkenDeliveryInvoicePage
+            quotation={editingQuotation}
+            settings={settings}
+            initialTab={fukkenDeliveryInitialTab}
             onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
             onCancel={() => setTab('list')}
           />

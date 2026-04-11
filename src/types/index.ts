@@ -92,7 +92,10 @@ export interface MasterSettings {
   deliveryPersons: string[];     // 納品担当者リスト
 
   // 復建技術コンサルタント用
-  fukkenVendorCode?: string;     // 業者コード (例: G-000029)
+  fukkenVendorCode?: string;          // 業者コード (例: G-000029)
+  fukkenSeishoTemplateUrl?: string;   // 請書テンプレート画像 (base64)
+  fukkenSeikyushoTemplateUrl?: string; // 請求書テンプレート画像 (base64)
+  fukkenNouhinTemplateUrl?: string;   // 納品書テンプレート画像 (base64)
 }
 
 // 納品書兼請求書
@@ -182,6 +185,7 @@ export interface Quotation {
   // 復建技術コンサルタント様式用（任意）
   fukkenEnabled?: boolean;           // 復建様式を使用するか
   fukkenJobNumber?: string;          // 件番 (NO.XXXXXXXXXX)
+  fukkenProjectName?: string;        // 件名（復建所定様式用・注文書に合わせて変更可）
   fukkenLocation?: string;           // 施工場所
   fukkenStartDate?: string;          // 工期着工 YYYY-MM-DD
   fukkenEndDate?: string;            // 工期竣工 YYYY-MM-DD
