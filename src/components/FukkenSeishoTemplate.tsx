@@ -31,7 +31,7 @@ const COORD = {
 
   // 工期 着工
   startY:    167,
-  startYearX: 63,   // 53→63（+10mm）
+  startYearX: 62,   // 53→63→62
   startMoX:   85,   // 75→85（+10mm）
   startDayX:  97,   // 87→97（+10mm）
 
