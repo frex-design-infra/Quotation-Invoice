@@ -30,16 +30,16 @@ const COORD = {
   projNameX: 55,    // 27→37→50→60→55
 
   // 工期 着工
-  startY:    163,   // 正しい位置
-  startYearX: 53,
-  startMoX:   75,
-  startDayX:  87,
+  startY:    163,
+  startYearX: 63,   // 53→63（+10mm）
+  startMoX:   85,   // 75→85（+10mm）
+  startDayX:  97,   // 87→97（+10mm）
 
   // 工期 竣工
   endY:      163,
-  endYearX:  128,
-  endMoX:    149,
-  endDayX:   162,
+  endYearX:  138,   // 128→138（+10mm）
+  endMoX:    159,   // 149→159（+10mm）
+  endDayX:   172,   // 162→172（+10mm）
 
   // 請負金額（一金〜円也 の間、右寄せ）
   totalY:    179,   // 正しい位置
