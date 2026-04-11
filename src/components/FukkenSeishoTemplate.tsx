@@ -21,23 +21,6 @@ const COORD = {
   dateMoX:   148,   // 月の数値左端
   dateDayX:  162,   // 日の数値左端
 
-  // 乙 - 住所（郵便番号+住所）
-  addrY:     83,
-  addrX:     75,
-
-  // 乙 - 社名
-  companyY:  90,
-  companyX:  75,
-
-  // 乙 - 代表者名
-  repY:      97,
-  repX:      75,
-
-  // 印（代表印画像）
-  sealY:     82,
-  sealX:     173,
-  sealSize:  18,    // mm
-
   // 件番（NO. 後の値）
   jobNumY:   132,
   jobNumX:   47,
@@ -94,11 +77,6 @@ export default function FukkenSeishoTemplate({ quotation, settings }: Props) {
   const start  = dp(quotation.fukkenStartDate || '');
   const end    = dp(quotation.fukkenEndDate || '');
 
-  const postalStr = settings.postalCode
-    ? '〒' + settings.postalCode.replace(/^(\d{3})(\d+)$/, '$1-$2') + '　'
-    : '';
-  const addrStr = postalStr + (settings.address || '').replace('\n', '　');
-
   const totalFmt = quotation.total.toLocaleString('ja-JP');
   const taxFmt   = quotation.tax.toLocaleString('ja-JP');
 
@@ -124,22 +102,6 @@ export default function FukkenSeishoTemplate({ quotation, settings }: Props) {
           <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateDayX), width: '8mm',  textAlign: 'right' }}>{issue.d}</span>
         </>
       )}
-
-      {/* 住所 */}
-      <span style={{ ...TEXT, ...abs(COORD.addrY, COORD.addrX), fontSize: '8.5pt' }}>{addrStr}</span>
-
-      {/* 社名 */}
-      <span style={{ ...TEXT, ...abs(COORD.companyY, COORD.companyX) }}>{settings.companyName}</span>
-
-      {/* 代表者名 */}
-      <span style={{ ...TEXT, ...abs(COORD.repY, COORD.repX) }}>{settings.representativeName}</span>
-
-      {/* 代表印 */}
-      {settings.repSealDataUrl
-        ? <img src={settings.repSealDataUrl} alt="印"
-            style={{ ...abs(COORD.sealY, COORD.sealX), width: `${COORD.sealSize}mm`, height: `${COORD.sealSize}mm`, objectFit: 'contain' }} />
-        : null
-      }
 
       {/* 件番 */}
       <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.jobNumX) }}>
