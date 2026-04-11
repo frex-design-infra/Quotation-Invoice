@@ -178,9 +178,7 @@ export default function InvoicePreview({ invoice, settings }: Props) {
         <tbody>
           <tr className="inv-date-header-row">
             <th className="inv-th inv-th-w1">納品日</th>
-            <td className="inv-date-cell">{formatDate(deliveryDate)}</td>
-            <th className="inv-th inv-th-w2">納品担当者</th>
-            <td>{deliveryPerson}</td>
+            <td colSpan={3} className="inv-date-cell">{formatDate(deliveryDate)}</td>
           </tr>
           <tr>
             <th className="inv-th-side inv-th-delivery" style={{ whiteSpace: 'nowrap' }}>納品内容</th>
