@@ -7,6 +7,7 @@ import InvoiceForm from './pages/InvoiceForm';
 import MasterSettingsPanel from './components/MasterSettings';
 import FukkenSeishoPage from './pages/FukkenSeishoPage';
 import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
+import FukuyamaPage from './pages/FukuyamaPage';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import './App.css';
 
@@ -49,7 +50,7 @@ function buildFukkenInvoice(q: Quotation, settings: MasterSettings, allInvoices:
   };
 }
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama';
 
 export default function App() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
@@ -240,6 +241,7 @@ export default function App() {
             onToggleSubmitted={handleToggleSubmitted}
             onCreateInvoice={handleCreateInvoiceFromQuotation}
             onOpenFukken={handleOpenFukken}
+            onOpenFukuyama={(q) => { setEditingQuotation(q); setTab('fukuyama'); }}
           />
         )}
         {tab === 'form' && (
@@ -285,6 +287,13 @@ export default function App() {
           <FukkenSeishoPage
             quotation={editingQuotation}
             settings={settings}
+            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
+            onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'fukuyama' && editingQuotation && (
+          <FukuyamaPage
+            quotation={editingQuotation}
             onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
             onCancel={() => setTab('list')}
           />

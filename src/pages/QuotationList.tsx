@@ -12,9 +12,10 @@ interface Props {
   onToggleSubmitted: (id: string) => void;
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
   onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
+  onOpenFukuyama: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken }: Props) {
+export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -113,7 +114,25 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                           プレビュー
                         </button>
                         {(() => {
-                          const isFukken = q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント');
+                          const isFukuyama = q.fukuyamaEnabled || q.clientName.includes('福山コンサルタント');
+                          const isFukken = !isFukuyama && (q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント'));
+                          if (isFukuyama) {
+                            return (
+                              <>
+                                {q.submitted && (
+                                  <>
+                                    <div className="dropdown-divider" />
+                                    <button
+                                      className="dropdown-fukken"
+                                      onClick={() => { onOpenFukuyama(q); setOpenMenuId(null); }}
+                                    >
+                                      納品書兼請求書作成
+                                    </button>
+                                  </>
+                                )}
+                              </>
+                            );
+                          }
                           if (isFukken) {
                             return (
                               <>
