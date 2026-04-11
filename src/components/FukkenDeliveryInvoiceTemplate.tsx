@@ -34,9 +34,9 @@ const COORD = {
   locationY:   141.2, // 179→139→142→141.2
 
   // テーブル行の Y 座標（請求書用）
-  invoiceJobNumY:   117.1,
-  invoiceProjNameY: 127.1,
-  invoiceLocationY: 137.4,
+  invoiceJobNumY:   117.2,
+  invoiceProjNameY: 127.2,
+  invoiceLocationY: 137.5,
 
   amountY:     148.0, // 請求書用
   subtotalY:   158.7, // 請求書用
