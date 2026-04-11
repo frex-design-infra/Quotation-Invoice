@@ -64,7 +64,7 @@ function abs(top: number, left: number, extra?: React.CSSProperties): React.CSSP
 }
 
 const TEXT: React.CSSProperties = {
-  fontFamily: '"MS Mincho", "游明朝", "Yu Mincho", "IPAMincho", serif',
+  fontFamily: '"Meiryo", "Yu Gothic", "游ゴシック", "Hiragino Kaku Gothic ProN", sans-serif',
   fontSize: '10pt',
   lineHeight: 1,
   whiteSpace: 'nowrap',

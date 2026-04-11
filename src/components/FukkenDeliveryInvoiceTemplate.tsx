@@ -68,7 +68,7 @@ function abs(top: number, left: number, extra?: React.CSSProperties): React.CSSP
 }
 
 const TEXT: React.CSSProperties = {
-  fontFamily: '"MS Mincho", "游明朝", "Yu Mincho", "IPAMincho", serif',
+  fontFamily: '"Meiryo", "Yu Gothic", "游ゴシック", "Hiragino Kaku Gothic ProN", sans-serif',
   fontSize: '10pt',
   lineHeight: 1,
   whiteSpace: 'nowrap',
@@ -176,7 +176,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
           style={{
             ...abs(COORD.bankY, COORD.bankX),
             width: `${COORD.bankW}mm`,
-            fontFamily: '"MS Mincho", "游明朝", serif',
+            fontFamily: '"Meiryo", "Yu Gothic", "游ゴシック", "Hiragino Kaku Gothic ProN", sans-serif',
             fontSize: '7.5pt',
             lineHeight: 1.6,
             whiteSpace: 'pre-line',
