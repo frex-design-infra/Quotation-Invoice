@@ -23,11 +23,11 @@ const COORD = {
 
   // 件番（NO. 後の値）
   jobNumY:   141,   // 138→141（+3mm）
-  jobNumX:   57,    // 47→57（+10mm）
+  jobNumX:   65,    // 47→57→65
 
   // 件名
   projNameY: 152,   // 150→152（+2mm）
-  projNameX: 37,    // 27→37（+10mm）
+  projNameX: 50,    // 27→37→50
 
   // 工期 着工
   startY:    163,   // 正しい位置
