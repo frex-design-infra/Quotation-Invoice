@@ -15,22 +15,22 @@ interface Props {
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
-  // 発行日
-  dateY:     47,
-  dateYearX: 126,   // 年の数値左端
-  dateMoX:   148,   // 月の数値左端
-  dateDayX:  162,   // 日の数値左端
+  // 発行日（年月日ラベル行に合わせる）
+  dateY:     57,    // 47→57（+10mm）
+  dateYearX: 126,
+  dateMoX:   148,
+  dateDayX:  162,
 
   // 件番（NO. 後の値）
-  jobNumY:   132,
+  jobNumY:   138,   // 132→138（+6mm）
   jobNumX:   47,
 
   // 件名
-  projNameY: 147,
+  projNameY: 150,   // 147→150（+3mm）
   projNameX: 27,
 
   // 工期 着工
-  startY:    163,
+  startY:    163,   // 正しい位置
   startYearX: 53,
   startMoX:   75,
   startDayX:  87,
@@ -42,12 +42,12 @@ const COORD = {
   endDayX:   162,
 
   // 請負金額（一金〜円也 の間、右寄せ）
-  totalY:    179,
+  totalY:    179,   // 正しい位置
   totalX:    55,
-  totalW:    78,    // 金額フィールドの幅
+  totalW:    78,
 
   // 消費税額（右寄せ）
-  taxY:      195,
+  taxY:      195,   // 正しい位置
   taxX:      55,
   taxW:      78,
 };
