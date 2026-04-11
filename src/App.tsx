@@ -296,7 +296,7 @@ export default function App() {
           <FukuyamaPage
             quotation={editingQuotation}
             billingType={fukuyamaBillingType}
-            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); }}
+            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); setTab('invoice-list'); }}
             onCancel={() => setTab('list')}
           />
         )}
