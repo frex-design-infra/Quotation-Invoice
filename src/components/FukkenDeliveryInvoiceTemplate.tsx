@@ -45,7 +45,7 @@ const COORD = {
   valueW:      85,    // 金額セルの幅（右寄せ用）
 
   // 業務内容（最大5行）
-  workX:       20,
+  workX:       40,
   workY0:      193,   // 231→193
   workLineH:    8,    // 行間
 
