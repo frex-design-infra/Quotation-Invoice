@@ -21,7 +21,7 @@ interface Props {
 // ─── 共通座標（納品書・請求書で同じ位置） ─────────────────────────
 const COORD = {
   // 発行日（右上）- 請求書
-  dateY:         36,
+  dateY:         34,
   // 発行日（右上）- 納品書
   deliveryDateY: 38.3,
   dateYearX:   151,
