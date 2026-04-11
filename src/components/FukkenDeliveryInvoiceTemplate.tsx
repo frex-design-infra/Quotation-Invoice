@@ -28,10 +28,15 @@ const COORD = {
   dateMoX:     174,
   dateDayX:    188,
 
-  // テーブル行の Y 座標（実測値に合わせて全体 -38mm 補正）
+  // テーブル行の Y 座標（納品書用）
   jobNumY:     121,   // 156→121
   projNameY:   131,   // 167→130→133→131
   locationY:   141.2, // 179→139→142→141.2
+
+  // テーブル行の Y 座標（請求書用）
+  invoiceJobNumY:   119,
+  invoiceProjNameY: 129,
+  invoiceLocationY: 139.2,
 
   amountY:     150,   // 請求書用
   subtotalY:   161,   // 請求書用
@@ -133,17 +138,17 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       )}
 
       {/* 件番 */}
-      <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.jobNumX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceJobNumY : COORD.jobNumY, COORD.jobNumX) }}>
         {quotation.fukkenJobNumber || ''}
       </span>
 
       {/* 件名 */}
-      <span style={{ ...TEXT, ...abs(COORD.projNameY, COORD.projNameX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceProjNameY : COORD.projNameY, COORD.projNameX) }}>
         {quotation.fukkenProjectName || quotation.projectName}
       </span>
 
       {/* 施工場所 */}
-      <span style={{ ...TEXT, ...abs(COORD.locationY, COORD.locationX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceLocationY : COORD.locationY, COORD.locationX) }}>
         {quotation.fukkenLocation || ''}
       </span>
 
