@@ -26,14 +26,14 @@ const COORD = {
   dateMoX:     152,
   dateDayX:    165,
 
-  // テーブル行の Y 座標
-  jobNumY:     156,   // 件番
-  projNameY:   167,   // 件名
-  locationY:   179,   // 施工場所
+  // テーブル行の Y 座標（実測値に合わせて全体 -38mm 補正）
+  jobNumY:     121,   // 156→121
+  projNameY:   130,   // 167→130
+  locationY:   139,   // 179→139
 
-  amountY:     190,   // 金額行
-  subtotalY:   201,   // 消費税率10%対象
-  taxY:        213,   // 内消費税額(10%)
+  amountY:     150,   // 190→150
+  subtotalY:   161,   // 201→161
+  taxY:        172,   // 213→172
 
   // テーブル左カラム（件番・件名・施工場所・金額）の値 X
   valueX:      30,
@@ -41,14 +41,14 @@ const COORD = {
 
   // 業務内容（最大5行）
   workX:       20,
-  workY0:      231,   // 1行目
+  workY0:      193,   // 231→193
   workLineH:    8,    // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    192,
-  deliveryYearX:     130,   // リセット: 年ラベル直前
-  deliveryMoX:       152,   // リセット: 月ラベル直前
-  deliveryDayX:      165,   // リセット: 日ラベル直前
+  deliveryNaikiY:    150,   // 192→150（amountY と同列）
+  deliveryYearX:     122,   // リセット
+  deliveryMoX:       143,   // リセット
+  deliveryDayX:      157,   // リセット
 
   // 請求書: 振込先テキスト（振込銀行欄の右側）
   bankX:       119,
