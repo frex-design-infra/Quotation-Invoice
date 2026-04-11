@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Quotation, MasterSettings } from '../types';
-import FukkenSeishoPreview from '../components/FukkenSeishoPreview';
-import FukkenDeliveryInvoicePreview from '../components/FukkenDeliveryInvoicePreview';
+import FukkenSeishoTemplate from '../components/FukkenSeishoTemplate';
+import FukkenDeliveryInvoiceTemplate from '../components/FukkenDeliveryInvoiceTemplate';
 import DatePicker from '../components/DatePicker';
 
 interface Props {
@@ -208,16 +208,16 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
           </div>
         </div>
 
-        {/* 右: プレビュー */}
+        {/* 右: プレビュー（公式テンプレート画像に変数テキストを重ねる） */}
         <div className="fukken-preview-area">
           {activeTab === 'seisho' && (
-            <FukkenSeishoPreview quotation={q} settings={settings} />
+            <FukkenSeishoTemplate quotation={q} settings={settings} />
           )}
           {activeTab === 'delivery' && (
-            <FukkenDeliveryInvoicePreview quotation={q} settings={settings} docType="delivery" />
+            <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType="delivery" />
           )}
           {activeTab === 'invoice' && (
-            <FukkenDeliveryInvoicePreview quotation={q} settings={settings} docType="invoice" />
+            <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType="invoice" />
           )}
         </div>
       </div>
