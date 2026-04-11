@@ -50,6 +50,44 @@ function buildFukkenInvoice(q: Quotation, settings: MasterSettings, allInvoices:
   };
 }
 
+function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 'final', allInvoices: Invoice[], existing?: Invoice): Invoice {
+  const now = new Date().toISOString();
+  const dateBase = (q.fukuyamaIssueDate || now.slice(0, 10)).replace(/-/g, '');
+  const sameBase = allInvoices
+    .filter(inv => inv.id !== existing?.id && inv.invoiceNumber?.startsWith(dateBase + '-'))
+    .map(inv => parseInt(inv.invoiceNumber.slice(-3), 10))
+    .filter(n => !isNaN(n));
+  const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+  const invoiceNumber = existing?.invoiceNumber?.startsWith(dateBase + '-')
+    ? existing.invoiceNumber
+    : `${dateBase}-${String(seq).padStart(3, '0')}`;
+  return {
+    id: existing?.id ?? (q.id + '-fukuyama-' + billingType),
+    invoiceNumber,
+    issueDate: q.fukuyamaIssueDate || now.slice(0, 10),
+    quotationId: q.id,
+    billingType,
+    isFukuyama: true,
+    submitted: existing?.submitted ?? false,
+    clientName: q.clientName,
+    clientPostalCode: '',
+    clientAddress: '',
+    projectName: q.projectName,
+    originalContractTotal: q.total,
+    changeAmount: 0,
+    deliveryDate: '',
+    deliveryPerson: '',
+    deliveryDescription: '',
+    billingDate: q.fukuyamaIssueDate || now.slice(0, 10),
+    previousBillingTotal: 0,
+    paymentDueDate: '',
+    bankInfo: '',
+    taxRate: 0.1,
+    createdAt: existing?.createdAt ?? now,
+    updatedAt: now,
+  };
+}
+
 type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama';
 
 export default function App() {
@@ -296,7 +334,13 @@ export default function App() {
           <FukuyamaPage
             quotation={editingQuotation}
             billingType={fukuyamaBillingType}
-            onSave={(q) => { saveQuotation(q); setEditingQuotation(q); setTab('invoice-list'); }}
+            onSave={(q) => {
+              saveQuotation(q);
+              setEditingQuotation(q);
+              const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === fukuyamaBillingType);
+              saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, existing));
+              setTab('invoice-list');
+            }}
             onCancel={() => setTab('list')}
           />
         )}

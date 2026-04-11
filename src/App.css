@@ -994,7 +994,8 @@ button {
 }
 .billing-type-interim { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 .billing-type-final   { background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7; }
-.billing-type-fukken  { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+.billing-type-fukken   { background: #ede9fe; color: #5b21b6; border: 1px solid #c4b5fd; }
+.billing-type-fukuyama { background: #fef3c7; color: #92400e; border: 1px solid #fcd34d; }
 
 /* btn-invoice: 紫/インディゴ系 */
 .btn-invoice {
