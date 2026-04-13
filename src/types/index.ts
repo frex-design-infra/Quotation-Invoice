@@ -204,6 +204,11 @@ export interface Quotation {
   fukuyamaIssueDate?: string;          // 発行日 YYYY-MM-DD
   fukuyamaWorkContent?: string;        // 業務内容
 
+  // 福山 納品書/請求書（最終）用テンプレート（中間とは別画像）
+  fukuyamaFinalTemplateUrl?: string;
+  fukuyamaFinalTemplateStoragePath?: string;
+  fukuyamaFinalIssueDate?: string;
+
   // 福山 中間見積書用
   fukuyamaInterimQuotationIssueDate?: string;
   fukuyamaInterimQuotationSubmitted?: boolean;

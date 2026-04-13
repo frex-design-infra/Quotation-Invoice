@@ -16,7 +16,7 @@ interface Props {
 const BILLING_TITLE: Record<string, string> = {
   single:  '納品書兼請求書',
   interim: '中間請求書',
-  final:   '最終請求書',
+  final:   '納品書/請求書',
 };
 
 function today(): string {
@@ -24,35 +24,64 @@ function today(): string {
 }
 
 export default function FukuyamaPage({ quotation, settings, billingType = 'single', onSave, onCancel }: Props) {
+  const isFinal = billingType === 'final';
+
   const [pdfSaving,    setPdfSaving]    = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [uploading,    setUploading]    = useState(false);
   const [deleting,     setDeleting]     = useState(false);
   const [uploadError,  setUploadError]  = useState('');
 
-  const [issueDate,    setIssueDate]    = useState(quotation.fukuyamaIssueDate           ?? today());
-  const [workContent,  setWorkContent]  = useState(quotation.fukuyamaWorkContent         ?? '');
-  const [templateUrl,  setTemplateUrl]  = useState(quotation.fukuyamaTemplateUrl         ?? '');
-  const [storagePath,  setStoragePath]  = useState(quotation.fukuyamaTemplateStoragePath ?? '');
+  // final は専用フィールド、それ以外は共通フィールド
+  const [issueDate,   setIssueDate]   = useState(
+    isFinal
+      ? (quotation.fukuyamaFinalIssueDate  ?? quotation.fukuyamaIssueDate ?? today())
+      : (quotation.fukuyamaIssueDate       ?? today())
+  );
+  const [workContent, setWorkContent] = useState(quotation.fukuyamaWorkContent ?? '');
+  const [templateUrl, setTemplateUrl] = useState(
+    isFinal
+      ? (quotation.fukuyamaFinalTemplateUrl         ?? '')
+      : (quotation.fukuyamaTemplateUrl              ?? '')
+  );
+  const [storagePath, setStoragePath] = useState(
+    isFinal
+      ? (quotation.fukuyamaFinalTemplateStoragePath ?? '')
+      : (quotation.fukuyamaTemplateStoragePath      ?? '')
+  );
 
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const buildUpdated = (): Quotation => ({
-    ...quotation,
-    fukuyamaEnabled: true,
-    fukuyamaIssueDate: issueDate,
-    fukuyamaWorkContent: workContent,
-    fukuyamaTemplateUrl: templateUrl,
-    fukuyamaTemplateStoragePath: storagePath,
-    updatedAt: new Date().toISOString(),
-  });
+  const buildUpdated = (): Quotation => {
+    const base = {
+      ...quotation,
+      fukuyamaEnabled: true,
+      fukuyamaWorkContent: workContent,
+      updatedAt: new Date().toISOString(),
+    };
+    if (isFinal) {
+      return {
+        ...base,
+        fukuyamaFinalIssueDate:           issueDate,
+        fukuyamaFinalTemplateUrl:         templateUrl,
+        fukuyamaFinalTemplateStoragePath: storagePath,
+      };
+    }
+    return {
+      ...base,
+      fukuyamaIssueDate:           issueDate,
+      fukuyamaTemplateUrl:         templateUrl,
+      fukuyamaTemplateStoragePath: storagePath,
+    };
+  };
 
   const handleUpload = async (file: File) => {
     setUploading(true);
     setUploadError('');
     try {
       if (storagePath) await deleteFukuyamaTemplate(storagePath);
-      const { url, path } = await uploadFukuyamaTemplate(file, quotation.id);
+      const suffix = isFinal ? `${quotation.id}-final` : quotation.id;
+      const { url, path } = await uploadFukuyamaTemplate(file, suffix);
       setTemplateUrl(url);
       setStoragePath(path);
     } catch (e: unknown) {
@@ -108,7 +137,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
     : null;
   const q: Quotation = interimTotals
     ? { ...base, subtotal: interimTotals.subtotal, tax: interimTotals.tax, total: interimTotals.total }
-    : base;
+    : { ...base, fukuyamaTemplateUrl: templateUrl };  // finalの場合も正しいURLを渡す
   const title = BILLING_TITLE[billingType];
 
   return (
