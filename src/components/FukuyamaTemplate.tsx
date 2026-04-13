@@ -37,11 +37,12 @@ const COORD = {
   taxW:       85,
 
   // 自社情報（右側）※上から: 郵便番号→住所→会社名→代表者名
-  companyX:    137,   // 左端X
+  companyX:    137,   // 左端X（郵便番号・住所・会社名）
+  repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
   postalY:     57,    // 〒郵便番号 top
   addrY:       60,    // 住所 top
-  companyY:    69,    // 会社名 top
+  companyY:    67.5,  // 会社名 top
   repNameY:    77,    // 代表者名 top
 
   // 角印 (sealDataUrl)
@@ -148,7 +149,7 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
         </span>
       )}
       {settings.representativeName && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.repNameY, COORD.companyX), width: `${COORD.companyW}mm` }}>
+        <span style={{ ...TEXT_SM, ...abs(COORD.repNameY, COORD.repNameX), width: `${COORD.companyW}mm` }}>
           {settings.representativeName}
         </span>
       )}
