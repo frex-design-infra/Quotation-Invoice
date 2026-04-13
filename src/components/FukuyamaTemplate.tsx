@@ -31,15 +31,15 @@ const COORD = {
   prevBillY:  205.4,
 
   // 2. 今回請求額 / うち消費税
-  currBillY:  217.4,
+  currBillY:  217.9,
   taxColX:    115,   // うち消費税 列 X
   taxColW:    50,    // うち消費税 列 幅
 
   // 3. 請求合計
-  totalBillY: 231,
+  totalBillY: 229.5,
 
   // 4. 請求残額
-  remainY:    240,
+  remainY:    238.5,
 
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
   addrX:       137,   // 郵便番号・住所の左端X
