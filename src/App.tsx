@@ -348,7 +348,6 @@ export default function App() {
               setEditingQuotation(q);
               const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === fukuyamaBillingType);
               saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, existing));
-              setTab('invoice-list');
             }}
             onCancel={() => setTab('list')}
           />
