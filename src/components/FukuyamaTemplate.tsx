@@ -54,8 +54,8 @@ const COORD = {
   kakuinSize: 22,
 
   // 丸印・代表印 (repSealDataUrl)
-  maruinY:    73,
-  maruinX:    163,
+  maruinY:    65,
+  maruinX:    167,
   maruinSize: 22,
 };
 // ────────────────────────────────────────────────────────────────
