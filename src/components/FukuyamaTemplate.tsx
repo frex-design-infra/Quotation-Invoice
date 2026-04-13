@@ -145,7 +145,7 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
         const lines = settings.address.split('\n');
         const ys = [COORD.addr1Y, COORD.addr2Y];
         return lines.slice(0, 2).map((line, i) => (
-          <span key={i} style={{ ...TEXT_SM, ...abs(ys[i], COORD.addrX), width: `${COORD.addrW}mm`, textAlign: 'right' }}>
+          <span key={i} style={{ ...TEXT_SM, ...abs(ys[i], COORD.addrX), width: `${COORD.addrW}mm`, textAlign: i === 1 ? 'right' : 'left' }}>
             {line}
           </span>
         ));
