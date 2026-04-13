@@ -17,7 +17,7 @@ interface Props {
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
   // 請求日
-  dateY:      183,
+  dateY:      180,
   dateYearX:  26,
   dateMoX:    48,
   dateDayX:   63,
