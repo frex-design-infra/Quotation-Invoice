@@ -27,7 +27,7 @@ export default function LoginScreen({ onLogin }: Props) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(160deg, #1b1938 0%, #2d2354 50%, #1b1938 100%)',
+      background: 'linear-gradient(160deg, #2e2a4a 0%, #3d3268 50%, #2e2a4a 100%)',
       display: 'flex',
       flexDirection: 'column',
       alignItems: 'center',
