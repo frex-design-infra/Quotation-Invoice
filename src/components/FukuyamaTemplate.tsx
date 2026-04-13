@@ -17,23 +17,23 @@ interface Props {
 const COORD = {
   // 請求日
   dateY:      183,
-  dateYearX:  100,
-  dateMoX:    122,
-  dateDayX:   135,
+  dateYearX:  70,
+  dateMoX:    92,
+  dateDayX:   105,
 
   // 金額（合計）
-  totalY:     200,
-  totalX:     30,
+  totalY:     210,
+  totalX:     15,
   totalW:     85,
 
   // 消費税率10%対象
-  subtotalY:  211,
-  subtotalX:  30,
+  subtotalY:  221,
+  subtotalX:  15,
   subtotalW:  85,
 
   // 内消費税額
-  taxY:       222,
-  taxX:       30,
+  taxY:       232,
+  taxX:       15,
   taxW:       85,
 
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
