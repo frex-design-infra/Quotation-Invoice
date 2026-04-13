@@ -75,9 +75,10 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
     clientPostalCode: '',
     clientAddress: '',
     projectName: q.projectName,
-    originalContractTotal: billingType === 'interim' && q.fukuyamaInterimQuotationItems?.length
+    originalContractTotal: q.total,
+    currentBillingAmount: billingType === 'interim' && q.fukuyamaInterimQuotationItems?.length
       ? calculateTotals(q.fukuyamaInterimQuotationItems, settings).total
-      : q.total,
+      : undefined,
     changeAmount: 0,
     deliveryDate: '',
     deliveryPerson: '',
@@ -173,6 +174,10 @@ export default function App() {
       const q = quotations.find(x => x.id === inv.quotationId);
       if (q) { setEditingQuotation(q); setFukkenDeliveryInitialTab('invoice'); setTab('fukken-delivery'); return; }
     }
+    if (inv.isFukuyama) {
+      const q = quotations.find(x => x.id === inv.quotationId);
+      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setTab('fukuyama'); return; }
+    }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
     setInvoiceBillingType(inv.billingType ?? 'single');
@@ -185,6 +190,10 @@ export default function App() {
     if (inv.isFukken) {
       const q = quotations.find(x => x.id === inv.quotationId);
       if (q) { setEditingQuotation(q); setFukkenDeliveryInitialTab('invoice'); setTab('fukken-delivery'); return; }
+    }
+    if (inv.isFukuyama) {
+      const q = quotations.find(x => x.id === inv.quotationId);
+      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setTab('fukuyama'); return; }
     }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
