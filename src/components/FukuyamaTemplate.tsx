@@ -43,7 +43,7 @@ const COORD = {
   addrW:       65,    // 住所右揃え幅
   addr1Y:      59,    // 住所1行目 top
   addr2Y:      62,    // 住所2行目 top
-  companyY:    68,    // 会社名 top
+  companyY:    68.3,  // 会社名 top
   repNameY:    77,    // 代表者名 top
 
   // 角印 (sealDataUrl)
