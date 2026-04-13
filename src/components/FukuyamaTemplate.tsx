@@ -36,13 +36,12 @@ const COORD = {
   taxX:       30,
   taxW:       85,
 
-  // 自社情報（右側）
-  companyY:   60,    // 会社名 top
-  companyX:   115,   // 左端X
-  companyW:   90,    // 幅
-  addrY:      68,    // 〒住所 top
-  telY:       76,    // TEL top
-  emailY:     84,    // Email top
+  // 自社情報（右側）※上から: 住所→会社名→代表者名
+  companyX:    115,   // 左端X
+  companyW:    90,    // 幅
+  addrY:       60,    // 〒住所 top（一番上）
+  companyY:    68,    // 会社名 top
+  repNameY:    76,    // 代表者名 top
 
   // 角印 (sealDataUrl)
   kakuinY:    50,
@@ -132,24 +131,19 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
       </span>
 
       {/* 自社情報 */}
-      {settings.companyName && (
-        <span style={{ ...TEXT, ...abs(COORD.companyY, COORD.companyX), width: `${COORD.companyW}mm`, fontWeight: 'bold' }}>
-          {settings.companyName}
-        </span>
-      )}
       {(settings.postalCode || settings.address) && (
         <span style={{ ...TEXT_SM, ...abs(COORD.addrY, COORD.companyX), width: `${COORD.companyW}mm` }}>
           {settings.postalCode ? `〒${settings.postalCode}　` : ''}{settings.address}
         </span>
       )}
-      {settings.tel && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.telY, COORD.companyX), width: `${COORD.companyW}mm` }}>
-          TEL: {settings.tel}
+      {settings.companyName && (
+        <span style={{ ...TEXT, ...abs(COORD.companyY, COORD.companyX), width: `${COORD.companyW}mm`, fontWeight: 'bold' }}>
+          {settings.companyName}
         </span>
       )}
-      {settings.email && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.emailY, COORD.companyX), width: `${COORD.companyW}mm` }}>
-          {settings.email}
+      {settings.representativeName && (
+        <span style={{ ...TEXT_SM, ...abs(COORD.repNameY, COORD.companyX), width: `${COORD.companyW}mm` }}>
+          {settings.representativeName}
         </span>
       )}
 
