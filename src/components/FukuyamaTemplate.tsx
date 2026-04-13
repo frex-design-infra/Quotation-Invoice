@@ -40,9 +40,9 @@ const COORD = {
   companyX:    135,   // 左端X
   companyW:    75,    // 幅
   postalY:     50,    // 〒郵便番号 top
-  addrY:       55,    // 住所 top
-  companyY:    66,    // 会社名 top
-  repNameY:    74,    // 代表者名 top
+  addrY:       53,    // 住所 top
+  companyY:    62,    // 会社名 top
+  repNameY:    70,    // 代表者名 top
 
   // 角印 (sealDataUrl)
   kakuinY:    50,
