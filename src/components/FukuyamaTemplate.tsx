@@ -32,7 +32,7 @@ const COORD = {
 
   // 2. 今回請求額 / うち消費税
   currBillY:  217.4,
-  taxColX:    125,   // うち消費税 列 X
+  taxColX:    135,   // うち消費税 列 X
   taxColW:    50,    // うち消費税 列 幅
 
   // 3. 請求合計
