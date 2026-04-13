@@ -1,5 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
   <rect width="32" height="32" rx="6" fill="#111111"/>
-  <!-- Geometric sans-serif "F" path -->
-  <path d="M9 7h14v3.2H12.4v4.4h9v3.2h-9V25H9V7z" fill="#ffffff"/>
+  <text
+    x="16" y="24"
+    font-family="Georgia, 'Times New Roman', 'Yu Mincho', serif"
+    font-size="23"
+    font-weight="700"
+    fill="#ffffff"
+    text-anchor="middle"
+  >F</text>
 </svg>
