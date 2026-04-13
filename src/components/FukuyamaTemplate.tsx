@@ -148,7 +148,7 @@ export default function FukuyamaTemplate({ quotation, settings, originalContract
       </span>
 
       {/* 3. 請求合計 */}
-      <span style={{ ...AMT, ...abs(COORD.totalBillY, COORD.amtX), width: `${COORD.amtW}mm`, fontWeight: 'bold' }}>
+      <span style={{ ...AMT, ...abs(COORD.totalBillY, COORD.amtX), width: `${COORD.amtW}mm` }}>
         {fmt(totalBill)}
       </span>
 
