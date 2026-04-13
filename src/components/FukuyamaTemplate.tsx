@@ -18,9 +18,9 @@ interface Props {
 const COORD = {
   // 請求日
   dateY:      180,
-  dateYearX:  26,
+  dateYearX:  23,
   dateMoX:    48,
-  dateDayX:   63,
+  dateDayX:   64.5,
 
   // ── 金額テーブル ─────────────────────────────────────────────
   // 共通：金額列（右揃え）
