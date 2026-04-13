@@ -17,9 +17,9 @@ interface Props {
 const COORD = {
   // 請求日
   dateY:      183,
-  dateYearX:  70,
-  dateMoX:    92,
-  dateDayX:   105,
+  dateYearX:  48,
+  dateMoX:    70,
+  dateDayX:   83,
 
   // 金額（合計）
   totalY:     210,
