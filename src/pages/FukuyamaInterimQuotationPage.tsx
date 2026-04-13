@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import type { Quotation, MasterSettings } from '../types';
+import type { Quotation, MasterSettings, QuotationItem } from '../types';
 import QuotationPreview from '../components/QuotationPreview';
 import DatePicker from '../components/DatePicker';
 
@@ -14,15 +14,38 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function FukuyamaInterimQuotationPage({ quotation, settings, onSave, onCancel }: Props) {
-  const [pdfSaving, setPdfSaving]   = useState(false);
-  const [issueDate, setIssueDate]   = useState(quotation.fukuyamaInterimQuotationIssueDate ?? quotation.date ?? today());
-  const [submitted, setSubmitted]   = useState(quotation.fukuyamaInterimQuotationSubmitted ?? false);
+/** 調書作成項目を除外 */
+function filterItems(items: QuotationItem[]): QuotationItem[] {
+  return items.filter(item => {
+    if (item.isSeparator) return true;
+    const l = item.label ?? '';
+    return !l.startsWith('橋梁点検調書作成') && !l.startsWith('道路附属物点検調書作成');
+  });
+}
 
-  // 見積書プレビューに渡す quotation（見積日を中間見積書用日付で上書き）
+export default function FukuyamaInterimQuotationPage({ quotation, settings, onSave, onCancel }: Props) {
+  const [pdfSaving, setPdfSaving] = useState(false);
+  const [issueDate, setIssueDate] = useState(quotation.fukuyamaInterimQuotationIssueDate ?? quotation.date ?? today());
+  const [submitted, setSubmitted] = useState(quotation.fukuyamaInterimQuotationSubmitted ?? false);
+
+  // 中間見積書用アイテム: 保存済みがあればそれを、なければ調書作成を除いた項目で初期化
+  const [items, setItems] = useState<QuotationItem[]>(() =>
+    quotation.fukuyamaInterimQuotationItems ?? filterItems(quotation.items)
+  );
+
+  const updateQuantity = (id: string, newQty: number) => {
+    setItems(prev => prev.map(item =>
+      item.id === id
+        ? { ...item, quantity: newQty, amount: Math.round(newQty * item.unitPrice) }
+        : item
+    ));
+  };
+
+  // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
   const displayQ: Quotation = {
     ...quotation,
     date: issueDate,
+    items,
   };
 
   const buildUpdated = (): Quotation => ({
@@ -30,6 +53,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
     fukuyamaEnabled: true,
     fukuyamaInterimQuotationIssueDate: issueDate,
     fukuyamaInterimQuotationSubmitted: submitted,
+    fukuyamaInterimQuotationItems: items,
     updatedAt: new Date().toISOString(),
   });
 
@@ -72,6 +96,47 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
             <DatePicker value={issueDate} onChange={setIssueDate} />
           </div>
 
+          {/* 数量編集テーブル */}
+          <div className="fk-field-group">
+            <label className="fk-field-label">数量修正</label>
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '12px' }}>
+                <thead>
+                  <tr style={{ background: '#f5f5f5' }}>
+                    <th style={thStyle}>項目</th>
+                    <th style={{ ...thStyle, width: '56px', textAlign: 'center' }}>数量</th>
+                    <th style={{ ...thStyle, width: '28px' }}>単位</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.filter(i => !i.isSeparator).map(item => (
+                    <tr key={item.id} style={{ borderBottom: '1px solid #eee' }}>
+                      <td style={tdStyle}>{item.label}</td>
+                      <td style={{ ...tdStyle, textAlign: 'center', padding: '2px' }}>
+                        <input
+                          type="number"
+                          min={0}
+                          step={0.01}
+                          value={item.quantity}
+                          onChange={e => updateQuantity(item.id, parseFloat(e.target.value) || 0)}
+                          style={{
+                            width: '52px',
+                            textAlign: 'right',
+                            border: '1px solid #ccc',
+                            borderRadius: '3px',
+                            padding: '2px 4px',
+                            fontSize: '12px',
+                          }}
+                        />
+                      </td>
+                      <td style={{ ...tdStyle, color: '#666' }}>{item.unit}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
           <div className="fk-field-group">
             <label className="fk-field-label">提出状況</label>
             <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
@@ -86,7 +151,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
           </div>
 
           <div className="fk-field-note">
-            ※ 弊社様式で出力されます
+            ※ 調書作成は除外済み。弊社様式で出力されます。
           </div>
         </div>
 
@@ -97,3 +162,16 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
     </div>
   );
 }
+
+const thStyle: React.CSSProperties = {
+  padding: '4px 6px',
+  textAlign: 'left',
+  fontWeight: 600,
+  borderBottom: '2px solid #ddd',
+  whiteSpace: 'nowrap',
+};
+
+const tdStyle: React.CSSProperties = {
+  padding: '3px 6px',
+  verticalAlign: 'middle',
+};

@@ -207,4 +207,5 @@ export interface Quotation {
   // 福山 中間見積書用
   fukuyamaInterimQuotationIssueDate?: string;
   fukuyamaInterimQuotationSubmitted?: boolean;
+  fukuyamaInterimQuotationItems?: QuotationItem[];
 }
