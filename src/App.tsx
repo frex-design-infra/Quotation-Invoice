@@ -355,6 +355,7 @@ export default function App() {
         {tab === 'fukuyama-interim-quotation' && editingQuotation && (
           <FukuyamaInterimQuotationPage
             quotation={editingQuotation}
+            settings={settings}
             onSave={(q) => {
               saveQuotation(q);
               setEditingQuotation(q);

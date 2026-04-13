@@ -205,8 +205,6 @@ export interface Quotation {
   fukuyamaWorkContent?: string;        // 業務内容
 
   // 福山 中間見積書用
-  fukuyamaInterimQuotationTemplateUrl?: string;
-  fukuyamaInterimQuotationStoragePath?: string;
   fukuyamaInterimQuotationIssueDate?: string;
   fukuyamaInterimQuotationSubmitted?: boolean;
 }
