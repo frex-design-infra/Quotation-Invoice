@@ -40,8 +40,8 @@ const COORD = {
   companyX:    137,   // 左端X（郵便番号・住所・会社名）
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  postalY:     57,    // 〒郵便番号 top
-  addrY:       60,    // 住所 top
+  postalY:     59,    // 〒郵便番号 top
+  addrY:       62,    // 住所 top
   companyY:    67.5,  // 会社名 top
   repNameY:    77,    // 代表者名 top
 
