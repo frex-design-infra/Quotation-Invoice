@@ -178,7 +178,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
         </div>
 
         <div className="fukken-preview-area">
-          <FukuyamaTemplate quotation={q} settings={settings} />
+          <FukuyamaTemplate quotation={q} settings={settings} originalContractTotal={quotation.total} />
         </div>
       </div>
     </div>

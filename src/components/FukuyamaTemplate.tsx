@@ -11,6 +11,7 @@ import type { Quotation, MasterSettings } from '../types';
 interface Props {
   quotation: Quotation;
   settings: MasterSettings;
+  originalContractTotal?: number; // 初回見積金額（請求残額 = 初回見積 - 今回請求）
 }
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
@@ -21,20 +22,24 @@ const COORD = {
   dateMoX:    70,
   dateDayX:   83,
 
-  // 金額（合計）
-  totalY:     210,
-  totalX:     15,
-  totalW:     85,
+  // ── 金額テーブル ─────────────────────────────────────────────
+  // 共通：金額列（右揃え）
+  amtX:       15,
+  amtW:       100,
 
-  // 消費税率10%対象
-  subtotalY:  221,
-  subtotalX:  15,
-  subtotalW:  85,
+  // 1. 既請求額
+  prevBillY:  203,
 
-  // 内消費税額
-  taxY:       232,
-  taxX:       15,
-  taxW:       85,
+  // 2. 今回請求額 / うち消費税
+  currBillY:  215,
+  taxColX:    145,   // うち消費税 列 X
+  taxColW:    50,    // うち消費税 列 幅
+
+  // 3. 請求合計
+  totalBillY: 228,
+
+  // 4. 請求残額
+  remainY:    240,
 
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
   addrX:       137,   // 郵便番号・住所の左端X
@@ -82,13 +87,21 @@ const TEXT_SM: React.CSSProperties = {
   fontSize: '8pt',
 };
 
-export default function FukuyamaTemplate({ quotation, settings }: Props) {
+const AMT: React.CSSProperties = { ...TEXT, textAlign: 'right' };
+
+export default function FukuyamaTemplate({ quotation, settings, originalContractTotal }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
   const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
 
-  const totalFmt    = quotation.total.toLocaleString('ja-JP');
-  const subtotalFmt = quotation.subtotal.toLocaleString('ja-JP');
-  const taxFmt      = quotation.tax.toLocaleString('ja-JP');
+  // 今回請求額 = q.total（中間請求書の場合は中間見積金額に上書き済み）
+  const currBill   = quotation.total;
+  const currTax    = quotation.tax;
+  const prevBill   = 0;
+  const totalBill  = prevBill + currBill;
+  const origTotal  = originalContractTotal ?? quotation.total;
+  const remain     = origTotal - currBill;
+
+  const fmt = (n: number) => n.toLocaleString('ja-JP');
 
   return (
     <div
@@ -111,7 +124,7 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
         </div>
       )}
 
-      {/* 発行日 */}
+      {/* 請求日 */}
       {issueDate && (
         <>
           <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issueDate.y}</span>
@@ -120,19 +133,28 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
         </>
       )}
 
-      {/* 合計金額 */}
-      <span style={{ ...TEXT, ...abs(COORD.totalY, COORD.totalX), width: `${COORD.totalW}mm`, textAlign: 'right', fontWeight: 'bold' }}>
-        {totalFmt}
+      {/* 1. 既請求額 */}
+      <span style={{ ...AMT, ...abs(COORD.prevBillY, COORD.amtX), width: `${COORD.amtW}mm` }}>
+        {fmt(prevBill)}
       </span>
 
-      {/* 消費税率10%対象 */}
-      <span style={{ ...TEXT, ...abs(COORD.subtotalY, COORD.subtotalX), width: `${COORD.subtotalW}mm`, textAlign: 'right' }}>
-        {subtotalFmt}
+      {/* 2. 今回請求額 */}
+      <span style={{ ...AMT, ...abs(COORD.currBillY, COORD.amtX), width: `${COORD.amtW}mm`, fontWeight: 'bold' }}>
+        {fmt(currBill)}
+      </span>
+      {/* うち消費税 */}
+      <span style={{ ...AMT, ...abs(COORD.currBillY, COORD.taxColX), width: `${COORD.taxColW}mm` }}>
+        {fmt(currTax)}
       </span>
 
-      {/* 内消費税額 */}
-      <span style={{ ...TEXT, ...abs(COORD.taxY, COORD.taxX), width: `${COORD.taxW}mm`, textAlign: 'right' }}>
-        {taxFmt}
+      {/* 3. 請求合計 */}
+      <span style={{ ...AMT, ...abs(COORD.totalBillY, COORD.amtX), width: `${COORD.amtW}mm`, fontWeight: 'bold' }}>
+        {fmt(totalBill)}
+      </span>
+
+      {/* 4. 請求残額 */}
+      <span style={{ ...AMT, ...abs(COORD.remainY, COORD.amtX), width: `${COORD.amtW}mm` }}>
+        {fmt(remain)}
       </span>
 
       {/* 自社情報 — 郵便番号・住所2行（右揃え） */}
