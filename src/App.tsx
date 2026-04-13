@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from './stores/useStore';
+import LoginScreen from './components/LoginScreen';
 import QuotationList from './pages/QuotationList';
 import QuotationForm from './pages/QuotationForm';
 import InvoiceList from './pages/InvoiceList';
@@ -96,6 +97,12 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
 type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation';
 
 export default function App() {
+  const [authed, setAuthed] = useState(() => sessionStorage.getItem('auth') === '1');
+  if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
+  return <MainApp />;
+}
+
+function MainApp() {
   const { settings, saveSettings, quotations, saveQuotation, deleteQuotation, invoices, saveInvoice, deleteInvoice, exportData, importData, syncing, syncError } = useStore();
   const importInputRef = useRef<HTMLInputElement>(null);
   const [importMsg, setImportMsg] = useState('');
