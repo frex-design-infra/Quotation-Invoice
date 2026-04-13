@@ -16,23 +16,23 @@ interface Props {
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
   // 請求日
-  dateY:      213,
+  dateY:      183,
   dateYearX:  100,
   dateMoX:    122,
   dateDayX:   135,
 
   // 金額（合計）
-  totalY:     150,
+  totalY:     200,
   totalX:     30,
   totalW:     85,
 
   // 消費税率10%対象
-  subtotalY:  161,
+  subtotalY:  211,
   subtotalX:  30,
   subtotalW:  85,
 
   // 内消費税額
-  taxY:       172,
+  taxY:       222,
   taxX:       30,
   taxW:       85,
 
