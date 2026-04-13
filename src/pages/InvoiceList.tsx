@@ -104,7 +104,9 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                     {inv.isFukken ? (
                       <span className="billing-type-badge billing-type-fukken">復建</span>
                     ) : inv.isFukuyama ? (
-                      <span className="billing-type-badge billing-type-fukuyama">{typeLabel || '福山'}</span>
+                      <span className={`billing-type-badge billing-type-fukuyama-${inv.billingType ?? 'single'}`}>
+                        {typeLabel || '福山'}
+                      </span>
                     ) : typeLabel ? (
                       <span className={`billing-type-badge billing-type-${inv.billingType}`}>{typeLabel}</span>
                     ) : null}
