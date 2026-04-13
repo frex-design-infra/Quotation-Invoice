@@ -10,6 +10,7 @@ import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import FukuyamaPage from './pages/FukuyamaPage';
 import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
 import type { Quotation, Invoice, MasterSettings } from './types';
+import { calculateTotals } from './utils/calculations';
 import './App.css';
 
 function buildFukkenInvoice(q: Quotation, settings: MasterSettings, allInvoices: Invoice[], existing?: Invoice): Invoice {
@@ -51,7 +52,7 @@ function buildFukkenInvoice(q: Quotation, settings: MasterSettings, allInvoices:
   };
 }
 
-function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 'final', allInvoices: Invoice[], existing?: Invoice): Invoice {
+function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 'final', allInvoices: Invoice[], settings: MasterSettings, existing?: Invoice): Invoice {
   const now = new Date().toISOString();
   const dateBase = (q.fukuyamaIssueDate || now.slice(0, 10)).replace(/-/g, '');
   const sameBase = allInvoices
@@ -74,7 +75,9 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
     clientPostalCode: '',
     clientAddress: '',
     projectName: q.projectName,
-    originalContractTotal: q.total,
+    originalContractTotal: billingType === 'interim' && q.fukuyamaInterimQuotationItems?.length
+      ? calculateTotals(q.fukuyamaInterimQuotationItems, settings).total
+      : q.total,
     changeAmount: 0,
     deliveryDate: '',
     deliveryPerson: '',
@@ -347,7 +350,7 @@ export default function App() {
               saveQuotation(q);
               setEditingQuotation(q);
               const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === fukuyamaBillingType);
-              saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, existing));
+              saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, settings, existing));
             }}
             onCancel={() => setTab('list')}
           />

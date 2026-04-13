@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import type { Quotation, MasterSettings } from '../types';
+import { calculateTotals } from '../utils/calculations';
 import FukuyamaTemplate from '../components/FukuyamaTemplate';
 import DatePicker from '../components/DatePicker';
 import { uploadFukuyamaTemplate, deleteFukuyamaTemplate } from '../lib/storage';
@@ -100,7 +101,14 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
     setTimeout(() => setToastVisible(false), 2500);
   };
 
-  const q = buildUpdated();
+  const base = buildUpdated();
+  // 中間請求書は中間見積書の金額を表示
+  const interimTotals = billingType === 'interim' && base.fukuyamaInterimQuotationItems?.length
+    ? calculateTotals(base.fukuyamaInterimQuotationItems, settings)
+    : null;
+  const q: Quotation = interimTotals
+    ? { ...base, subtotal: interimTotals.subtotal, tax: interimTotals.tax, total: interimTotals.total }
+    : base;
   const title = BILLING_TITLE[billingType];
 
   return (
