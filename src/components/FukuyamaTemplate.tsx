@@ -49,8 +49,8 @@ const COORD = {
   repNameY:    77,    // 代表者名 top
 
   // 角印 (sealDataUrl)
-  kakuinY:    50,
-  kakuinX:    145,
+  kakuinY:    56,
+  kakuinX:    146,
   kakuinSize: 22,
 
   // 丸印・代表印 (repSealDataUrl)
