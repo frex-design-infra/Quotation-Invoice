@@ -28,10 +28,10 @@ const COORD = {
   amtW:       100,
 
   // 1. 既請求額
-  prevBillY:  205,
+  prevBillY:  205.4,
 
   // 2. 今回請求額 / うち消費税
-  currBillY:  217,
+  currBillY:  217.4,
   taxColX:    125,   // うち消費税 列 X
   taxColW:    50,    // うち消費税 列 幅
 
