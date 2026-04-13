@@ -177,7 +177,7 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
                                             className="dropdown-fukken"
                                             onClick={() => { onOpenFukuyama(q, 'final'); setOpenMenuId(null); }}
                                           >
-                                            最終請求書作成
+                                            納品書/請求書作成
                                           </button>
                                         </>
                                       );
@@ -218,14 +218,9 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
                                 </button>
                               )}
                               {q.submitted && q.hasInterimBilling && (
-                                <>
-                                  <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
-                                    中間請求書作成
-                                  </button>
-                                  <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
-                                    最終請求書作成
-                                  </button>
-                                </>
+                                <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                                  中間請求書作成
+                                </button>
                               )}
                             </>
                           );

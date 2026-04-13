@@ -10,6 +10,8 @@ interface Props {
   onPreview: (inv: Invoice) => void;
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
+  onCreateFinalInvoice: (inv: Invoice) => void;
+  onCreateFukuyamaFinalInvoice: (inv: Invoice) => void;
 }
 
 const BILLING_LABEL: Record<string, string> = {
@@ -18,7 +20,7 @@ const BILLING_LABEL: Record<string, string> = {
   single: '',
 };
 
-export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
+export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateFinalInvoice, onCreateFukuyamaFinalInvoice }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -130,6 +132,22 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                           <button onClick={() => { onPreview(inv); setOpenMenuId(null); }}>
                             プレビュー
                           </button>
+                          {inv.billingType === 'interim' && inv.submitted && !inv.isFukken && !inv.isFukuyama && (
+                            <>
+                              <div className="dropdown-divider" />
+                              <button onClick={() => { onCreateFinalInvoice(inv); setOpenMenuId(null); }}>
+                                納品書/請求書作成
+                              </button>
+                            </>
+                          )}
+                          {inv.billingType === 'interim' && inv.submitted && inv.isFukuyama && (
+                            <>
+                              <div className="dropdown-divider" />
+                              <button onClick={() => { onCreateFukuyamaFinalInvoice(inv); setOpenMenuId(null); }}>
+                                納品書/請求書作成
+                              </button>
+                            </>
+                          )}
                           <div className="dropdown-divider" />
                           <button
                             className="dropdown-danger"

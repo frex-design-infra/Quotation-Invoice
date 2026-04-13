@@ -226,6 +226,21 @@ export default function App() {
     setTab('invoice-list');
   };
 
+  const handleCreateFinalInvoice = (inv: Invoice) => {
+    const q = quotations.find(x => x.id === inv.quotationId);
+    if (!q) return;
+    handleCreateInvoiceFromQuotation(q, 'final');
+  };
+
+  const handleCreateFukuyamaFinalInvoice = (inv: Invoice) => {
+    const q = quotations.find(x => x.id === inv.quotationId);
+    if (!q) return;
+    setEditingQuotation(q);
+    setFukuyamaBillingType('final');
+    setFukuyamaReturnTab('invoice-list');
+    setTab('fukuyama');
+  };
+
   return (
     <div className="app">
       {/* ナビゲーション */}
@@ -322,6 +337,8 @@ export default function App() {
             onPreview={handlePreviewInvoice}
             onDelete={deleteInvoice}
             onToggleSubmitted={handleToggleInvoiceSubmitted}
+            onCreateFinalInvoice={handleCreateFinalInvoice}
+            onCreateFukuyamaFinalInvoice={handleCreateFukuyamaFinalInvoice}
           />
         )}
         {tab === 'invoice-form' && (
