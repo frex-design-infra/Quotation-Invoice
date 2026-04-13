@@ -196,6 +196,7 @@ export interface Quotation {
   fukkenSeishoSubmitted?: boolean;
   fukkenDeliveryDate?: string;
   fukkenDeliveryInvoiceDate?: string;
+  fukkenBankAccountId?: string;        // 選択した振込先口座ID
 
   // 福山コンサルタント様式用（任意）
   fukuyamaEnabled?: boolean;           // 福山様式を使用するか

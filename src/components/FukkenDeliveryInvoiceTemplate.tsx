@@ -16,6 +16,7 @@ interface Props {
   quotation: Quotation;
   settings: MasterSettings;
   docType: 'delivery' | 'invoice';
+  bankInfo?: string;
 }
 
 // ─── 共通座標（納品書・請求書で同じ位置） ─────────────────────────
@@ -92,7 +93,7 @@ const TEXT: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, docType }: Props) {
+export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, docType, bankInfo: bankInfoProp }: Props) {
   const isInvoice  = docType === 'invoice';
   // 設定画面でアップロードした画像を優先、なければ /templates/ のファイル
   const templateSrc = isInvoice
@@ -114,7 +115,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
   const taxFmt     = quotation.tax.toLocaleString('ja-JP');
 
   // 振込先テキスト（請求書のみ）
-  const bankInfo = settings.bankAccounts?.[0]?.info ?? '';
+  const bankInfo = bankInfoProp ?? settings.bankAccounts?.[0]?.info ?? '';
 
   return (
     <div
