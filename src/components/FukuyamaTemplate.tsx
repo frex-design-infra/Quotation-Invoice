@@ -137,7 +137,7 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
 
       {/* 自社情報 — 郵便番号・住所2行（右揃え） */}
       {settings.postalCode && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.postalY, COORD.addrX), width: `${COORD.addrW}mm`, textAlign: 'right' }}>
+        <span style={{ ...TEXT_SM, ...abs(COORD.postalY, COORD.addrX), width: `${COORD.addrW}mm` }}>
           〒{settings.postalCode}
         </span>
       )}
