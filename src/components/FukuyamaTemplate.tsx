@@ -18,13 +18,13 @@ interface Props {
 const COORD = {
   // 請求日
   dateY:      183,
-  dateYearX:  48,
-  dateMoX:    70,
-  dateDayX:   83,
+  dateYearX:  28,
+  dateMoX:    50,
+  dateDayX:   63,
 
   // ── 金額テーブル ─────────────────────────────────────────────
   // 共通：金額列（右揃え）
-  amtX:       15,
+  amtX:       -5,
   amtW:       100,
 
   // 1. 既請求額
@@ -32,7 +32,7 @@ const COORD = {
 
   // 2. 今回請求額 / うち消費税
   currBillY:  215,
-  taxColX:    145,   // うち消費税 列 X
+  taxColX:    125,   // うち消費税 列 X
   taxColW:    50,    // うち消費税 列 幅
 
   // 3. 請求合計
