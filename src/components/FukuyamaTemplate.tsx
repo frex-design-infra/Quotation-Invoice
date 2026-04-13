@@ -17,7 +17,7 @@ interface Props {
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
   // 請求日
-  dateY:      181.5,
+  dateY:      181.2,
   dateYearX:  23,
   dateMoX:    48,
   dateDayX:   64.5,
@@ -28,10 +28,10 @@ const COORD = {
   amtW:       100,
 
   // 1. 既請求額
-  prevBillY:  203,
+  prevBillY:  205,
 
   // 2. 今回請求額 / うち消費税
-  currBillY:  215,
+  currBillY:  217,
   taxColX:    125,   // うち消費税 列 X
   taxColW:    50,    // うち消費税 列 幅
 
