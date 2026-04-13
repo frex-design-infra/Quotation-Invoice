@@ -18,8 +18,8 @@ interface Props {
 const COORD = {
   // 請求日
   dateY:      183,
-  dateYearX:  28,
-  dateMoX:    50,
+  dateYearX:  26,
+  dateMoX:    48,
   dateDayX:   63,
 
   // ── 金額テーブル ─────────────────────────────────────────────
