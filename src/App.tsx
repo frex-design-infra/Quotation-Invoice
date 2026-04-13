@@ -109,6 +109,7 @@ export default function App() {
   const [interimInvoiceForFinal, setInterimInvoiceForFinal] = useState<Invoice | undefined>();
   const [fukkenDeliveryInitialTab, setFukkenDeliveryInitialTab] = useState<'delivery' | 'invoice'>('delivery');
   const [fukuyamaBillingType, setFukuyamaBillingType] = useState<'single' | 'interim' | 'final'>('single');
+  const [fukuyamaReturnTab, setFukuyamaReturnTab] = useState<Tab>('list');
 
   // Quotation handlers
   const handleNew = () => {
@@ -176,7 +177,7 @@ export default function App() {
     }
     if (inv.isFukuyama) {
       const q = quotations.find(x => x.id === inv.quotationId);
-      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setTab('fukuyama'); return; }
+      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setFukuyamaReturnTab('invoice-list'); setTab('fukuyama'); return; }
     }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
@@ -193,7 +194,7 @@ export default function App() {
     }
     if (inv.isFukuyama) {
       const q = quotations.find(x => x.id === inv.quotationId);
-      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setTab('fukuyama'); return; }
+      if (q) { setEditingQuotation(q); setFukuyamaBillingType(inv.billingType ?? 'single'); setFukuyamaReturnTab('invoice-list'); setTab('fukuyama'); return; }
     }
     setEditingInvoice(inv);
     setInvoiceSourceQuotation(undefined);
@@ -299,7 +300,7 @@ export default function App() {
             onToggleSubmitted={handleToggleSubmitted}
             onCreateInvoice={handleCreateInvoiceFromQuotation}
             onOpenFukken={handleOpenFukken}
-            onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setTab('fukuyama'); }}
+            onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setFukuyamaReturnTab('list'); setTab('fukuyama'); }}
             onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
           />
         )}
@@ -361,7 +362,7 @@ export default function App() {
               const existing = invoices.find(inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === fukuyamaBillingType);
               saveInvoice(buildFukuyamaInvoice(q, fukuyamaBillingType, invoices, settings, existing));
             }}
-            onCancel={() => setTab('list')}
+            onCancel={() => setTab(fukuyamaReturnTab)}
           />
         )}
         {tab === 'fukuyama-interim-quotation' && editingQuotation && (
