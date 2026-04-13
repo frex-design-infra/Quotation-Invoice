@@ -36,13 +36,14 @@ const COORD = {
   taxX:       30,
   taxW:       85,
 
-  // 自社情報（右側）※上から: 郵便番号→住所→会社名→代表者名
-  companyX:    137,   // 左端X（郵便番号・住所・会社名）
+  // 自社情報（右側）※上から: 住所1行目→住所2行目→会社名→代表者名
+  companyX:    137,   // 左端X（住所・会社名）
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  postalY:     59,    // 〒郵便番号 top
-  addrY:       62,    // 住所 top
-  companyY:    67.5,  // 会社名 top
+  addrW:       65,    // 住所右揃え幅
+  addr1Y:      59,    // 住所1行目 top
+  addr2Y:      62,    // 住所2行目 top
+  companyY:    68,    // 会社名 top
   repNameY:    77,    // 代表者名 top
 
   // 角印 (sealDataUrl)
@@ -51,7 +52,7 @@ const COORD = {
   kakuinSize: 22,
 
   // 丸印・代表印 (repSealDataUrl)
-  maruinY:    50,
+  maruinY:    55,
   maruinX:    135,
   maruinSize: 22,
 };
@@ -132,17 +133,16 @@ export default function FukuyamaTemplate({ quotation, settings }: Props) {
         {taxFmt}
       </span>
 
-      {/* 自社情報 */}
-      {settings.postalCode && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.postalY, COORD.companyX), width: `${COORD.companyW}mm` }}>
-          〒{settings.postalCode}
-        </span>
-      )}
-      {settings.address && (
-        <span style={{ ...TEXT_SM, ...abs(COORD.addrY, COORD.companyX), width: `${COORD.companyW}mm` }}>
-          {settings.address}
-        </span>
-      )}
+      {/* 自社情報 — 住所2行・右揃え */}
+      {settings.address && (() => {
+        const lines = settings.address.split('\n');
+        const ys = [COORD.addr1Y, COORD.addr2Y];
+        return lines.slice(0, 2).map((line, i) => (
+          <span key={i} style={{ ...TEXT_SM, ...abs(ys[i], COORD.companyX), width: `${COORD.addrW}mm`, textAlign: 'right' }}>
+            {line}
+          </span>
+        ));
+      })()}
       {settings.companyName && (
         <span style={{ ...TEXT, ...abs(COORD.companyY, COORD.companyX), width: `${COORD.companyW}mm`, fontWeight: 'bold' }}>
           {settings.companyName}
