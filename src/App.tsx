@@ -341,6 +341,7 @@ export default function App() {
         {tab === 'fukuyama' && editingQuotation && (
           <FukuyamaPage
             quotation={editingQuotation}
+            settings={settings}
             billingType={fukuyamaBillingType}
             onSave={(q) => {
               saveQuotation(q);

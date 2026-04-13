@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
-import type { Quotation } from '../types';
+import type { Quotation, MasterSettings } from '../types';
 import FukuyamaTemplate from '../components/FukuyamaTemplate';
 import DatePicker from '../components/DatePicker';
 import { uploadFukuyamaTemplate, deleteFukuyamaTemplate } from '../lib/storage';
 
 interface Props {
   quotation: Quotation;
+  settings: MasterSettings;
   billingType?: 'single' | 'interim' | 'final';
   onSave: (q: Quotation) => void;
   onCancel: () => void;
@@ -21,7 +22,7 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function FukuyamaPage({ quotation, billingType = 'single', onSave, onCancel }: Props) {
+export default function FukuyamaPage({ quotation, settings, billingType = 'single', onSave, onCancel }: Props) {
   const [pdfSaving,    setPdfSaving]    = useState(false);
   const [toastVisible, setToastVisible] = useState(false);
   const [uploading,    setUploading]    = useState(false);
@@ -169,7 +170,7 @@ export default function FukuyamaPage({ quotation, billingType = 'single', onSave
         </div>
 
         <div className="fukken-preview-area">
-          <FukuyamaTemplate quotation={q} />
+          <FukuyamaTemplate quotation={q} settings={settings} />
         </div>
       </div>
     </div>

@@ -1,15 +1,16 @@
 /**
  * 福山コンサルタント 納品書兼請求書テンプレートオーバーレイ
  * 背景画像: 業務ごとにアップロードした画像（Supabase Storage）
- * 変数データ（金額・日付）のみを重ねる
+ * 変数データ（金額・日付・自社情報・印影）のみを重ねる
  *
  * 座標調整: 各 COORD_* 定数を変更してください（単位: mm）
  */
 import React from 'react';
-import type { Quotation } from '../types';
+import type { Quotation, MasterSettings } from '../types';
 
 interface Props {
   quotation: Quotation;
+  settings: MasterSettings;
 }
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
@@ -35,6 +36,23 @@ const COORD = {
   taxX:       30,
   taxW:       85,
 
+  // 自社情報（右側）
+  companyY:   60,    // 会社名 top
+  companyX:   115,   // 左端X
+  companyW:   90,    // 幅
+  addrY:      68,    // 〒住所 top
+  telY:       76,    // TEL top
+  emailY:     84,    // Email top
+
+  // 角印 (sealDataUrl)
+  kakuinY:    50,
+  kakuinX:    160,
+  kakuinSize: 22,
+
+  // 丸印・代表印 (repSealDataUrl)
+  maruinY:    50,
+  maruinX:    135,
+  maruinSize: 22,
 };
 // ────────────────────────────────────────────────────────────────
 
@@ -55,7 +73,12 @@ const TEXT: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-export default function FukuyamaTemplate({ quotation }: Props) {
+const TEXT_SM: React.CSSProperties = {
+  ...TEXT,
+  fontSize: '8pt',
+};
+
+export default function FukuyamaTemplate({ quotation, settings }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
   const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
 
@@ -107,6 +130,58 @@ export default function FukuyamaTemplate({ quotation }: Props) {
       <span style={{ ...TEXT, ...abs(COORD.taxY, COORD.taxX), width: `${COORD.taxW}mm`, textAlign: 'right' }}>
         {taxFmt}
       </span>
+
+      {/* 自社情報 */}
+      {settings.companyName && (
+        <span style={{ ...TEXT, ...abs(COORD.companyY, COORD.companyX), width: `${COORD.companyW}mm`, fontWeight: 'bold' }}>
+          {settings.companyName}
+        </span>
+      )}
+      {(settings.postalCode || settings.address) && (
+        <span style={{ ...TEXT_SM, ...abs(COORD.addrY, COORD.companyX), width: `${COORD.companyW}mm` }}>
+          {settings.postalCode ? `〒${settings.postalCode}　` : ''}{settings.address}
+        </span>
+      )}
+      {settings.tel && (
+        <span style={{ ...TEXT_SM, ...abs(COORD.telY, COORD.companyX), width: `${COORD.companyW}mm` }}>
+          TEL: {settings.tel}
+        </span>
+      )}
+      {settings.email && (
+        <span style={{ ...TEXT_SM, ...abs(COORD.emailY, COORD.companyX), width: `${COORD.companyW}mm` }}>
+          {settings.email}
+        </span>
+      )}
+
+      {/* 角印 */}
+      {settings.sealDataUrl && (
+        <img
+          src={settings.sealDataUrl}
+          alt="角印"
+          style={{
+            ...abs(COORD.kakuinY, COORD.kakuinX),
+            width: `${COORD.kakuinSize}mm`,
+            height: `${COORD.kakuinSize}mm`,
+            objectFit: 'contain',
+            opacity: 0.85,
+          }}
+        />
+      )}
+
+      {/* 丸印（代表印） */}
+      {settings.repSealDataUrl && (
+        <img
+          src={settings.repSealDataUrl}
+          alt="代表印"
+          style={{
+            ...abs(COORD.maruinY, COORD.maruinX),
+            width: `${COORD.maruinSize}mm`,
+            height: `${COORD.maruinSize}mm`,
+            objectFit: 'contain',
+            opacity: 0.85,
+          }}
+        />
+      )}
 
     </div>
   );
