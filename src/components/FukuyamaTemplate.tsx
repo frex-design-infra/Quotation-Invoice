@@ -37,7 +37,7 @@ const COORD = {
   taxW:       85,
 
   // 自社情報（右側）※上から: 郵便番号→住所→会社名→代表者名
-  companyX:    135,   // 左端X
+  companyX:    130,   // 左端X
   companyW:    75,    // 幅
   postalY:     53,    // 〒郵便番号 top
   addrY:       56,    // 住所 top
