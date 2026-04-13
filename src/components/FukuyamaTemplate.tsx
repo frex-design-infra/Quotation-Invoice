@@ -50,12 +50,12 @@ const COORD = {
 
   // 角印 (sealDataUrl)
   kakuinY:    50,
-  kakuinX:    160,
+  kakuinX:    145,
   kakuinSize: 22,
 
   // 丸印・代表印 (repSealDataUrl)
   maruinY:    73,
-  maruinX:    155,
+  maruinX:    163,
   maruinSize: 22,
 };
 // ────────────────────────────────────────────────────────────────
