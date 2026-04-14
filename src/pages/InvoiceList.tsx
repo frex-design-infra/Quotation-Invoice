@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import type { Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   invoices: Invoice[];
@@ -9,6 +10,8 @@ interface Props {
   onPreview: (inv: Invoice) => void;
   onDelete: (id: string) => void;
   onToggleSubmitted: (id: string) => void;
+  onCreateFinalInvoice: (inv: Invoice) => void;
+  onCreateFukuyamaFinalInvoice: (inv: Invoice) => void;
 }
 
 const BILLING_LABEL: Record<string, string> = {
@@ -17,7 +20,7 @@ const BILLING_LABEL: Record<string, string> = {
   single: '',
 };
 
-export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted }: Props) {
+export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateFinalInvoice, onCreateFukuyamaFinalInvoice }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -38,8 +41,11 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   };
 
-  const handleToggle = (e: React.MouseEvent, id: string) => {
+  const handleToggle = (e: React.MouseEvent, id: string, currentlySubmitted: boolean) => {
     e.stopPropagation();
+    if (!currentlySubmitted) {
+      triggerConfetti(e.currentTarget as HTMLElement);
+    }
     onToggleSubmitted(id);
     setAnimatingIds(prev => {
       const next = new Set(prev);
@@ -97,6 +103,10 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                   <td className="center">
                     {inv.isFukken ? (
                       <span className="billing-type-badge billing-type-fukken">復建</span>
+                    ) : inv.isFukuyama ? (
+                      <span className={`billing-type-badge billing-type-fukuyama-${inv.billingType ?? 'single'}`}>
+                        {typeLabel || '福山'}
+                      </span>
                     ) : typeLabel ? (
                       <span className={`billing-type-badge billing-type-${inv.billingType}`}>{typeLabel}</span>
                     ) : null}
@@ -105,7 +115,7 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                   <td onClick={e => e.stopPropagation()} className="action-cell">
                     <button
                       className={`status-btn ${inv.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(inv.id) ? 'pikoon' : ''}`}
-                      onClick={e => handleToggle(e, inv.id)}
+                      onClick={e => handleToggle(e, inv.id, inv.submitted ?? false)}
                     >
                       {inv.submitted ? '提出済' : '未提出'}
                     </button>
@@ -124,6 +134,22 @@ export default function InvoiceList({ invoices, onNew, onEdit, onPreview, onDele
                           <button onClick={() => { onPreview(inv); setOpenMenuId(null); }}>
                             プレビュー
                           </button>
+                          {inv.billingType === 'interim' && inv.submitted && !inv.isFukken && !inv.isFukuyama && (
+                            <>
+                              <div className="dropdown-divider" />
+                              <button onClick={() => { onCreateFinalInvoice(inv); setOpenMenuId(null); }}>
+                                納品書/請求書作成
+                              </button>
+                            </>
+                          )}
+                          {inv.billingType === 'interim' && inv.submitted && inv.isFukuyama && (
+                            <>
+                              <div className="dropdown-divider" />
+                              <button onClick={() => { onCreateFukuyamaFinalInvoice(inv); setOpenMenuId(null); }}>
+                                納品書/請求書作成
+                              </button>
+                            </>
+                          )}
                           <div className="dropdown-divider" />
                           <button
                             className="dropdown-danger"

@@ -16,39 +16,39 @@ interface Props {
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
 const COORD = {
   // 発行日（年月日ラベル行に合わせる）
-  dateY:     57,    // 47→57（+10mm）
-  dateYearX: 126,
-  dateMoX:   148,
-  dateDayX:  162,
+  dateY:     60,    // 57→60（+3mm）
+  dateYearX: 136,   // 126→135→136
+  dateMoX:   159,   // 148→159（+11mm: 年ラベルの後ろへ）
+  dateDayX:  172,   // 162→171→175→172（-3mm）
 
   // 件番（NO. 後の値）
-  jobNumY:   138,   // 132→138（+6mm）
-  jobNumX:   47,
+  jobNumY:   141,   // 138→141（+3mm）
+  jobNumX:   65,    // 47→57→65
 
   // 件名
-  projNameY: 150,   // 147→150（+3mm）
-  projNameX: 27,
+  projNameY: 152,   // 150→152（+2mm）
+  projNameX: 55,    // 27→37→50→60→55
 
   // 工期 着工
-  startY:    163,   // 正しい位置
-  startYearX: 53,
-  startMoX:   75,
-  startDayX:  87,
+  startY:    167,
+  startYearX: 62,   // 53→63→62
+  startMoX:   83,   // 75→85→83
+  startDayX:  94,   // 87→97→94
 
   // 工期 竣工
-  endY:      163,
-  endYearX:  128,
-  endMoX:    149,
-  endDayX:   162,
+  endY:      167,
+  endYearX:  138,   // 128→138（+10mm）
+  endMoX:    160,   // 149→159→160
+  endDayX:   171,   // 162→172→171
 
   // 請負金額（一金〜円也 の間、右寄せ）
-  totalY:    179,   // 正しい位置
-  totalX:    55,
+  totalY:    181,   // 179→181（+2mm）
+  totalX:    47,    // 55→52→47
   totalW:    78,
 
   // 消費税額（右寄せ）
-  taxY:      195,   // 正しい位置
-  taxX:      55,
+  taxY:      197.5, // 195→197→197.5
+  taxX:      47,    // 55→52→47
   taxW:      78,
 };
 // ────────────────────────────────────────────────────────────────

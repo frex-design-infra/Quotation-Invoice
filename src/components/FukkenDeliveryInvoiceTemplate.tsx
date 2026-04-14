@@ -16,43 +16,62 @@ interface Props {
   quotation: Quotation;
   settings: MasterSettings;
   docType: 'delivery' | 'invoice';
+  bankInfo?: string;
 }
 
 // ─── 共通座標（納品書・請求書で同じ位置） ─────────────────────────
 const COORD = {
-  // 発行日（右上）
-  dateY:       36,
-  dateYearX:   130,
-  dateMoX:     152,
-  dateDayX:    165,
+  // 発行日（右上）- 請求書
+  dateY:         33.9,
+  // 発行日（右上）- 納品書
+  deliveryDateY: 38.3,
+  dateYearX:   151,
+  dateMoX:     174,
+  dateDayX:    188,
 
-  // テーブル行の Y 座標
-  jobNumY:     156,   // 件番
-  projNameY:   167,   // 件名
-  locationY:   179,   // 施工場所
+  // テーブル行の Y 座標（納品書用）
+  jobNumY:     121,   // 156→121
+  projNameY:   131,   // 167→130→133→131
+  locationY:   141.2, // 179→139→142→141.2
 
-  amountY:     190,   // 金額行
-  subtotalY:   201,   // 消費税率10%対象
-  taxY:        213,   // 内消費税額(10%)
+  // テーブル行の Y 座標（請求書用）
+  invoiceJobNumY:   117.2,
+  invoiceProjNameY: 127.2,
+  invoiceLocationY: 137.5,
 
-  // テーブル左カラム（件番・件名・施工場所・金額）の値 X
-  valueX:      30,
+  amountY:     148.0, // 請求書用
+  subtotalY:   158.7, // 請求書用
+  taxY:        172,   // 納品書用（共通）
+  invoiceTaxY: 169.6, // 請求書用（172-2.4）
+
+  // 納品書専用
+  deliveryAmountY:   151.7,
+  deliverySubtotalY: 162.2,
+
+  // テーブル左カラム（件番・件名・施工場所）の値 X
+  jobNumX:     64,
+  projNameX:   58,
+  locationX:   58,
+
+  // 金額セル
+  valueX:      27,
   valueW:      85,    // 金額セルの幅（右寄せ用）
 
   // 業務内容（最大5行）
-  workX:       20,
-  workY0:      231,   // 1行目
-  workLineH:    8,    // 行間
+  workX:        40,
+  workY0:       192,  // 納品書用
+  invoiceWorkY0: 188.85, // 請求書用
+  workLineH:     8,   // 行間
 
   // 納品書: 納期
-  deliveryNaikiY:    190,
-  deliveryYearX:     122,
-  deliveryMoX:       143,
-  deliveryDayX:      157,
+  deliveryNaikiY:    151.3,
+  deliveryYearX:     142,
+  deliveryMoX:       166,
+  deliveryDayX:      179,
 
   // 請求書: 振込先テキスト（振込銀行欄の右側）
-  bankX:       119,
-  bankY:       187,
+  bankX:       144,
+  bankY:       148,
   bankW:        83,   // 幅（mm）
 };
 // ─────────────────────────────────────────────────────────────────
@@ -74,7 +93,7 @@ const TEXT: React.CSSProperties = {
   whiteSpace: 'nowrap',
 };
 
-export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, docType }: Props) {
+export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, docType, bankInfo: bankInfoProp }: Props) {
   const isInvoice  = docType === 'invoice';
   // 設定画面でアップロードした画像を優先、なければ /templates/ のファイル
   const templateSrc = isInvoice
@@ -96,7 +115,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
   const taxFmt     = quotation.tax.toLocaleString('ja-JP');
 
   // 振込先テキスト（請求書のみ）
-  const bankInfo = settings.bankAccounts?.[0]?.info ?? '';
+  const bankInfo = bankInfoProp ?? settings.bankAccounts?.[0]?.info ?? '';
 
   return (
     <div
@@ -115,39 +134,39 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       {/* 発行日 */}
       {issueDate && (
         <>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issueDate.y}</span>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateMoX),   width: '10mm', textAlign: 'right' }}>{issueDate.m}</span>
-          <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateDayX),  width: '8mm',  textAlign: 'right' }}>{issueDate.d}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateYearX), width: '20mm', textAlign: 'right' }}>{issueDate.y}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateMoX),   width: '10mm', textAlign: 'right' }}>{issueDate.m}</span>
+          <span style={{ ...TEXT, ...abs(isInvoice ? COORD.dateY : COORD.deliveryDateY, COORD.dateDayX),  width: '8mm',  textAlign: 'right' }}>{issueDate.d}</span>
         </>
       )}
 
       {/* 件番 */}
-      <span style={{ ...TEXT, ...abs(COORD.jobNumY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceJobNumY : COORD.jobNumY, COORD.jobNumX) }}>
         {quotation.fukkenJobNumber || ''}
       </span>
 
       {/* 件名 */}
-      <span style={{ ...TEXT, ...abs(COORD.projNameY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceProjNameY : COORD.projNameY, COORD.projNameX) }}>
         {quotation.fukkenProjectName || quotation.projectName}
       </span>
 
       {/* 施工場所 */}
-      <span style={{ ...TEXT, ...abs(COORD.locationY, COORD.valueX) }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceLocationY : COORD.locationY, COORD.locationX) }}>
         {quotation.fukkenLocation || ''}
       </span>
 
       {/* 金額（納品金額 or 請求金額）- 右寄せ */}
-      <span style={{ ...TEXT, ...abs(COORD.amountY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right', fontWeight: 'bold' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.amountY : COORD.deliveryAmountY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right', fontWeight: 'bold' }}>
         {totalFmt}
       </span>
 
       {/* 消費税率10%対象 */}
-      <span style={{ ...TEXT, ...abs(COORD.subtotalY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.subtotalY : COORD.deliverySubtotalY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
         {subtotalFmt}
       </span>
 
       {/* 内消費税額(10%) */}
-      <span style={{ ...TEXT, ...abs(COORD.taxY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
+      <span style={{ ...TEXT, ...abs(isInvoice ? COORD.invoiceTaxY : COORD.taxY, COORD.valueX), width: `${COORD.valueW}mm`, textAlign: 'right' }}>
         {taxFmt}
       </span>
 
@@ -155,7 +174,7 @@ export default function FukkenDeliveryInvoiceTemplate({ quotation, settings, doc
       {workLines.map((line, i) => (
         <span
           key={i}
-          style={{ ...TEXT, ...abs(COORD.workY0 + i * COORD.workLineH, COORD.workX), fontSize: '9.5pt' }}
+          style={{ ...TEXT, ...abs((isInvoice ? COORD.invoiceWorkY0 : COORD.workY0) + i * COORD.workLineH, COORD.workX), fontSize: '9.5pt' }}
         >
           {line}
         </span>

@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Quotation } from '../types';
+import type { Quotation, Invoice } from '../types';
 import { formatCurrency } from '../utils/calculations';
+import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   quotations: Quotation[];
+  invoices: Invoice[];
   onNew: () => void;
   onEdit: (q: Quotation) => void;
   onPreview: (q: Quotation) => void;
@@ -11,9 +13,11 @@ interface Props {
   onToggleSubmitted: (id: string) => void;
   onCreateInvoice: (q: Quotation, billingType: 'single' | 'interim' | 'final') => void;
   onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
+  onOpenFukuyama: (q: Quotation, billingType?: 'single' | 'interim' | 'final') => void;
+  onOpenFukuyamaInterimQuotation: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken }: Props) {
+export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -33,8 +37,11 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
   };
 
-  const handleToggle = (e: React.MouseEvent, id: string) => {
+  const handleToggle = (e: React.MouseEvent, id: string, currentlySubmitted: boolean) => {
     e.stopPropagation();
+    if (!currentlySubmitted) {
+      triggerConfetti(e.currentTarget as HTMLElement);
+    }
     onToggleSubmitted(id);
     setAnimatingIds(prev => {
       const next = new Set(prev);
@@ -92,7 +99,7 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                 <td onClick={e => e.stopPropagation()} className="action-cell">
                   <button
                     className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
-                    onClick={e => handleToggle(e, q.id)}
+                    onClick={e => handleToggle(e, q.id, q.submitted)}
                   >
                     {q.submitted ? '提出済' : '未提出'}
                   </button>
@@ -109,7 +116,77 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                           プレビュー
                         </button>
                         {(() => {
-                          const isFukken = q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント');
+                          const isFukuyama = q.fukuyamaEnabled || q.clientName.includes('福山コンサルタント');
+                          const isFukken = !isFukuyama && (q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント'));
+                          if (isFukuyama) {
+                            const interimInvoice = invoices.find(
+                              inv => inv.quotationId === q.id && inv.isFukuyama && inv.billingType === 'interim'
+                            );
+                            const interimInvoiceSubmitted = interimInvoice?.submitted ?? false;
+                            return (
+                              <>
+                                {q.submitted && (
+                                  <>
+                                    <div className="dropdown-divider" />
+                                    {!q.hasInterimBilling && (
+                                      <button
+                                        className="dropdown-fukken"
+                                        onClick={() => { onOpenFukuyama(q, 'single'); setOpenMenuId(null); }}
+                                      >
+                                        納品書兼請求書作成
+                                      </button>
+                                    )}
+                                    {q.hasInterimBilling && (() => {
+                                      if (!q.fukuyamaInterimQuotationSubmitted) {
+                                        return (
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyamaInterimQuotation(q); setOpenMenuId(null); }}
+                                          >
+                                            中間見積書作成
+                                          </button>
+                                        );
+                                      }
+                                      if (!interimInvoiceSubmitted) {
+                                        return (
+                                          <>
+                                            <button
+                                              className="dropdown-fukken"
+                                              onClick={() => { onOpenFukuyamaInterimQuotation(q); setOpenMenuId(null); }}
+                                            >
+                                              中間見積書を開く
+                                            </button>
+                                            <button
+                                              className="dropdown-fukken"
+                                              onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
+                                            >
+                                              中間請求書作成
+                                            </button>
+                                          </>
+                                        );
+                                      }
+                                      return (
+                                        <>
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyama(q, 'interim'); setOpenMenuId(null); }}
+                                          >
+                                            中間請求書を開く
+                                          </button>
+                                          <button
+                                            className="dropdown-fukken"
+                                            onClick={() => { onOpenFukuyama(q, 'final'); setOpenMenuId(null); }}
+                                          >
+                                            納品書/請求書作成
+                                          </button>
+                                        </>
+                                      );
+                                    })()}
+                                  </>
+                                )}
+                              </>
+                            );
+                          }
                           if (isFukken) {
                             return (
                               <>
@@ -122,12 +199,14 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                                   </button>
                                 )}
                                 <div className="dropdown-divider" />
-                                <button
-                                  className="dropdown-fukken"
-                                  onClick={() => { onOpenFukken(q, 'delivery'); setOpenMenuId(null); }}
-                                >
-                                  納品書/請求書作成
-                                </button>
+                                {q.submitted && (
+                                  <button
+                                    className="dropdown-fukken"
+                                    onClick={() => { onOpenFukken(q, 'delivery'); setOpenMenuId(null); }}
+                                  >
+                                    納品書/請求書作成
+                                  </button>
+                                )}
                               </>
                             );
                           }
@@ -139,14 +218,9 @@ export default function QuotationList({ quotations, onNew, onEdit, onPreview, on
                                 </button>
                               )}
                               {q.submitted && q.hasInterimBilling && (
-                                <>
-                                  <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
-                                    中間請求書作成
-                                  </button>
-                                  <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
-                                    最終請求書作成
-                                  </button>
-                                </>
+                                <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                                  中間請求書作成
+                                </button>
                               )}
                             </>
                           );

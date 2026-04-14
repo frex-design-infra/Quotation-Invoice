@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="6" fill="#111111"/>
+  <text
+    x="16" y="24"
+    font-family="Georgia, 'Times New Roman', 'Yu Mincho', serif"
+    font-size="23"
+    font-weight="700"
+    fill="#ffffff"
+    text-anchor="middle"
+  >F</text>
+</svg>

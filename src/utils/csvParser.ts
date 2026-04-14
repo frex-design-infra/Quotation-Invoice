@@ -22,10 +22,14 @@ export function parseBridgeCSV(file: File): Promise<{ data: BridgeData[]; errors
         const sample = result.data[0] as Record<string, string>;
         const headers = Object.keys(sample);
 
+        // ヘッダーを正規化（全角・半角スペース除去）
+        const normalize = (s: string) => s.trim().replace(/[\s\u3000]+/g, '');
+
         // 橋長列を探す
-        const lengthCol = headers.find(h =>
-          h.trim() === '橋長' || h.trim() === '橋長(m)' || h.trim() === '橋長（m）' || h.toLowerCase() === 'length'
-        );
+        const lengthCol = headers.find(h => {
+          const n = normalize(h);
+          return n === '橋長' || n === '橋長(m)' || n === '橋長（m）' || n.toLowerCase() === 'length';
+        });
         if (!lengthCol) {
           resolve({ data: [], errors: [`橋長列が見つかりません。列名: ${headers.join(', ')}`] });
           return;
@@ -33,7 +37,7 @@ export function parseBridgeCSV(file: File): Promise<{ data: BridgeData[]; errors
 
         // 橋名列を探す（なければ連番）
         const nameCol = headers.find(h =>
-          ['橋梁名', '橋名', '名称', 'name', '橋梁名称'].includes(h.trim())
+          ['橋梁名', '橋名', '名称', 'name', '橋梁名称'].includes(normalize(h))
         );
 
         (result.data as Record<string, string>[]).forEach((row, idx) => {

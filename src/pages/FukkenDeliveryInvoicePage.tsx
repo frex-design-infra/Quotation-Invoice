@@ -28,6 +28,11 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
   const [fukkenDeliveryDate,       setFukkenDeliveryDate]       = useState(quotation.fukkenDeliveryDate       ?? '');
   const [fukkenDeliveryInvoiceDate, setFukkenDeliveryInvoiceDate] = useState(quotation.fukkenDeliveryInvoiceDate ?? today());
 
+  const defaultBankId = settings.bankAccounts?.[0]?.id ?? '';
+  const [bankAccountId, setBankAccountId] = useState(quotation.fukkenBankAccountId ?? defaultBankId);
+  const selectedBank = settings.bankAccounts?.find(b => b.id === bankAccountId);
+  const bankInfo = selectedBank?.info ?? settings.bankAccounts?.[0]?.info ?? '';
+
   const buildUpdated = (): Quotation => ({
     ...quotation,
     fukkenEnabled: true,
@@ -37,6 +42,7 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
     fukkenWorkContent,
     fukkenDeliveryDate,
     fukkenDeliveryInvoiceDate,
+    fukkenBankAccountId: bankAccountId,
     updatedAt: new Date().toISOString(),
   });
 
@@ -129,13 +135,28 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
             <DatePicker value={fukkenDeliveryInvoiceDate} onChange={setFukkenDeliveryInvoiceDate} />
           </div>
 
+          {settings.bankAccounts?.length > 0 && (
+            <div className="fk-field-group">
+              <label className="fk-field-label">振込銀行</label>
+              <select
+                className="fk-field-input"
+                value={bankAccountId}
+                onChange={e => setBankAccountId(e.target.value)}
+              >
+                {settings.bankAccounts.map(b => (
+                  <option key={b.id} value={b.id}>{b.label}</option>
+                ))}
+              </select>
+            </div>
+          )}
+
           <div className="fk-field-note">
             ※ 請負金額・消費税は見積書の合計から自動取得
           </div>
         </div>
 
         <div className="fukken-preview-area">
-          <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType={activeTab} />
+          <FukkenDeliveryInvoiceTemplate quotation={q} settings={settings} docType={activeTab} bankInfo={bankInfo} />
         </div>
       </div>
     </div>

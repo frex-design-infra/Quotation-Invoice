@@ -11,6 +11,7 @@ interface Props {
   initialView?: 'form' | 'preview';
   billingType?: 'single' | 'interim' | 'final';
   interimInvoice?: Invoice;
+  allInvoices?: Invoice[];
   onSave: (inv: Invoice) => void;
   onCancel: () => void;
 }
@@ -30,7 +31,17 @@ function calcEndOfNextMonth(dateStr: string): string {
   return last.toISOString().slice(0, 10);
 }
 
-export default function InvoiceForm({ settings, initial, sourceQuotation, initialView, billingType: propBillingType, interimInvoice, onSave, onCancel }: Props) {
+function generateInvoiceNumber(dateStr: string, allInvoices?: Invoice[], excludeId?: string): string {
+  const yyyymmdd = dateStr.replace(/-/g, '');
+  const sameBase = (allInvoices ?? [])
+    .filter(inv => inv.id !== excludeId && inv.invoiceNumber?.startsWith(yyyymmdd + '-'))
+    .map(inv => parseInt(inv.invoiceNumber.slice(-3), 10))
+    .filter(n => !isNaN(n));
+  const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+  return `${yyyymmdd}-${String(seq).padStart(3, '0')}`;
+}
+
+export default function InvoiceForm({ settings, initial, sourceQuotation, initialView, billingType: propBillingType, interimInvoice, allInvoices, onSave, onCancel }: Props) {
   const [view, setView] = useState<'form' | 'preview'>(initialView ?? 'form');
   const [toastVisible, setToastVisible] = useState(false);
   const [pdfSaving, setPdfSaving] = useState(false);
@@ -43,7 +54,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   const initIssueDate = initial?.issueDate ?? today();
   const [issueDate, setIssueDate] = useState(initIssueDate);
   const [invoiceNumber, setInvoiceNumber] = useState(
-    initial?.invoiceNumber ?? (initIssueDate.replace(/-/g, '') + '-001')
+    initial?.invoiceNumber ?? generateInvoiceNumber(initIssueDate, allInvoices, initial?.id)
   );
 
   // 発注者: select or free-text
@@ -119,7 +130,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   // 発行日変更時に請求書番号・支払期限を更新（初回スキップ）
   useEffect(() => {
     if (isFirstIssueDate.current) { isFirstIssueDate.current = false; return; }
-    setInvoiceNumber(issueDate.replace(/-/g, '') + '-001');
+    setInvoiceNumber(generateInvoiceNumber(issueDate, allInvoices, initial?.id));
     setPaymentDueDate(calcEndOfNextMonth(issueDate));
   }, [issueDate]);
 

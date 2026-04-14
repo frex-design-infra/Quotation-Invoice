@@ -121,7 +121,8 @@ export interface Invoice {
   paymentDueDate: string;
   bankInfo: string;                // 選択した振込先テキスト
   taxRate: number;
-  isFukken?: boolean;             // 復建様式の納品書/請求書フラグ
+  isFukken?: boolean;             // 復建様式フラグ
+  isFukuyama?: boolean;           // 福山様式フラグ
   createdAt: string;
   updatedAt: string;
 }
@@ -184,14 +185,33 @@ export interface Quotation {
   updatedAt: string;
 
   // 復建技術コンサルタント様式用（任意）
-  fukkenEnabled?: boolean;           // 復建様式を使用するか
-  fukkenJobNumber?: string;          // 件番 (NO.XXXXXXXXXX)
-  fukkenProjectName?: string;        // 件名（復建所定様式用・注文書に合わせて変更可）
-  fukkenLocation?: string;           // 施工場所
-  fukkenStartDate?: string;          // 工期着工 YYYY-MM-DD
-  fukkenEndDate?: string;            // 工期竣工 YYYY-MM-DD
-  fukkenWorkContent?: string;        // 業務内容（改行区切り）
-  fukkenSeishoDate?: string;         // 請書発行日 YYYY-MM-DD
-  fukkenDeliveryDate?: string;       // 納品日 YYYY-MM-DD
-  fukkenDeliveryInvoiceDate?: string; // 納品書/請求書発行日 YYYY-MM-DD
+  fukkenEnabled?: boolean;
+  fukkenJobNumber?: string;
+  fukkenProjectName?: string;
+  fukkenLocation?: string;
+  fukkenStartDate?: string;
+  fukkenEndDate?: string;
+  fukkenWorkContent?: string;
+  fukkenSeishoDate?: string;
+  fukkenSeishoSubmitted?: boolean;
+  fukkenDeliveryDate?: string;
+  fukkenDeliveryInvoiceDate?: string;
+  fukkenBankAccountId?: string;        // 選択した振込先口座ID
+
+  // 福山コンサルタント様式用（任意）
+  fukuyamaEnabled?: boolean;           // 福山様式を使用するか
+  fukuyamaTemplateUrl?: string;        // 業務別テンプレート画像URL（Supabase Storage）
+  fukuyamaTemplateStoragePath?: string; // Storage パス（削除用）
+  fukuyamaIssueDate?: string;          // 発行日 YYYY-MM-DD
+  fukuyamaWorkContent?: string;        // 業務内容
+
+  // 福山 納品書/請求書（最終）用テンプレート（中間とは別画像）
+  fukuyamaFinalTemplateUrl?: string;
+  fukuyamaFinalTemplateStoragePath?: string;
+  fukuyamaFinalIssueDate?: string;
+
+  // 福山 中間見積書用
+  fukuyamaInterimQuotationIssueDate?: string;
+  fukuyamaInterimQuotationSubmitted?: boolean;
+  fukuyamaInterimQuotationItems?: QuotationItem[];
 }

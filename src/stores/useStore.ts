@@ -146,13 +146,23 @@ function loadSettings(): MasterSettings {
   }
 }
 
+function migrateFukkenInvoiceNumber(inv: Record<string, unknown>): Record<string, unknown> {
+  if (inv.isFukken && inv.issueDate && typeof inv.issueDate === 'string') {
+    const dateNum = inv.issueDate.replace(/-/g, '');
+    if (!/^\d{8}-\d{3}$/.test(inv.invoiceNumber as string)) {
+      return { ...inv, invoiceNumber: dateNum + '-001' };
+    }
+  }
+  return inv;
+}
+
 function loadInvoices(): Invoice[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY_INVOICES);
     if (raw) return JSON.parse(raw).map((inv: Record<string, unknown>) => ({
       billingType: 'single',
       submitted: false,
-      ...inv,
+      ...migrateFukkenInvoiceNumber(inv),
     }));
   } catch {}
   return [];
@@ -230,10 +240,11 @@ export function useStore() {
               const invs = (row.value as Record<string, unknown>[]).map(inv => ({
                 billingType: 'single',
                 submitted: false,
-                ...inv,
+                ...migrateFukkenInvoiceNumber(inv),
               })) as Invoice[];
               localStorage.setItem(STORAGE_KEY_INVOICES, JSON.stringify(invs));
               setInvoicesState(invs);
+              syncToSupabase('invoices', invs);
             }
           }
         }
