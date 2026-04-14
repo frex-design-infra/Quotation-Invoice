@@ -50,7 +50,7 @@ const COORD = {
   companyX:    137,   // 会社名・代表者名の左端X
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  companyY:    61.65, // 会社名 top
+  companyY:    62.65, // 会社名 top
   repNameY:    70.5,  // 代表者名 top
 
   // 角印 (sealDataUrl)
