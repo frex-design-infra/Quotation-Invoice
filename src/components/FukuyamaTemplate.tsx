@@ -44,9 +44,9 @@ const COORD = {
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
   addrX:       137,   // 郵便番号・住所の左端X
   addrW:       55,    // 住所右揃え幅（右端 ~202mm）
-  postalY:     53,    // 〒郵便番号 top
-  addr1Y:      56,    // 住所1行目 top
-  addr2Y:      59,    // 住所2行目 top
+  postalY:     54.5,  // 〒郵便番号 top
+  addr1Y:      57.5,  // 住所1行目 top
+  addr2Y:      60.5,  // 住所2行目 top
   companyX:    137,   // 会社名・代表者名の左端X
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
