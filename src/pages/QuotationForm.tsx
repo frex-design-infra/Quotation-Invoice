@@ -78,6 +78,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [subcontractMode, setSubcontractMode] = useState(false);
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const dragItemId = useRef<string | null>(null);
+  const [dragOverId, setDragOverId] = useState<string | null>(null);
 
   // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
   useEffect(() => {
@@ -167,6 +169,39 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    dragItemId.current = id;
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    if (id !== dragItemId.current) setDragOverId(id);
+  };
+
+  const handleDrop = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    const from = dragItemId.current;
+    if (!from || from === id) return;
+    setItems(prev => {
+      const arr = [...prev];
+      const fromIdx = arr.findIndex(i => i.id === from);
+      const toIdx = arr.findIndex(i => i.id === id);
+      if (fromIdx === -1 || toIdx === -1) return prev;
+      const [moved] = arr.splice(fromIdx, 1);
+      arr.splice(toIdx, 0, moved);
+      return arr;
+    });
+    setDragOverId(null);
+    dragItemId.current = null;
+  };
+
+  const handleDragEnd = () => {
+    setDragOverId(null);
+    dragItemId.current = null;
   };
 
   const totals = calculateTotals(items, settings);
@@ -701,6 +736,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
         <table className="edit-items-table">
           <thead>
             <tr>
+              <th className="col-drag"></th>
               <th className="col-auto">自動</th>
               <th className="col-name">品名</th>
               <th className="col-qty">数量</th>
@@ -714,13 +750,32 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
             {items.map(item => {
               if (item.isSeparator) {
                 return (
-                  <tr key={item.id} className="separator-row">
-                    <td colSpan={7}></td>
+                  <tr
+                    key={item.id}
+                    className={`separator-row${dragOverId === item.id ? ' drag-over-row' : ''}`}
+                    draggable
+                    onDragStart={e => handleDragStart(e, item.id)}
+                    onDragOver={e => handleDragOver(e, item.id)}
+                    onDrop={e => handleDrop(e, item.id)}
+                    onDragEnd={handleDragEnd}
+                  >
+                    <td colSpan={8}></td>
                   </tr>
                 );
               }
               return (
-                <tr key={item.id} className={item.isAutoCalculated ? 'auto-row' : ''}>
+                <tr
+                  key={item.id}
+                  className={`${item.isAutoCalculated ? 'auto-row' : ''}${dragOverId === item.id ? ' drag-over-row' : ''}`}
+                  draggable
+                  onDragStart={e => handleDragStart(e, item.id)}
+                  onDragOver={e => handleDragOver(e, item.id)}
+                  onDrop={e => handleDrop(e, item.id)}
+                  onDragEnd={handleDragEnd}
+                >
+                  <td className="col-drag">
+                    <span className="drag-handle">⠿</span>
+                  </td>
                   <td className="col-auto">
                     {item.isAutoCalculated ? <span className="auto-badge">自動</span> : ''}
                   </td>
