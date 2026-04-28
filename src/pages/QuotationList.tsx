@@ -15,9 +15,10 @@ interface Props {
   onOpenFukken: (q: Quotation, tab?: 'seisho' | 'delivery' | 'invoice') => void;
   onOpenFukuyama: (q: Quotation, billingType?: 'single' | 'interim' | 'final') => void;
   onOpenFukuyamaInterimQuotation: (q: Quotation) => void;
+  onOpenInterimQuotation: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation }: Props) {
+export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -217,11 +218,47 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
                                   請求書作成
                                 </button>
                               )}
-                              {q.submitted && q.hasInterimBilling && (
-                                <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
-                                  中間請求書作成
-                                </button>
-                              )}
+                              {q.submitted && q.hasInterimBilling && (() => {
+                                const interimInvoice = invoices.find(
+                                  inv => inv.quotationId === q.id && !inv.isFukuyama && !inv.isFukken && inv.billingType === 'interim'
+                                );
+                                const interimInvoiceSubmitted = interimInvoice?.submitted ?? false;
+                                if (!q.interimQuotationSubmitted) {
+                                  return (
+                                    <button
+                                      className="dropdown-fukken"
+                                      onClick={() => { onOpenInterimQuotation(q); setOpenMenuId(null); }}
+                                    >
+                                      中間見積書作成
+                                    </button>
+                                  );
+                                }
+                                if (!interimInvoiceSubmitted) {
+                                  return (
+                                    <>
+                                      <button
+                                        className="dropdown-fukken"
+                                        onClick={() => { onOpenInterimQuotation(q); setOpenMenuId(null); }}
+                                      >
+                                        中間見積書を開く
+                                      </button>
+                                      <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                                        中間請求書作成
+                                      </button>
+                                    </>
+                                  );
+                                }
+                                return (
+                                  <>
+                                    <button onClick={() => { onCreateInvoice(q, 'interim'); setOpenMenuId(null); }}>
+                                      中間請求書を開く
+                                    </button>
+                                    <button onClick={() => { onCreateInvoice(q, 'final'); setOpenMenuId(null); }}>
+                                      最終請求書作成
+                                    </button>
+                                  </>
+                                );
+                              })()}
                             </>
                           );
                         })()}

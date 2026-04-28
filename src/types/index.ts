@@ -214,4 +214,9 @@ export interface Quotation {
   fukuyamaInterimQuotationIssueDate?: string;
   fukuyamaInterimQuotationSubmitted?: boolean;
   fukuyamaInterimQuotationItems?: QuotationItem[];
+
+  // 通常中間見積書用（福山・復建以外）
+  interimQuotationIssueDate?: string;
+  interimQuotationSubmitted?: boolean;
+  interimQuotationItems?: QuotationItem[];
 }

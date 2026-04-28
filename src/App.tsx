@@ -10,6 +10,7 @@ import FukkenSeishoPage from './pages/FukkenSeishoPage';
 import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import FukuyamaPage from './pages/FukuyamaPage';
 import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
+import InterimQuotationPage from './pages/InterimQuotationPage';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import { calculateTotals } from './utils/calculations';
 import './App.css';
@@ -94,7 +95,7 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
   };
 }
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation';
 
 export default function App() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('auth') === '1');
@@ -165,6 +166,11 @@ function MainApp() {
   const handleOpenFukuyamaInterimQuotation = (q: Quotation) => {
     setEditingQuotation(q);
     setTab('fukuyama-interim-quotation');
+  };
+
+  const handleOpenInterimQuotation = (q: Quotation) => {
+    setEditingQuotation(q);
+    setTab('interim-quotation');
   };
 
   // Invoice handlers
@@ -324,6 +330,7 @@ function MainApp() {
             onOpenFukken={handleOpenFukken}
             onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setFukuyamaReturnTab('list'); setTab('fukuyama'); }}
             onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
+            onOpenInterimQuotation={handleOpenInterimQuotation}
           />
         )}
         {tab === 'form' && (
@@ -391,6 +398,18 @@ function MainApp() {
         )}
         {tab === 'fukuyama-interim-quotation' && editingQuotation && (
           <FukuyamaInterimQuotationPage
+            quotation={editingQuotation}
+            settings={settings}
+            onSave={(q) => {
+              saveQuotation(q);
+              setEditingQuotation(q);
+              setTab('list');
+            }}
+            onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'interim-quotation' && editingQuotation && (
+          <InterimQuotationPage
             quotation={editingQuotation}
             settings={settings}
             onSave={(q) => {
