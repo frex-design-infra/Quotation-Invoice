@@ -330,8 +330,8 @@ button {
 .col-name { min-width: 240px; }
 .col-qty { width: 90px; }
 .col-unit { width: 70px; }
-.col-price { width: 120px; }
-.col-amount { width: 120px; }
+.col-price { width: 120px; text-align: right; }
+.col-amount { width: 120px; text-align: right; }
 .col-del { width: 42px; }
 
 .drag-handle {
@@ -921,8 +921,8 @@ button {
 }
 .items-table .col-name { min-width: 200px; }
 .items-table .col-qty  { text-align: center; width: 80px; }
-.items-table .col-price { text-align: center; width: 90px; }
-.items-table .col-amount { text-align: center; width: 90px; }
+.items-table .col-price { text-align: right; width: 90px; }
+.items-table .col-amount { text-align: right; width: 90px; }
 
 .spacer-row td { height: 8px; border: none !important; background: none; padding: 0; }
 
@@ -985,10 +985,11 @@ button {
   .items-table { font-size: 8.5pt; }
   .items-table th { font-size: 8.5pt; padding: 3px 6px; }
   .items-table td { padding: 2px 6px; }
-  .items-table td.col-qty   { text-align: right; }
+  .items-table td.col-qty   { text-align: center; }
   .items-table td.col-price { text-align: right; }
   .items-table td.col-amount { text-align: right; }
-  .items-table th.col-qty, .items-table th.col-price, .items-table th.col-amount { text-align: center; }
+  .items-table th.col-qty                         { text-align: center; }
+  .items-table th.col-price, .items-table th.col-amount { text-align: right; }
   .spacer-row td { height: 4px; }
   .doc-header-grid { margin-bottom: 32px; }
   .quotation-footer-comment { line-height: 1.4; margin-top: 10px; padding: 6px 16px; }
