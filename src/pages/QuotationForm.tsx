@@ -76,6 +76,9 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [csvFileName, setCsvFileName] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [subcontractMode, setSubcontractMode] = useState(false);
+  const [footerComment, setFooterComment] = useState<string>(
+    initial?.footerComment ?? settings.quotationFooterComment
+  );
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
@@ -241,6 +244,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     total: totals.total,
     createdAt: initial?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
+    footerComment,
     fukkenEnabled,
     // Preserve existing Fukken fields when saving from quotation form
     fukkenJobNumber: initial?.fukkenJobNumber,
@@ -314,7 +318,12 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
           </button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
-        <QuotationPreview quotation={displayQ} settings={settings} isSubcontract={subcontractMode} />
+        <QuotationPreview
+          quotation={displayQ}
+          settings={settings}
+          isSubcontract={subcontractMode}
+          onFooterCommentChange={subcontractMode ? undefined : setFooterComment}
+        />
       </div>
     );
   }
@@ -805,6 +814,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                       type="number"
                       value={item.unitPrice}
                       onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
+                      style={{ textAlign: 'right' }}
                     />
                   </td>
                   <td className="col-amount amount-cell">

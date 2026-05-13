@@ -504,6 +504,34 @@ button {
   line-height: 1.8;
 }
 
+/* 見積書プレビュー：フッターコメント インライン編集 textarea */
+.footer-comment-inline-textarea {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1.5px dashed transparent;
+  background: transparent;
+  resize: none;
+  font-family: inherit;
+  font-size: 11px;
+  color: #444;
+  line-height: 1.8;
+  padding: 0;
+  margin: 0;
+  outline: none;
+  box-sizing: border-box;
+  cursor: text;
+  transition: border-color 0.2s, background 0.2s;
+}
+.footer-comment-inline-textarea:hover {
+  border-bottom-color: #bbb;
+}
+.footer-comment-inline-textarea:focus {
+  border-bottom-color: #666;
+  background: rgba(59, 130, 246, 0.04);
+  border-radius: 2px;
+}
+
 /* ── 再計算ボタン ── */
 @keyframes spin-once {
   from { transform: rotate(0deg); }

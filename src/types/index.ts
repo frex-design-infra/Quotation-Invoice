@@ -219,4 +219,7 @@ export interface Quotation {
   interimQuotationIssueDate?: string;
   interimQuotationSubmitted?: boolean;
   interimQuotationItems?: QuotationItem[];
+
+  // 見積書フッターコメント（個別上書き。未設定時はマスター設定を使用）
+  footerComment?: string;
 }

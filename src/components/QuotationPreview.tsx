@@ -39,9 +39,10 @@ interface Props {
   quotation: Quotation;
   settings: MasterSettings;
   isSubcontract?: boolean;
+  onFooterCommentChange?: (value: string) => void;
 }
 
-export default function QuotationPreview({ quotation, settings, isSubcontract }: Props) {
+export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange }: Props) {
   const totals = calculateTotals(quotation.items, settings);
 
   const formatDate = (dateStr: string) => {
@@ -193,16 +194,37 @@ export default function QuotationPreview({ quotation, settings, isSubcontract }:
         </tbody>
       </table>
 
-      {settings.quotationFooterComment && (
-        <div className="quotation-footer-comment">
-          {settings.quotationFooterComment
-            .split('\n')
-            .filter(line => !isSubcontract || !line.includes('写真整理および損傷図修正含む'))
-            .map((line, i) => (
-              <div key={i}>{line || '\u00A0'}</div>
-            ))}
-        </div>
-      )}
+      {/* フッターコメント */}
+      {(() => {
+        const effectiveComment = quotation.footerComment ?? settings.quotationFooterComment;
+        if (!effectiveComment) return null;
+
+        // インライン編集モード（プレビュー画面から onFooterCommentChange が渡された場合）
+        if (onFooterCommentChange) {
+          return (
+            <div className="quotation-footer-comment">
+              <textarea
+                className="footer-comment-inline-textarea"
+                value={effectiveComment}
+                onChange={e => onFooterCommentChange(e.target.value)}
+                rows={Math.max(effectiveComment.split('\n').length + 1, 3)}
+              />
+            </div>
+          );
+        }
+
+        // 読み取り専用モード（再委託用・印刷・PDF保存など）
+        return (
+          <div className="quotation-footer-comment">
+            {effectiveComment
+              .split('\n')
+              .filter(line => !isSubcontract || !line.includes('写真整理および損傷図修正含む'))
+              .map((line, i) => (
+                <div key={i}>{line || ' '}</div>
+              ))}
+          </div>
+        );
+      })()}
     </div>
   );
 }
