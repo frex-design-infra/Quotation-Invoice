@@ -280,12 +280,12 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
         import('jspdf'),
       ]);
       const canvas = await html2canvas(el, {
-        scale: 3,
+        scale: 2,
         useCORS: true,
         backgroundColor: '#ffffff',
         logging: false,
       });
-      const imgData = canvas.toDataURL('image/jpeg', 0.98);
+      const imgData = canvas.toDataURL('image/jpeg', 0.88);
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
       // コンテンツがA4を超える場合はページ高さをコンテンツに合わせる
