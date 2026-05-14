@@ -41,6 +41,22 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
     ));
   };
 
+  const deleteItem = (id: string) => {
+    setItems(prev => {
+      const next = prev.filter(item => item.id !== id);
+      // 連続するセパレータや末尾のセパレータを除去
+      return next.filter((item, idx, arr) => {
+        if (!item.isSeparator) return true;
+        const prevItem = arr[idx - 1];
+        const nextItem = arr[idx + 1];
+        // 先頭セパレータ・末尾セパレータ・連続セパレータを除去
+        if (!prevItem || !nextItem) return false;
+        if (prevItem.isSeparator) return false;
+        return true;
+      });
+    });
+  };
+
   // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
   const displayQ: Quotation = {
     ...quotation,
@@ -105,6 +121,7 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
                     <th style={thStyle}>項目</th>
                     <th style={{ ...thStyle, width: '56px', textAlign: 'center' }}>数量</th>
                     <th style={{ ...thStyle, width: '28px' }}>単位</th>
+                    <th style={{ ...thStyle, width: '28px', textAlign: 'center' }}>削除</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -129,6 +146,26 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
                         />
                       </td>
                       <td style={{ ...tdStyle, color: '#666' }}>{item.unit}</td>
+                      <td style={{ ...tdStyle, textAlign: 'center', padding: '2px' }}>
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          title="この項目を削除"
+                          style={{
+                            background: 'none',
+                            border: 'none',
+                            color: '#cc3333',
+                            fontSize: '16px',
+                            cursor: 'pointer',
+                            lineHeight: 1,
+                            padding: '0 4px',
+                            borderRadius: '3px',
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = '#fde8e8')}
+                          onMouseLeave={e => (e.currentTarget.style.background = 'none')}
+                        >
+                          ×
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
