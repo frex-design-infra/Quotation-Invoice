@@ -83,8 +83,11 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
       ]);
       const canvas = await html2canvas(el, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height / canvas.width) * 210);
+      const imgW = 210;
+      const imgH = (canvas.height / canvas.width) * imgW;
+      // コンテンツがA4を超える場合はページ高さをコンテンツに合わせる
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
+      pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
       pdf.save(`中間見積書_${quotation.quotationNumber}.pdf`);
     } finally {
       setPdfSaving(false);

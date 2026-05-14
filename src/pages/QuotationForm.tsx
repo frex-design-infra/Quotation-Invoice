@@ -286,9 +286,10 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
         logging: false,
       });
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
+      // コンテンツがA4を超える場合はページ高さをコンテンツに合わせる
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
       pdf.save(`見積書_${quotationNumber}.pdf`);
     } finally {
