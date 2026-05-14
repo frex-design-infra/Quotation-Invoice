@@ -322,7 +322,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
           quotation={displayQ}
           settings={settings}
           isSubcontract={subcontractMode}
-          onFooterCommentChange={subcontractMode ? undefined : setFooterComment}
+          onFooterCommentChange={subcontractMode || pdfSaving ? undefined : setFooterComment}
         />
       </div>
     );
