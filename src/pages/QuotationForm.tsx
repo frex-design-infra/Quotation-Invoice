@@ -83,6 +83,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
+  const skipAutoRecalc = useRef(true);
 
   // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
   useEffect(() => {
@@ -141,6 +142,12 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     setOrdererCategory(cat);
     recalculate(bridges, undefined, cat);
   }, [bridges, recalculate]);
+
+  // パラメータ変更時に明細をリアルタイム自動再計算（初回レンダリングはスキップ）
+  useEffect(() => {
+    if (skipAutoRecalc.current) { skipAutoRecalc.current = false; return; }
+    recalculate(bridges);
+  }, [recalculate, bridges]);
 
   const handleRecalculate = useCallback(() => {
     recalculate(bridges, { inspectionType, roadAccessoryCount, roadAccessoryDays });
