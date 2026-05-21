@@ -161,6 +161,11 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
 
           <tr className="spacer-row"><td colSpan={4}></td></tr>
 
+          <tr className="subtotal-before-misc-row">
+            <td colSpan={3} className="subtotal-label">直接費計</td>
+            <td className="col-amount">{formatCurrency(totals.subtotalBeforeMisc)}</td>
+          </tr>
+
           <tr>
             <td>{miscExpensesItem.label}</td>
             <td className="col-qty">{miscExpensesItem.quantity} {miscExpensesItem.unit}</td>

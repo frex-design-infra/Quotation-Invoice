@@ -954,6 +954,15 @@ button {
 
 .spacer-row td { height: 8px; border: none !important; background: none; padding: 0; }
 
+/* 直接費計行 */
+.subtotal-before-misc-row td {
+  border-left: none;
+  border-right: none;
+  border-top: 1px solid #ccc;
+  border-bottom: none;
+  background: #f9f9f9;
+}
+
 /* 諸経費・値引き行 */
 .subtotal-row td, .tax-row td {
   border-left: none;
