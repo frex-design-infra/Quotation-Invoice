@@ -1,4 +1,4 @@
-import React, { useState, useRef, useCallback, useEffect } from 'react';
+import React, { useState, useRef, useCallback, useEffect, useMemo } from 'react';
 import type { Quotation, QuotationItem, BridgeData, MasterSettings, OrdererCategory, InspectionType } from '../types';
 import { calculateItems, calculateTotals, formatCurrency, buildSubcontractQuotation, type WorkParams } from '../utils/calculations';
 import { parseBridgeCSV } from '../utils/csvParser';
@@ -79,6 +79,16 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [footerComment, setFooterComment] = useState<string>(
     initial?.footerComment ?? settings.quotationFooterComment
   );
+  // 単価スナップショット（この見積専用）。保存済みは見積の値、新規はマスタからコピー
+  const [laborUnitPrice, setLaborUnitPrice] = useState<number>(initial?.laborUnitPrice ?? settings.laborUnitPrice);
+  const [btFuelEnabled, setBtFuelEnabled] = useState<boolean>(initial?.btFuelEnabled ?? settings.btFuelEnabled);
+  const [btFuelHoursPerDay, setBtFuelHoursPerDay] = useState<number>(initial?.btFuelHoursPerDay ?? settings.btFuelHoursPerDay);
+  const [btFuelLitersPerHour, setBtFuelLitersPerHour] = useState<number>(initial?.btFuelLitersPerHour ?? settings.btFuelLitersPerHour);
+  const [btFuelUnitPrice, setBtFuelUnitPrice] = useState<number>(initial?.btFuelUnitPrice ?? settings.btFuelUnitPrice);
+  const [fuelEnabled, setFuelEnabled] = useState<boolean>(initial?.fuelEnabled ?? settings.fuelEnabled);
+  const [fuelHoursPerDay, setFuelHoursPerDay] = useState<number>(initial?.fuelHoursPerDay ?? settings.fuelHoursPerDay);
+  const [fuelLitersPerHour, setFuelLitersPerHour] = useState<number>(initial?.fuelLitersPerHour ?? settings.fuelLitersPerHour);
+  const [fuelUnitPrice, setFuelUnitPrice] = useState<number>(initial?.fuelUnitPrice ?? settings.fuelUnitPrice);
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
@@ -117,16 +127,31 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
        trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
        safetyCoordinationEnabled, inspectionType, roadAccessoryCount, roadAccessoryDays]);
 
+  // この見積専用の単価でマスタを上書きした設定（取引会社ごとの単価を保持し、マスタ変更の影響を受けない）
+  const effectiveSettings = useMemo<MasterSettings>(() => ({
+    ...settings,
+    laborUnitPrice,
+    btFuelEnabled,
+    btFuelHoursPerDay,
+    btFuelLitersPerHour,
+    btFuelUnitPrice,
+    fuelEnabled,
+    fuelHoursPerDay,
+    fuelLitersPerHour,
+    fuelUnitPrice,
+  }), [settings, laborUnitPrice, btFuelEnabled, btFuelHoursPerDay, btFuelLitersPerHour,
+       btFuelUnitPrice, fuelEnabled, fuelHoursPerDay, fuelLitersPerHour, fuelUnitPrice]);
+
   const recalculate = useCallback((
     bridgeList: BridgeData[],
     paramOverrides?: Partial<WorkParams>,
     category?: OrdererCategory,
   ) => {
     const calculated = calculateItems(
-      bridgeList, settings, buildParams(paramOverrides), category ?? ordererCategory
+      bridgeList, effectiveSettings, buildParams(paramOverrides), category ?? ordererCategory
     );
     setItems(calculated);
-  }, [settings, ordererCategory, buildParams]);
+  }, [effectiveSettings, ordererCategory, buildParams]);
 
   const handleCSVUpload = useCallback(async (file: File) => {
     setCsvFileName(file.name);
@@ -252,6 +277,16 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     createdAt: initial?.createdAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
     footerComment,
+    // 単価スナップショット（この見積専用に固定）
+    laborUnitPrice,
+    btFuelEnabled,
+    btFuelHoursPerDay,
+    btFuelLitersPerHour,
+    btFuelUnitPrice,
+    fuelEnabled,
+    fuelHoursPerDay,
+    fuelLitersPerHour,
+    fuelUnitPrice,
     fukkenEnabled,
     // Preserve existing Fukken fields when saving from quotation form
     fukkenJobNumber: initial?.fukkenJobNumber,
@@ -704,7 +739,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
               {kokusokenEnabled && (
                 <div className="office-item-preview">
                   国総研様式作成(新様式含む) &nbsp;
-                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 1.8).toLocaleString('ja-JP')}
+                  {bridges.length} 橋 × ¥{(laborUnitPrice * 1.8).toLocaleString('ja-JP')}
                 </div>
               )}
 
@@ -721,11 +756,87 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
               {mextEnabled && (
                 <div className="office-item-preview">
                   国交省様式作成 &nbsp;
-                  {bridges.length} 橋 × ¥{(settings.laborUnitPrice * 0.8).toLocaleString('ja-JP')}
+                  {bridges.length} 橋 × ¥{(laborUnitPrice * 0.8).toLocaleString('ja-JP')}
                 </div>
               )}
             </>
           )}
+
+          {/* 単価設定（この見積専用。マスタを引き継がず取引会社ごとの単価を保持） */}
+          <div style={{ marginTop: '16px', paddingTop: '12px', borderTop: '1px solid #e0e0e0' }}>
+            <h4 style={{ margin: '0 0 8px', fontSize: '0.95em' }}>単価設定（この見積専用）</h4>
+            <p className="hint" style={{ marginTop: 0, marginBottom: '8px' }}>
+              ※ ここで設定した単価はこの見積に保存され、マスタ設定を変更しても影響を受けません
+            </p>
+            <div className="field-row">
+              <label>人工・労務単価</label>
+              <div className="input-with-suffix">
+                <input
+                  type="number"
+                  min="0"
+                  value={laborUnitPrice || ''}
+                  onChange={e => setLaborUnitPrice(parseFloat(e.target.value) || 0)}
+                />
+                <span className="suffix">円/人工</span>
+              </div>
+            </div>
+
+            <div className="field-row" style={{ marginTop: '8px' }}>
+              <label className="checkbox-label">
+                <input type="checkbox" checked={btFuelEnabled}
+                  onChange={e => setBtFuelEnabled(e.target.checked)} />
+                <span>橋梁点検車(BT-200)燃料</span>
+              </label>
+            </div>
+            <div className="field-row" style={{ opacity: btFuelEnabled ? 1 : 0.4 }}>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!btFuelEnabled}
+                  value={btFuelHoursPerDay || ''}
+                  onChange={e => setBtFuelHoursPerDay(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">h/日</span>
+              </div>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!btFuelEnabled}
+                  value={btFuelLitersPerHour || ''}
+                  onChange={e => setBtFuelLitersPerHour(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">L/h</span>
+              </div>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!btFuelEnabled}
+                  value={btFuelUnitPrice || ''}
+                  onChange={e => setBtFuelUnitPrice(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">円/L</span>
+              </div>
+            </div>
+
+            <div className="field-row" style={{ marginTop: '8px' }}>
+              <label className="checkbox-label">
+                <input type="checkbox" checked={fuelEnabled}
+                  onChange={e => setFuelEnabled(e.target.checked)} />
+                <span>高所作業車(12m)燃料</span>
+              </label>
+            </div>
+            <div className="field-row" style={{ opacity: fuelEnabled ? 1 : 0.4 }}>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!fuelEnabled}
+                  value={fuelHoursPerDay || ''}
+                  onChange={e => setFuelHoursPerDay(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">h/日</span>
+              </div>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!fuelEnabled}
+                  value={fuelLitersPerHour || ''}
+                  onChange={e => setFuelLitersPerHour(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">L/h</span>
+              </div>
+              <div className="input-with-suffix">
+                <input type="number" min="0" disabled={!fuelEnabled}
+                  value={fuelUnitPrice || ''}
+                  onChange={e => setFuelUnitPrice(parseFloat(e.target.value) || 0)} />
+                <span className="suffix">円/L</span>
+              </div>
+            </div>
+          </div>
 
           <div className="recalc-area" style={{ marginTop: '16px' }}>
             <button

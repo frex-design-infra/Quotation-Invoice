@@ -222,4 +222,16 @@ export interface Quotation {
 
   // 見積書フッターコメント（個別上書き。未設定時はマスター設定を使用）
   footerComment?: string;
+
+  // 単価スナップショット（この見積専用。未設定時はマスター設定を使用）
+  // 取引会社ごとに単価が異なるため、保存済み見積はマスタを引き継がず自身の値で計算・編集する
+  laborUnitPrice?: number;             // 人工・労務単価
+  btFuelEnabled?: boolean;             // 橋梁点検車(BT-200)燃料 有効
+  btFuelHoursPerDay?: number;          // 〃 稼働時間/日
+  btFuelLitersPerHour?: number;        // 〃 L/h
+  btFuelUnitPrice?: number;            // 〃 単価（円/L）
+  fuelEnabled?: boolean;               // 高所作業車(12m)燃料 有効
+  fuelHoursPerDay?: number;            // 〃 稼働時間/日
+  fuelLitersPerHour?: number;          // 〃 L/h
+  fuelUnitPrice?: number;              // 〃 単価（円/L）
 }
