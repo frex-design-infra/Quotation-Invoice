@@ -223,11 +223,13 @@ export interface Quotation {
   fukuyamaInterimQuotationIssueDate?: string;
   fukuyamaInterimQuotationSubmitted?: boolean;
   fukuyamaInterimQuotationItems?: QuotationItem[];
+  fukuyamaInterimQuotationSourceChangeRound?: number; // 中間見積保存時に基準にした変更見積回
 
   // 通常中間見積書用（福山・復建以外）
   interimQuotationIssueDate?: string;
   interimQuotationSubmitted?: boolean;
   interimQuotationItems?: QuotationItem[];
+  interimQuotationSourceChangeRound?: number; // 中間見積保存時に基準にした変更見積回
 
   // 変更見積の履歴（第1回・第2回…）。復建・福山以外の提出済見積に対して作成
   changeQuotations?: ChangeQuotation[];

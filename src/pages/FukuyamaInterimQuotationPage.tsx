@@ -28,12 +28,22 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
   const [issueDate, setIssueDate] = useState(quotation.fukuyamaInterimQuotationIssueDate ?? quotation.date ?? today());
   const [submitted, setSubmitted] = useState(quotation.fukuyamaInterimQuotationSubmitted ?? false);
 
-  // 中間見積書用アイテム: 変更見積（最新回）→ 保存済み中間見積 → 元見積、の優先順で初期化（いずれも調書除外）
   const latestChange = (quotation.changeQuotations && quotation.changeQuotations.length > 0)
     ? [...quotation.changeQuotations].sort((a, b) => b.round - a.round)[0]
     : null;
+  const hasSavedInterimItems = !!quotation.fukuyamaInterimQuotationItems && quotation.fukuyamaInterimQuotationItems.length > 0;
+  const shouldUseLatestChange = !!latestChange && (
+    !hasSavedInterimItems ||
+    (quotation.fukuyamaInterimQuotationSourceChangeRound !== undefined && latestChange.round > quotation.fukuyamaInterimQuotationSourceChangeRound)
+  );
+
+  // 中間見積書用アイテム:
+  // 未保存なら最新変更見積を基準。保存後は保存済み中間見積を表示。
+  // ただし、保存後に新しい変更見積回が追加された場合は、その最新変更見積を基準に再初期化する。
   const [items, setItems] = useState<QuotationItem[]>(() =>
-    latestChange ? filterItems(latestChange.items) : (quotation.fukuyamaInterimQuotationItems ?? filterItems(quotation.items))
+    shouldUseLatestChange
+      ? filterItems(latestChange.items)
+      : (quotation.fukuyamaInterimQuotationItems ?? filterItems(quotation.items))
   );
 
   const updateQuantity = (id: string, newQty: number) => {
@@ -45,7 +55,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
   };
 
   // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
-  // 変更見積がある場合は、保存済み中間見積よりも最新変更見積の番号・明細を中間見積の基準にする
+  // 見積番号は、変更見積がある場合は最新変更見積番号を表示する。
   const displayQ: Quotation = {
     ...quotation,
     quotationNumber: latestChange?.quotationNumber ?? quotation.quotationNumber,
@@ -59,6 +69,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
     fukuyamaInterimQuotationIssueDate: issueDate,
     fukuyamaInterimQuotationSubmitted: submitted,
     fukuyamaInterimQuotationItems: items,
+    fukuyamaInterimQuotationSourceChangeRound: latestChange?.round,
     updatedAt: new Date().toISOString(),
   });
 
@@ -156,7 +167,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
           </div>
 
           <div className="fk-field-note">
-            ※ 調書作成は除外済み。変更見積がある場合は最新回の数値・項目を基準にします。弊社様式で出力されます。
+            ※ 調書作成は除外済み。未保存時は最新変更見積を基準にし、保存後は保存した中間見積内容を保持します。
           </div>
         </div>
 
