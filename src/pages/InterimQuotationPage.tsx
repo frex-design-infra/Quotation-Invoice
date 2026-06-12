@@ -28,12 +28,12 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
   const [issueDate, setIssueDate] = useState(quotation.interimQuotationIssueDate ?? quotation.date ?? today());
   const [submitted, setSubmitted] = useState(quotation.interimQuotationSubmitted ?? false);
 
-  // 中間見積書用アイテム: 保存済み → 変更見積（最新回）→ 元見積、の優先順で初期化（いずれも調書除外）
+  // 中間見積書用アイテム: 変更見積（最新回）→ 保存済み中間見積 → 元見積、の優先順で初期化（いずれも調書除外）
   const latestChange = (quotation.changeQuotations && quotation.changeQuotations.length > 0)
     ? [...quotation.changeQuotations].sort((a, b) => b.round - a.round)[0]
     : null;
   const [items, setItems] = useState<QuotationItem[]>(() =>
-    quotation.interimQuotationItems ?? filterItems(latestChange ? latestChange.items : quotation.items)
+    latestChange ? filterItems(latestChange.items) : (quotation.interimQuotationItems ?? filterItems(quotation.items))
   );
 
   const updateQuantity = (id: string, newQty: number) => {
@@ -65,7 +65,7 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
   };
 
   // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
-  // 変更見積がある場合は、最新変更見積の番号・明細を中間見積の基準にする
+  // 変更見積がある場合は、保存済み中間見積よりも最新変更見積の番号・明細を中間見積の基準にする
   const displayQ: Quotation = {
     ...quotation,
     quotationNumber: latestChange?.quotationNumber ?? quotation.quotationNumber,
