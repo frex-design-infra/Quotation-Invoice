@@ -149,10 +149,11 @@ export interface QuotationItem {
 
 // 変更見積（第N回）。元見積をコピーして数量・項目を変更したもの
 export interface ChangeQuotation {
-  round: number;           // 第N回（1, 2, ...）
-  issueDate: string;       // 発行日 YYYY-MM-DD
-  items: QuotationItem[];  // 変更後の明細
-  submitted: boolean;      // 提出済
+  round: number;              // 第N回（1, 2, ...）
+  quotationNumber?: string;   // 変更見積番号（発行日ベース・手入力修正可）
+  issueDate: string;          // 発行日 YYYY-MM-DD
+  items: QuotationItem[];     // 変更後の明細
+  submitted: boolean;         // 提出済
 }
 
 // 見積書

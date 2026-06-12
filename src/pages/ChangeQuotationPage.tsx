@@ -7,6 +7,7 @@ interface Props {
   quotation: Quotation;
   settings: MasterSettings;
   round: number; // 第N回
+  allQuotations?: Quotation[];
   onSave: (q: Quotation) => void;
   onCancel: () => void;
 }
@@ -15,14 +16,50 @@ function today(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-export default function ChangeQuotationPage({ quotation, settings, round, onSave, onCancel }: Props) {
+function generateChangeQuotationNumber(
+  dateStr: string | undefined,
+  allQuotations: Quotation[] | undefined,
+  currentQuotationId: string,
+  currentRound: number,
+): string {
+  const yyyymmdd = (dateStr ?? today()).replace(/-/g, '');
+  const usedNumbers: string[] = [];
+
+  for (const q of allQuotations ?? []) {
+    if (q.quotationNumber) usedNumbers.push(q.quotationNumber);
+    for (const c of q.changeQuotations ?? []) {
+      if (q.id === currentQuotationId && c.round === currentRound) continue;
+      if (c.quotationNumber) usedNumbers.push(c.quotationNumber);
+    }
+  }
+
+  const sameBase = usedNumbers
+    .filter(n => n.startsWith(`${yyyymmdd}-`))
+    .map(n => parseInt(n.slice(-3), 10))
+    .filter(n => !isNaN(n));
+  const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+  return `${yyyymmdd}-${String(seq).padStart(3, '0')}`;
+}
+
+export default function ChangeQuotationPage({ quotation, settings, round, allQuotations, onSave, onCancel }: Props) {
   const [pdfSaving, setPdfSaving] = useState(false);
 
   const existing = quotation.changeQuotations?.find(c => c.round === round);
   const prev = quotation.changeQuotations?.find(c => c.round === round - 1);
 
   const [issueDate, setIssueDate] = useState(existing?.issueDate ?? today());
+  const [quotationNumber, setQuotationNumber] = useState(
+    existing?.quotationNumber ?? generateChangeQuotationNumber(existing?.issueDate ?? today(), allQuotations ?? [quotation], quotation.id, round)
+  );
+  const [quotationNumberEdited, setQuotationNumberEdited] = useState(false);
   const [submitted, setSubmitted] = useState(existing?.submitted ?? false);
+
+  const handleIssueDateChange = (nextDate: string) => {
+    setIssueDate(nextDate);
+    if (!quotationNumberEdited) {
+      setQuotationNumber(generateChangeQuotationNumber(nextDate, allQuotations ?? [quotation], quotation.id, round));
+    }
+  };
   // 初期明細：この回の保存済み → 前回の変更見積 → 元見積、の順でコピー
   const [items, setItems] = useState<QuotationItem[]>(() =>
     existing?.items ?? prev?.items ?? quotation.items
@@ -57,13 +94,14 @@ export default function ChangeQuotationPage({ quotation, settings, round, onSave
   // プレビュー用：日付・明細を変更見積用に上書き
   const displayQ: Quotation = {
     ...quotation,
+    quotationNumber,
     date: issueDate,
     items,
   };
 
   const buildUpdated = (): Quotation => {
     const others = (quotation.changeQuotations ?? []).filter(c => c.round !== round);
-    const updated: ChangeQuotation = { round, issueDate, items, submitted };
+    const updated: ChangeQuotation = { round, quotationNumber, issueDate, items, submitted };
     return {
       ...quotation,
       changeQuotations: [...others, updated].sort((a, b) => a.round - b.round),
@@ -86,7 +124,7 @@ export default function ChangeQuotationPage({ quotation, settings, round, onSave
       const imgH = (canvas.height / canvas.width) * imgW;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`変更見積書_第${round}回_${quotation.quotationNumber}.pdf`);
+      pdf.save(`変更見積書_第${round}回_${quotationNumber}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -109,7 +147,23 @@ export default function ChangeQuotationPage({ quotation, settings, round, onSave
 
           <div className="fk-field-group">
             <label className="fk-field-label">発行日</label>
-            <DatePicker value={issueDate} onChange={setIssueDate} />
+            <DatePicker value={issueDate} onChange={handleIssueDateChange} />
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">見積番号</label>
+            <input
+              type="text"
+              value={quotationNumber}
+              onChange={e => {
+                setQuotationNumber(e.target.value);
+                setQuotationNumberEdited(true);
+              }}
+              style={{ width: '100%', border: '1px solid #d7d2ca', borderRadius: '7px', padding: '8px 10px', fontSize: '14px', boxSizing: 'border-box' }}
+            />
+            <div style={{ marginTop: '5px', color: '#888', fontSize: '11px', lineHeight: 1.5 }}>
+              発行日から自動採番します（例：20260612-001）。必要に応じて手入力で修正できます。
+            </div>
           </div>
 
           {/* 数量編集テーブル */}

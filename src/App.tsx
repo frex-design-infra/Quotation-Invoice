@@ -434,6 +434,7 @@ function MainApp() {
             quotation={editingQuotation}
             settings={settings}
             round={changeRound}
+            allQuotations={quotations}
             onSave={(q) => {
               saveQuotation(q);
               setEditingQuotation(q);
