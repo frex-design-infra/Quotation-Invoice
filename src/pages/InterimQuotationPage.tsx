@@ -28,9 +28,12 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
   const [issueDate, setIssueDate] = useState(quotation.interimQuotationIssueDate ?? quotation.date ?? today());
   const [submitted, setSubmitted] = useState(quotation.interimQuotationSubmitted ?? false);
 
-  // 中間見積書用アイテム: 保存済みがあればそれを、なければ調書作成を除いた項目で初期化
+  // 中間見積書用アイテム: 保存済み → 変更見積（最新回）→ 元見積、の優先順で初期化（いずれも調書除外）
+  const latestChange = (quotation.changeQuotations && quotation.changeQuotations.length > 0)
+    ? [...quotation.changeQuotations].sort((a, b) => b.round - a.round)[0]
+    : null;
   const [items, setItems] = useState<QuotationItem[]>(() =>
-    quotation.interimQuotationItems ?? filterItems(quotation.items)
+    quotation.interimQuotationItems ?? filterItems(latestChange ? latestChange.items : quotation.items)
   );
 
   const updateQuantity = (id: string, newQty: number) => {
