@@ -81,6 +81,9 @@ export default function InvoicePreview({ invoice, settings }: Props) {
         {/* LEFT: タイトル + 発注者 */}
         <div>
           <div className="inv-title">納品書 兼 請求書</div>
+          {invoice.billingType === 'interim' && (
+            <div style={{ fontSize: '17px', fontWeight: 700, color: '#1a1a1a', marginTop: '3px', letterSpacing: '0.1em' }}>【中間請求】</div>
+          )}
           <div className="inv-client-area">
             {clientPostalCode && (
               <div>{formatPostal(clientPostalCode)}</div>
