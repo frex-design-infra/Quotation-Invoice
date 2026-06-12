@@ -65,8 +65,10 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
   };
 
   // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
+  // 変更見積がある場合は、最新変更見積の番号・明細を中間見積の基準にする
   const displayQ: Quotation = {
     ...quotation,
+    quotationNumber: latestChange?.quotationNumber ?? quotation.quotationNumber,
     date: issueDate,
     items,
   };
@@ -95,7 +97,7 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
       // コンテンツがA4を超える場合はページ高さをコンテンツに合わせる
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`中間見積書_${quotation.quotationNumber}.pdf`);
+      pdf.save(`中間見積書_${displayQ.quotationNumber}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -207,7 +209,7 @@ export default function InterimQuotationPage({ quotation, settings, onSave, onCa
           </div>
 
           <div className="fk-field-note">
-            ※ 調書作成は除外済み。弊社様式で出力されます。
+            ※ 調書作成は除外済み。変更見積がある場合は最新回の数値・項目を基準にします。弊社様式で出力されます。
           </div>
         </div>
 

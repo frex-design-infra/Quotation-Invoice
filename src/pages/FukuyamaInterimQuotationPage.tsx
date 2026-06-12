@@ -28,9 +28,12 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
   const [issueDate, setIssueDate] = useState(quotation.fukuyamaInterimQuotationIssueDate ?? quotation.date ?? today());
   const [submitted, setSubmitted] = useState(quotation.fukuyamaInterimQuotationSubmitted ?? false);
 
-  // 中間見積書用アイテム: 保存済みがあればそれを、なければ調書作成を除いた項目で初期化
+  // 中間見積書用アイテム: 保存済み → 変更見積（最新回）→ 元見積、の優先順で初期化（いずれも調書除外）
+  const latestChange = (quotation.changeQuotations && quotation.changeQuotations.length > 0)
+    ? [...quotation.changeQuotations].sort((a, b) => b.round - a.round)[0]
+    : null;
   const [items, setItems] = useState<QuotationItem[]>(() =>
-    quotation.fukuyamaInterimQuotationItems ?? filterItems(quotation.items)
+    quotation.fukuyamaInterimQuotationItems ?? filterItems(latestChange ? latestChange.items : quotation.items)
   );
 
   const updateQuantity = (id: string, newQty: number) => {
@@ -42,8 +45,10 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
   };
 
   // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
+  // 変更見積がある場合は、最新変更見積の番号・明細を中間見積の基準にする
   const displayQ: Quotation = {
     ...quotation,
+    quotationNumber: latestChange?.quotationNumber ?? quotation.quotationNumber,
     date: issueDate,
     items,
   };
@@ -70,7 +75,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height / canvas.width) * 210);
-      pdf.save(`中間見積書_${quotation.projectName}.pdf`);
+      pdf.save(`中間見積書_${displayQ.quotationNumber}_${quotation.projectName}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -151,7 +156,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
           </div>
 
           <div className="fk-field-note">
-            ※ 調書作成は除外済み。弊社様式で出力されます。
+            ※ 調書作成は除外済み。変更見積がある場合は最新回の数値・項目を基準にします。弊社様式で出力されます。
           </div>
         </div>
 
