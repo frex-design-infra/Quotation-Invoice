@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import type { Quotation, Invoice } from '../types';
-import { formatCurrency } from '../utils/calculations';
+import type { Quotation, Invoice, MasterSettings } from '../types';
+import { calculateTotals, formatCurrency } from '../utils/calculations';
 import { triggerConfetti } from '../utils/confetti';
 
 interface Props {
   quotations: Quotation[];
   invoices: Invoice[];
+  settings: MasterSettings;
   onNew: () => void;
   onEdit: (q: Quotation) => void;
   onPreview: (q: Quotation) => void;
@@ -19,7 +20,7 @@ interface Props {
   onOpenChangeQuotation: (q: Quotation, round: number) => void;
 }
 
-export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation, onOpenChangeQuotation }: Props) {
+export default function QuotationList({ quotations, invoices, settings, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation, onOpenChangeQuotation }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -37,6 +38,24 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr + 'T00:00:00');
     return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  };
+
+  const getLatestChange = (q: Quotation) => {
+    const changes = q.changeQuotations ?? [];
+    if (changes.length === 0) return null;
+    return [...changes].sort((a, b) => b.round - a.round)[0];
+  };
+
+  const getChangeAmountInfo = (q: Quotation) => {
+    const latestChange = getLatestChange(q);
+    if (!latestChange) return null;
+    const changeTotal = calculateTotals(latestChange.items, settings).total;
+    return { latestChange, changeTotal, diff: changeTotal - q.total };
+  };
+
+  const formatDiff = (diff: number) => {
+    if (diff === 0) return '±¥0';
+    return `${diff > 0 ? '+' : '▲'}¥${formatCurrency(Math.abs(diff))}`;
   };
 
   const handleToggle = (e: React.MouseEvent, id: string, currentlySubmitted: boolean) => {
@@ -92,7 +111,23 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
                 <td>{formatDate(q.date)}</td>
                 <td>{q.clientName}</td>
                 <td className="project-name-cell">{q.projectName}</td>
-                <td className="amount-cell">¥ {formatCurrency(q.total)}</td>
+                <td className="amount-cell">
+                  {(() => {
+                    const changeInfo = getChangeAmountInfo(q);
+                    if (!changeInfo) return <>¥ {formatCurrency(q.total)}</>;
+                    return (
+                      <div style={{ lineHeight: 1.35 }}>
+                        <div style={{ fontWeight: 700 }}>¥ {formatCurrency(changeInfo.changeTotal)}</div>
+                        <div style={{ fontSize: '11px', color: '#8a8178', whiteSpace: 'nowrap' }}>
+                          変更後（第{changeInfo.latestChange.round}回）
+                        </div>
+                        <div style={{ fontSize: '11px', color: changeInfo.diff < 0 ? '#b45309' : '#6b7280', whiteSpace: 'nowrap' }}>
+                          元 ¥{formatCurrency(q.total)} / {formatDiff(changeInfo.diff)}
+                        </div>
+                      </div>
+                    );
+                  })()}
+                </td>
                 <td className="center">
                   {q.inspectionType === '道路附属物点検'
                     ? q.roadAccessoryCount || 0

@@ -329,6 +329,7 @@ function MainApp() {
           <QuotationList
             quotations={quotations}
             invoices={invoices}
+            settings={settings}
             onNew={handleNew}
             onEdit={handleEdit}
             onPreview={handlePreview}
