@@ -11,6 +11,7 @@ import FukkenDeliveryInvoicePage from './pages/FukkenDeliveryInvoicePage';
 import FukuyamaPage from './pages/FukuyamaPage';
 import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
 import InterimQuotationPage from './pages/InterimQuotationPage';
+import ChangeQuotationPage from './pages/ChangeQuotationPage';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import { calculateTotals } from './utils/calculations';
 import './App.css';
@@ -95,7 +96,7 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
   };
 }
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation' | 'change-quotation';
 
 export default function App() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('auth') === '1');
@@ -118,6 +119,7 @@ function MainApp() {
   const [fukkenDeliveryInitialTab, setFukkenDeliveryInitialTab] = useState<'delivery' | 'invoice'>('delivery');
   const [fukuyamaBillingType, setFukuyamaBillingType] = useState<'single' | 'interim' | 'final'>('single');
   const [fukuyamaReturnTab, setFukuyamaReturnTab] = useState<Tab>('list');
+  const [changeRound, setChangeRound] = useState(1);
 
   // Quotation handlers
   const handleNew = () => {
@@ -171,6 +173,12 @@ function MainApp() {
   const handleOpenInterimQuotation = (q: Quotation) => {
     setEditingQuotation(q);
     setTab('interim-quotation');
+  };
+
+  const handleOpenChangeQuotation = (q: Quotation, round: number) => {
+    setEditingQuotation(q);
+    setChangeRound(round);
+    setTab('change-quotation');
   };
 
   // Invoice handlers
@@ -331,6 +339,7 @@ function MainApp() {
             onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setFukuyamaReturnTab('list'); setTab('fukuyama'); }}
             onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
             onOpenInterimQuotation={handleOpenInterimQuotation}
+            onOpenChangeQuotation={handleOpenChangeQuotation}
           />
         )}
         {tab === 'form' && (
@@ -412,6 +421,19 @@ function MainApp() {
           <InterimQuotationPage
             quotation={editingQuotation}
             settings={settings}
+            onSave={(q) => {
+              saveQuotation(q);
+              setEditingQuotation(q);
+              setTab('list');
+            }}
+            onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'change-quotation' && editingQuotation && (
+          <ChangeQuotationPage
+            quotation={editingQuotation}
+            settings={settings}
+            round={changeRound}
             onSave={(q) => {
               saveQuotation(q);
               setEditingQuotation(q);

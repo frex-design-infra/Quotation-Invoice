@@ -147,6 +147,14 @@ export interface QuotationItem {
   note?: string;
 }
 
+// 変更見積（第N回）。元見積をコピーして数量・項目を変更したもの
+export interface ChangeQuotation {
+  round: number;           // 第N回（1, 2, ...）
+  issueDate: string;       // 発行日 YYYY-MM-DD
+  items: QuotationItem[];  // 変更後の明細
+  submitted: boolean;      // 提出済
+}
+
 // 見積書
 export interface Quotation {
   id: string;
@@ -219,6 +227,9 @@ export interface Quotation {
   interimQuotationIssueDate?: string;
   interimQuotationSubmitted?: boolean;
   interimQuotationItems?: QuotationItem[];
+
+  // 変更見積の履歴（第1回・第2回…）。復建・福山以外の提出済見積に対して作成
+  changeQuotations?: ChangeQuotation[];
 
   // 見積書フッターコメント（個別上書き。未設定時はマスター設定を使用）
   footerComment?: string;

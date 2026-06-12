@@ -16,9 +16,10 @@ interface Props {
   onOpenFukuyama: (q: Quotation, billingType?: 'single' | 'interim' | 'final') => void;
   onOpenFukuyamaInterimQuotation: (q: Quotation) => void;
   onOpenInterimQuotation: (q: Quotation) => void;
+  onOpenChangeQuotation: (q: Quotation, round: number) => void;
 }
 
-export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation }: Props) {
+export default function QuotationList({ quotations, invoices, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation, onOpenChangeQuotation }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -116,6 +117,24 @@ export default function QuotationList({ quotations, invoices, onNew, onEdit, onP
                         <button onClick={() => { onPreview(q); setOpenMenuId(null); }}>
                           プレビュー
                         </button>
+                        {/* 変更見積（元請会社問わず全見積・提出済が対象） */}
+                        {q.submitted && (() => {
+                          const changes = [...(q.changeQuotations ?? [])].sort((a, b) => a.round - b.round);
+                          const nextRound = changes.length > 0 ? Math.max(...changes.map(c => c.round)) + 1 : 1;
+                          return (
+                            <>
+                              <div className="dropdown-divider" />
+                              {changes.map(c => (
+                                <button key={c.round} onClick={() => { onOpenChangeQuotation(q, c.round); setOpenMenuId(null); }}>
+                                  第{c.round}回変更見積を開く
+                                </button>
+                              ))}
+                              <button onClick={() => { onOpenChangeQuotation(q, nextRound); setOpenMenuId(null); }}>
+                                変更見積作成（第{nextRound}回）
+                              </button>
+                            </>
+                          );
+                        })()}
                         {(() => {
                           const isFukuyama = q.fukuyamaEnabled || q.clientName.includes('福山コンサルタント');
                           const isFukken = !isFukuyama && (q.fukkenEnabled || q.clientName.includes('復建技術コンサルタント'));
