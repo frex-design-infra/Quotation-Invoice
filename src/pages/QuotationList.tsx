@@ -1,7 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import type { Quotation, Invoice, MasterSettings } from '../types';
 import { calculateTotals, formatCurrency } from '../utils/calculations';
 import { triggerConfetti } from '../utils/confetti';
+import ReviewControl from '../components/ReviewControl';
+import { listFlows, listMembers, listLatestRejects, type RejectInfo } from '../lib/approval';
+import type { ApprovalFlow, Member } from '../types/approval';
 
 interface Props {
   quotations: Quotation[];
@@ -24,6 +27,26 @@ export default function QuotationList({ quotations, invoices, settings, onNew, o
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // 承認フロー：全フローとメンバーを一括ロード
+  const [flowMap, setFlowMap] = useState<Record<string, ApprovalFlow>>({});
+  const [members, setMembers] = useState<Member[]>([]);
+  const [rejects, setRejects] = useState<Record<string, RejectInfo>>({});
+  const loadApproval = useCallback(async () => {
+    try {
+      const [flows, mems] = await Promise.all([listFlows(), listMembers()]);
+      const map: Record<string, ApprovalFlow> = {};
+      // 同一見積に複数フローがある場合は最新（listFlowsはcreated_at降順）を採用
+      for (const f of flows) { if (!map[f.quotationId]) map[f.quotationId] = f; }
+      setFlowMap(map);
+      setMembers(mems);
+      const rj = await listLatestRejects(flows.map(f => f.id));
+      setRejects(rj);
+    } catch (e) {
+      console.error('承認フローの読み込みに失敗', e);
+    }
+  }, []);
+  useEffect(() => { loadApproval(); }, [loadApproval]);
 
   useEffect(() => {
     const handler = (e: MouseEvent) => {
@@ -85,6 +108,13 @@ export default function QuotationList({ quotations, invoices, settings, onNew, o
         <button onClick={onNew} className="btn-primary">＋ 新規見積書作成</button>
       </div>
 
+      {quotations.length > 0 && (
+        <div style={{ margin: '0 0 14px', color: '#555', fontSize: 14, display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
+          <span>全 {quotations.length} 件</span>
+          <span>合計金額 <b style={{ fontSize: 18, color: '#292827' }}>¥ {formatCurrency(quotations.reduce((s, q) => s + (q.total || 0), 0))}</b></span>
+        </div>
+      )}
+
       {quotations.length === 0 ? (
         <div className="empty-state">
           <div className="empty-icon">📄</div>
@@ -134,6 +164,7 @@ export default function QuotationList({ quotations, invoices, settings, onNew, o
                     : q.bridges.length}
                 </td>
                 <td onClick={e => e.stopPropagation()} className="action-cell">
+                  <ReviewControl quotation={q} settings={settings} flow={flowMap[q.id]} members={members} reject={flowMap[q.id] ? rejects[flowMap[q.id].id] : undefined} onChanged={loadApproval} />
                   <button
                     className={`status-btn ${q.submitted ? 'submitted' : 'not-submitted'} ${animatingIds.has(q.id) ? 'pikoon' : ''}`}
                     onClick={e => handleToggle(e, q.id, q.submitted)}

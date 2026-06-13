@@ -12,6 +12,7 @@ import FukuyamaPage from './pages/FukuyamaPage';
 import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
 import InterimQuotationPage from './pages/InterimQuotationPage';
 import ChangeQuotationPage from './pages/ChangeQuotationPage';
+import ApprovalViewer from './pages/ApprovalViewer';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import { calculateTotals } from './utils/calculations';
 import './App.css';
@@ -99,6 +100,15 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
 type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation' | 'change-quotation';
 
 export default function App() {
+  // メールの専用リンク（?token=xxx）でアクセスされた場合は、
+  // ログイン不要の承認ビューワーを表示（所長・社員用）。
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token) return <ApprovalViewer token={token} />;
+  return <AuthGate />;
+}
+
+// 社長用アプリ（ログインが必要）
+function AuthGate() {
   const [authed, setAuthed] = useState(() => sessionStorage.getItem('auth') === '1');
   if (!authed) return <LoginScreen onLogin={() => setAuthed(true)} />;
   return <MainApp />;
