@@ -140,6 +140,14 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
     : { ...base, fukuyamaTemplateUrl: templateUrl };  // finalの場合も正しいURLを渡す
   const title = BILLING_TITLE[billingType];
 
+  // 変更見積がある場合は最新変更見積の合計を契約金額として使う（請求残額の基準）
+  const latestChange = quotation.changeQuotations?.length
+    ? quotation.changeQuotations.reduce((a, b) => a.round > b.round ? a : b)
+    : null;
+  const contractTotal = latestChange
+    ? calculateTotals(latestChange.items, settings).total
+    : quotation.total;
+
   return (
     <div className="fukken-form-page">
       {toastVisible && <div className="toast-saved">保存しました ✓</div>}
@@ -207,7 +215,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
         </div>
 
         <div className="fukken-preview-area">
-          <FukuyamaTemplate quotation={q} settings={settings} originalContractTotal={quotation.total} />
+          <FukuyamaTemplate quotation={q} settings={settings} originalContractTotal={contractTotal} />
         </div>
       </div>
     </div>

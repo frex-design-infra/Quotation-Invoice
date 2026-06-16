@@ -11,7 +11,7 @@ import type { Quotation, MasterSettings } from '../types';
 interface Props {
   quotation: Quotation;
   settings: MasterSettings;
-  originalContractTotal?: number; // 初回見積金額（請求残額 = 初回見積 - 今回請求）
+  originalContractTotal?: number; // 契約金額（変更見積がある場合は最新変更見積合計、なければ元見積合計）。請求残額 = 契約金額 - 今回請求額
 }
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
