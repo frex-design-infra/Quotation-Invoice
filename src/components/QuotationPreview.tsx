@@ -41,9 +41,10 @@ interface Props {
   isSubcontract?: boolean;
   onFooterCommentChange?: (value: string) => void;
   changeRound?: number; // 変更見積の回数（指定時タイトル下に【第N回変更見積】を表示）
+  isInterim?: boolean;  // 中間見積書フラグ（trueのとき【中間請求用見積】を表示）
 }
 
-export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound }: Props) {
+export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim }: Props) {
   const totals = calculateTotals(quotation.items, settings);
 
   const formatDate = (dateStr: string) => {
@@ -89,6 +90,9 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
       <h1 className="doc-title">見　積　書</h1>
       {changeRound && (
         <div style={{ textAlign: 'center', fontSize: '17px', fontWeight: 700, color: '#1a1a1a', letterSpacing: '0.1em', marginTop: '2px' }}>【第{changeRound}回変更見積】</div>
+      )}
+      {isInterim && (
+        <div style={{ textAlign: 'center', fontSize: '15px', fontWeight: 700, color: '#1a5276', letterSpacing: '0.08em', marginTop: '2px' }}>【中間請求用見積】</div>
       )}
 
       {/* ヘッダーグリッド */}
