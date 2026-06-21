@@ -951,6 +951,8 @@ button {
 .items-table .col-qty  { text-align: center; width: 80px; }
 .items-table .col-price { text-align: right; width: 90px; }
 .items-table .col-amount { text-align: right; width: 90px; }
+/* 見出し（タイトル行）だけ中央揃え。数値データ(td)は右揃えのまま */
+.items-table th.col-price, .items-table th.col-amount { text-align: center; }
 
 .spacer-row td { height: 8px; border: none !important; background: none; padding: 0; }
 
@@ -1026,7 +1028,7 @@ button {
   .items-table td.col-price { text-align: right; }
   .items-table td.col-amount { text-align: right; }
   .items-table th.col-qty                         { text-align: center; }
-  .items-table th.col-price, .items-table th.col-amount { text-align: right; }
+  .items-table th.col-price, .items-table th.col-amount { text-align: center; }
   .spacer-row td { height: 4px; }
   .doc-header-grid { margin-bottom: 32px; }
   .quotation-footer-comment { line-height: 1.4; margin-top: 10px; padding: 6px 16px; }
