@@ -58,10 +58,10 @@ const COORD = {
   kakuinX:    142,
   kakuinSize: 30,
 
-  // 丸印・代表印 (repSealDataUrl)
-  maruinY:    67,
-  maruinX:    167,
-  maruinSize: 22,
+  // 丸印・代表印 (repSealDataUrl) ※他様式(96px≒25mm)に合わせてサイズUP。中心維持のためX/Yを-1.5mm補正
+  maruinY:    65.5,
+  maruinX:    165.5,
+  maruinSize: 25,
 };
 // ────────────────────────────────────────────────────────────────
 
