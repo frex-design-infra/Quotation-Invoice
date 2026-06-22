@@ -521,6 +521,7 @@ button {
   outline: none;
   box-sizing: border-box;
   cursor: text;
+  overflow: hidden;
   transition: border-color 0.2s, background 0.2s;
 }
 .footer-comment-inline-textarea:hover {

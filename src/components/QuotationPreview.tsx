@@ -219,8 +219,17 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
               <textarea
                 className="footer-comment-inline-textarea"
                 value={effectiveComment}
-                onChange={e => onFooterCommentChange(e.target.value)}
-                rows={Math.max(effectiveComment.split('\n').length + 1, 3)}
+                onChange={e => {
+                  onFooterCommentChange(e.target.value);
+                  e.target.style.height = 'auto';
+                  e.target.style.height = e.target.scrollHeight + 'px';
+                }}
+                ref={el => {
+                  if (el) {
+                    el.style.height = 'auto';
+                    el.style.height = el.scrollHeight + 'px';
+                  }
+                }}
               />
             </div>
           );
