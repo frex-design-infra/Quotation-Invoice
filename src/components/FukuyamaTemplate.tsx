@@ -53,10 +53,10 @@ const COORD = {
   companyY:    62.65, // 会社名 top
   repNameY:    70.5,  // 代表者名 top
 
-  // 角印 (sealDataUrl)
-  kakuinY:    56,
-  kakuinX:    146,
-  kakuinSize: 22,
+  // 角印 (sealDataUrl) ※他様式(112px≒30mm)に合わせてサイズUP。中心維持のためX/Yを-4mm補正
+  kakuinY:    52,
+  kakuinX:    142,
+  kakuinSize: 30,
 
   // 丸印・代表印 (repSealDataUrl)
   maruinY:    67,
