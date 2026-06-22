@@ -54,11 +54,13 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
     ));
   };
 
-  // QuotationPreview に渡す quotation（日付・アイテムを中間見積書用に上書き）
-  // 見積番号は、変更見積がある場合は最新変更見積番号を表示する。
+  // 中間見積専用の見積番号（中間見積の発行日ベースで YYYYMMDD-001 形式）
+  const interimQuotationNumber = issueDate.replace(/-/g, '') + '-001';
+
+  // QuotationPreview に渡す quotation（日付・アイテム・番号を中間見積書用に上書き）
   const displayQ: Quotation = {
     ...quotation,
-    quotationNumber: latestChange?.quotationNumber ?? quotation.quotationNumber,
+    quotationNumber: interimQuotationNumber,
     date: issueDate,
     items,
   };
@@ -172,7 +174,7 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
         </div>
 
         <div className="fukken-preview-area">
-          <QuotationPreview quotation={displayQ} settings={settings} />
+          <QuotationPreview quotation={displayQ} settings={settings} isInterim />
         </div>
       </div>
     </div>
