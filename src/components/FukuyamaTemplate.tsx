@@ -44,14 +44,14 @@ const COORD = {
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
   addrX:       137,   // 郵便番号・住所の左端X
   addrW:       55,    // 住所右揃え幅（右端 ~202mm）
-  postalY:     54.5,  // 〒郵便番号 top
-  addr1Y:      57.5,  // 住所1行目 top
-  addr2Y:      60.5,  // 住所2行目 top
+  postalY:     58,    // 〒郵便番号 top（文字高1つ分 +3.5mm 下げ）
+  addr1Y:      61,    // 住所1行目 top
+  addr2Y:      64,    // 住所2行目 top
   companyX:    137,   // 会社名・代表者名の左端X
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  companyY:    62.65, // 会社名 top
-  repNameY:    70.5,  // 代表者名 top
+  companyY:    66.15, // 会社名 top
+  repNameY:    74,    // 代表者名 top
 
   // 角印 (sealDataUrl) ※他様式(112px≒30mm)に合わせてサイズUP。中心維持のためX/Yを-4mm補正
   kakuinY:    52,
@@ -60,7 +60,7 @@ const COORD = {
 
   // 丸印・代表印 (repSealDataUrl) ※他様式(96px≒25mm)に合わせてサイズUP。中心維持のためX/Yを-1.5mm補正
   maruinY:    65.5,
-  maruinX:    165.5,
+  maruinX:    167.5,  // ちょっとだけ右に移動（+2mm）
   maruinSize: 25,
 };
 // ────────────────────────────────────────────────────────────────
