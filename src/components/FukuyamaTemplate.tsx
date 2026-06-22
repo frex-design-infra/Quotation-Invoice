@@ -50,8 +50,8 @@ const COORD = {
   companyX:    137,   // 会社名・代表者名の左端X
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  companyY:    68.15, // 会社名 top（-1.5mm 上げて微調整）
-  repNameY:    76,    // 代表者名 top（-1.5mm 上げて微調整）
+  companyY:    67.15, // 会社名 top（ラベルのラインに合わせ -1mm 上げ）
+  repNameY:    75,    // 代表者名 top（ラベルのラインに合わせ -1mm 上げ）
 
   // 角印 (sealDataUrl) ※他様式(112px≒30mm)に合わせてサイズUP。中心維持のためX/Yを-4mm補正
   kakuinY:    52,
