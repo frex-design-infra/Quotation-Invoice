@@ -160,9 +160,9 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
             return (
               <tr key={item.id}>
                 <td className="col-name"><FitText text={item.label} /></td>
-                <td className="col-qty">{item.quantity.toLocaleString('ja-JP')} {item.unit}</td>
-                <td className="col-price">{formatCurrency(item.unitPrice)}</td>
-                <td className="col-amount">{formatCurrency(item.amount)}</td>
+                <td className="col-qty">{item.quantity === 0 ? '' : `${item.quantity.toLocaleString('ja-JP')} ${item.unit}`}</td>
+                <td className="col-price">{formatCurrency(item.unitPrice, true)}</td>
+                <td className="col-amount">{formatCurrency(item.amount, true)}</td>
               </tr>
             );
           })}

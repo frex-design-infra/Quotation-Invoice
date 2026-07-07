@@ -917,7 +917,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                   <td className="col-qty">
                     <input
                       type="number"
-                      value={item.quantity}
+                      value={item.quantity === 0 ? '' : item.quantity}
+                      placeholder="0"
                       onChange={e => updateItem(item.id, 'quantity', parseFloat(e.target.value) || 0)}
                     />
                   </td>
@@ -931,13 +932,14 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                   <td className="col-price">
                     <input
                       type="number"
-                      value={item.unitPrice}
+                      value={item.unitPrice === 0 ? '' : item.unitPrice}
+                      placeholder="0"
                       onChange={e => updateItem(item.id, 'unitPrice', parseFloat(e.target.value) || 0)}
                       style={{ textAlign: 'right' }}
                     />
                   </td>
                   <td className="col-amount amount-cell">
-                    {formatCurrency(item.amount)}
+                    {formatCurrency(item.amount, true)}
                   </td>
                   <td className="col-del">
                     <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>

@@ -514,8 +514,9 @@ export function calculateTotals(
   return { subtotalBeforeMisc, miscExpenses, discount, subtotal, tax, total };
 }
 
-/** 金額を日本語表記でフォーマット */
-export function formatCurrency(amount: number): string {
+/** 金額を日本語表記でフォーマット（hideZero=true のとき 0 は空文字を返す） */
+export function formatCurrency(amount: number, hideZero = false): string {
+  if (hideZero && amount === 0) return '';
   return amount.toLocaleString('ja-JP');
 }
 

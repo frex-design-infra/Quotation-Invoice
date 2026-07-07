@@ -135,7 +135,8 @@ export default function FukuyamaInterimQuotationPage({ quotation, settings, onSa
                           type="number"
                           min={0}
                           step={0.01}
-                          value={item.quantity}
+                          value={item.quantity === 0 ? '' : item.quantity}
+                          placeholder="0"
                           onChange={e => updateQuantity(item.id, parseFloat(e.target.value) || 0)}
                           style={{
                             width: '52px',
