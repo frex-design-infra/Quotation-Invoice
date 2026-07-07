@@ -92,7 +92,6 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
-  const focusItemIdRef = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const skipAutoRecalc = useRef(true);
 
@@ -207,25 +206,18 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     setItems(prev => prev.filter(i => i.id !== id));
   };
 
-  // 指定した行の直下に空の新規行を挿入する（挿入後、品名欄に自動フォーカス）
-  const insertItemAfter = (id: string) => {
-    const newId = genId();
-    focusItemIdRef.current = newId;
-    setItems(prev => {
-      const idx = prev.findIndex(i => i.id === id);
-      if (idx === -1) return prev;
-      const arr = [...prev];
-      arr.splice(idx + 1, 0, {
-        id: newId,
-        label: '',
-        quantity: 1,
-        unit: '式',
-        unitPrice: 0,
-        amount: 0,
-        isAutoCalculated: false,
-      });
-      return arr;
-    });
+  // 末尾に区切り（行間・空白行）を追加する。ドラッグで任意の位置へ移動できる
+  const addSeparator = () => {
+    setItems(prev => [...prev, {
+      id: genId(),
+      label: '',
+      quantity: 0,
+      unit: '',
+      unitPrice: 0,
+      amount: 0,
+      isAutoCalculated: false,
+      isSeparator: true,
+    }]);
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -880,7 +872,10 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
       <section className="form-section items-section">
         <div className="section-header">
           <h3>見積明細</h3>
-          <button onClick={addItem} className="btn-secondary btn-sm">＋ 行を追加</button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={addItem} className="btn-secondary btn-sm">＋ 行を追加</button>
+            <button onClick={addSeparator} className="btn-outline btn-sm" title="区切り（行間）を末尾に追加。ドラッグで位置を移動できます">＋ 区切り</button>
+          </div>
         </div>
 
         <table className="edit-items-table">
@@ -910,7 +905,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     onDragEnd={handleDragEnd}
                   >
                     <td colSpan={8} style={{ textAlign: 'right', paddingRight: '8px' }}>
-                      <button onClick={() => insertItemAfter(item.id)} className="btn-insert-row btn-sm" title="ここに行を挿入">＋</button>
+                      <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm separator-del-btn" title="区切りを削除">×</button>
                     </td>
                   </tr>
                 );
@@ -935,7 +930,6 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     <input
                       type="text"
                       value={item.label}
-                      ref={el => { if (el && focusItemIdRef.current === item.id) { el.focus(); focusItemIdRef.current = null; } }}
                       onChange={e => updateItem(item.id, 'label', e.target.value)}
                     />
                   </td>
@@ -967,7 +961,6 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     {formatCurrency(item.amount, true)}
                   </td>
                   <td className="col-del">
-                    <button onClick={() => insertItemAfter(item.id)} className="btn-insert-row btn-sm" title="下に行を挿入">＋</button>
                     <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
                   </td>
                 </tr>
