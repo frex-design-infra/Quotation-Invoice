@@ -92,6 +92,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
+  const focusItemIdRef = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
   const skipAutoRecalc = useRef(true);
 
@@ -204,6 +205,27 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
 
   const removeItem = (id: string) => {
     setItems(prev => prev.filter(i => i.id !== id));
+  };
+
+  // 指定した行の直下に空の新規行を挿入する（挿入後、品名欄に自動フォーカス）
+  const insertItemAfter = (id: string) => {
+    const newId = genId();
+    focusItemIdRef.current = newId;
+    setItems(prev => {
+      const idx = prev.findIndex(i => i.id === id);
+      if (idx === -1) return prev;
+      const arr = [...prev];
+      arr.splice(idx + 1, 0, {
+        id: newId,
+        label: '',
+        quantity: 1,
+        unit: '式',
+        unitPrice: 0,
+        amount: 0,
+        isAutoCalculated: false,
+      });
+      return arr;
+    });
   };
 
   const handleDragStart = (e: React.DragEvent, id: string) => {
@@ -887,7 +909,9 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     onDrop={e => handleDrop(e, item.id)}
                     onDragEnd={handleDragEnd}
                   >
-                    <td colSpan={8}></td>
+                    <td colSpan={8} style={{ textAlign: 'right', paddingRight: '8px' }}>
+                      <button onClick={() => insertItemAfter(item.id)} className="btn-insert-row btn-sm" title="ここに行を挿入">＋</button>
+                    </td>
                   </tr>
                 );
               }
@@ -911,6 +935,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     <input
                       type="text"
                       value={item.label}
+                      ref={el => { if (el && focusItemIdRef.current === item.id) { el.focus(); focusItemIdRef.current = null; } }}
                       onChange={e => updateItem(item.id, 'label', e.target.value)}
                     />
                   </td>
@@ -942,6 +967,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                     {formatCurrency(item.amount, true)}
                   </td>
                   <td className="col-del">
+                    <button onClick={() => insertItemAfter(item.id)} className="btn-insert-row btn-sm" title="下に行を挿入">＋</button>
                     <button onClick={() => removeItem(item.id)} className="btn-danger btn-sm">×</button>
                   </td>
                 </tr>

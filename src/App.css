@@ -95,6 +95,9 @@ button {
 .btn-danger { background: #c62828; color: white; }
 .btn-danger:hover { background: #e53935; }
 
+.btn-insert-row { background: #166534; color: white; margin-right: 4px; }
+.btn-insert-row:hover { background: #15803d; }
+
 .btn-sm { padding: 3px 8px; font-size: 11px; }
 
 /* ============================================
@@ -332,7 +335,7 @@ button {
 .col-unit { width: 70px; }
 .col-price { width: 120px; text-align: right; }
 .col-amount { width: 120px; text-align: right; }
-.col-del { width: 42px; }
+.col-del { width: 66px; }
 
 .drag-handle {
   display: inline-block;
