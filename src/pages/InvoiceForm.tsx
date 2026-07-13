@@ -98,6 +98,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
     initial?.originalContractTotal ?? sourceQuotation?.total ?? 0
   );
   const [changeAmount, setChangeAmount] = useState(initial?.changeAmount ?? 0);
+  const [changeAmountText, setChangeAmountText] = useState(String(initial?.changeAmount ?? 0));
   const [deliveryDate, setDeliveryDate] = useState(initial?.deliveryDate ?? today());
   const [deliveryPerson, setDeliveryPerson] = useState(
     initial?.deliveryPerson ?? (settings.deliveryPersons?.[0] ?? '')
@@ -328,9 +329,20 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
           <div className="field-row">
             <label>変更増減額（税込）</label>
             <input
-              type="number"
-              value={changeAmount}
-              onChange={e => setChangeAmount(parseFloat(e.target.value) || 0)}
+              type="text"
+              inputMode="numeric"
+              value={changeAmountText}
+              placeholder="0"
+              onChange={e => {
+                const raw = e.target.value;
+                // 先頭マイナス・小数点・入力途中（"" や "-"）を許容。それ以外の文字は弾く
+                if (/^-?\d*\.?\d*$/.test(raw)) {
+                  setChangeAmountText(raw);
+                  const n = parseFloat(raw);
+                  setChangeAmount(Number.isNaN(n) ? 0 : n);
+                }
+              }}
+              onBlur={() => setChangeAmountText(String(changeAmount))}
             />
           </div>
 
