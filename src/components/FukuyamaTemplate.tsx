@@ -12,6 +12,8 @@ interface Props {
   quotation: Quotation;
   settings: MasterSettings;
   originalContractTotal?: number; // 契約金額（変更見積がある場合は最新変更見積合計、なければ元見積合計）。請求残額 = 契約金額 - 今回請求額
+  billingType?: 'single' | 'interim' | 'final'; // 完了時最終請求(final)のみ既請求額=中間・今回=契約-中間・残額=0
+  interimBillingTotal?: number;   // 中間請求額（税込）＝福山中間見積の税込合計。final時の既請求額に使用
 }
 
 // ─── 座標定数（ずれた場合ここを調整） ────────────────────────────
@@ -89,17 +91,29 @@ const TEXT_SM: React.CSSProperties = {
 
 const AMT: React.CSSProperties = { ...TEXT, textAlign: 'right' };
 
-export default function FukuyamaTemplate({ quotation, settings, originalContractTotal }: Props) {
+export default function FukuyamaTemplate({ quotation, settings, originalContractTotal, billingType, interimBillingTotal }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
   const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
 
-  // 今回請求額 = q.total（中間請求書の場合は中間見積金額に上書き済み）
-  const currBill   = quotation.total;
-  const currTax    = quotation.tax;
-  const prevBill   = 0;
-  const totalBill  = prevBill + currBill;
-  const origTotal  = originalContractTotal ?? quotation.total;
-  const remain     = origTotal - currBill;
+  const origTotal = originalContractTotal ?? quotation.total; // 最終契約額（税込）
+
+  // ── 金額計算 ──────────────────────────────────────────────
+  // 完了時最終請求(final): 既請求額=中間請求額 / 今回=最終契約額−中間 / うち消費税=今回(税込)の10% / 残額=0
+  // それ以外(single・中間請求書interim): 従来どおり（q.total を今回請求額に使用）
+  let currBill: number;  // 今回請求額（税込）
+  let currTax: number;   // うち消費税
+  let prevBill: number;  // 既請求額
+  if (billingType === 'final') {
+    prevBill = interimBillingTotal ?? 0;              // 既請求額 = 中間請求額（税込）
+    currBill = origTotal - prevBill;                  // 今回請求額 = 最終契約額 − 中間請求額
+    currTax  = currBill - Math.round(currBill / 1.1); // うち消費税 = 今回請求額(税込)から10%抽出
+  } else {
+    currBill = quotation.total;                       // 中間請求書は中間見積金額に上書き済み
+    currTax  = quotation.tax;
+    prevBill = 0;
+  }
+  const totalBill = prevBill + currBill;              // 請求合計
+  const remain    = origTotal - totalBill;            // 請求残額（final時は0）
 
   const fmt = (n: number) => n.toLocaleString('ja-JP');
 

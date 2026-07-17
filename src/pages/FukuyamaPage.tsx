@@ -148,6 +148,11 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
     ? calculateTotals(latestChange.items, settings).total
     : quotation.total;
 
+  // 完了時最終請求(final)の既請求額に使う中間請求額（税込）＝福山中間見積の税込合計（未保存なら0）
+  const interimBillingTotal = quotation.fukuyamaInterimQuotationItems?.length
+    ? calculateTotals(quotation.fukuyamaInterimQuotationItems, settings).total
+    : 0;
+
   return (
     <div className="fukken-form-page">
       {toastVisible && <div className="toast-saved">保存しました ✓</div>}
@@ -215,7 +220,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
         </div>
 
         <div className="fukken-preview-area">
-          <FukuyamaTemplate quotation={q} settings={settings} originalContractTotal={contractTotal} />
+          <FukuyamaTemplate quotation={q} settings={settings} originalContractTotal={contractTotal} billingType={billingType} interimBillingTotal={interimBillingTotal} />
         </div>
       </div>
     </div>
