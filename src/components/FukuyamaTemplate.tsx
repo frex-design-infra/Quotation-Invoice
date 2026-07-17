@@ -29,11 +29,11 @@ const COORD = {
   billingRoundY: 200.5, // 回数 top（199.5→201.5→200.5 実質+1mm下 2026-07-17）
 
   // ── 納品情報（納品日・担当者・品目）2026-07-17 追加 ※座標は推定・要目視調整 ──
-  deliveryDateY:      151.5, // 納品日 行 top（150→151.5 下+1.5mm 2026-07-17）
+  deliveryDateY:      154.5, // 納品日 行 top（150→151.5→154.5 下計+4.5mm 2026-07-17）
   deliveryYearX:      50,   // 納品日 年
   deliveryMoX:        72,   // 納品日 月
   deliveryDayX:       92,   // 納品日 日
-  deliveryPersonY:    151.5, // 納品担当者 top（150→151.5 下+1.5mm 2026-07-17）
+  deliveryPersonY:    154.5, // 納品担当者 top（150→151.5→154.5 下計+4.5mm 2026-07-17）
   deliveryPersonX:    155,  // 納品担当者 左端X
   deliveryItemsX:     45,   // 納品品目・内訳 左端X
   deliveryItemsY:     165,  // 納品品目 1行目 top
