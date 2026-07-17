@@ -39,6 +39,9 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
       : (quotation.fukuyamaIssueDate       ?? today())
   );
   const [workContent, setWorkContent] = useState(quotation.fukuyamaWorkContent ?? '');
+  const [deliveryDate,   setDeliveryDate]   = useState(quotation.fukuyamaDeliveryDate   ?? '');
+  const [deliveryPerson, setDeliveryPerson] = useState(quotation.fukuyamaDeliveryPerson ?? '');
+  const [deliveryItems,  setDeliveryItems]  = useState(quotation.fukuyamaDeliveryItems  ?? '');
   const [templateUrl, setTemplateUrl] = useState(
     isFinal
       ? (quotation.fukuyamaFinalTemplateUrl         ?? '')
@@ -57,6 +60,9 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
       ...quotation,
       fukuyamaEnabled: true,
       fukuyamaWorkContent: workContent,
+      fukuyamaDeliveryDate: deliveryDate,
+      fukuyamaDeliveryPerson: deliveryPerson,
+      fukuyamaDeliveryItems: deliveryItems,
       updatedAt: new Date().toISOString(),
     };
     if (isFinal) {
@@ -207,6 +213,24 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
               />
               <div className="fk-field-hint">福山コンサルタントから届いた書式をアップロード</div>
             </div>
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">納品日</label>
+            <DatePicker value={deliveryDate} onChange={setDeliveryDate} />
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">納品担当者</label>
+            <input type="text" className="fk-field-input" value={deliveryPerson}
+              onChange={e => setDeliveryPerson(e.target.value)} placeholder="担当者名を入力" />
+          </div>
+
+          <div className="fk-field-group">
+            <label className="fk-field-label">納品品目・内訳（最大3行）</label>
+            <textarea className="fk-field-textarea" value={deliveryItems}
+              onChange={e => setDeliveryItems(e.target.value)}
+              rows={3} placeholder="例: 橋梁定期点検 一式" />
           </div>
 
           <div className="fk-field-group">

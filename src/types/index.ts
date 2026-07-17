@@ -213,6 +213,9 @@ export interface Quotation {
   fukuyamaTemplateStoragePath?: string; // Storage パス（削除用）
   fukuyamaIssueDate?: string;          // 発行日 YYYY-MM-DD
   fukuyamaWorkContent?: string;        // 業務内容
+  fukuyamaDeliveryDate?: string;       // 納品日 YYYY-MM-DD（福山 納品書兼請求書）
+  fukuyamaDeliveryPerson?: string;     // 納品担当者
+  fukuyamaDeliveryItems?: string;      // 納品品目・内訳（最大3行）
 
   // 福山 納品書/請求書（最終）用テンプレート（中間とは別画像）
   fukuyamaFinalTemplateUrl?: string;

@@ -28,6 +28,17 @@ const COORD = {
   billingRoundX: 110,   // 回数の左端X（推定）
   billingRoundY: 200.5, // 回数 top（199.5→201.5→200.5 実質+1mm下 2026-07-17）
 
+  // ── 納品情報（納品日・担当者・品目）2026-07-17 追加 ※座標は推定・要目視調整 ──
+  deliveryDateY:      150,  // 納品日 行 top
+  deliveryYearX:      50,   // 納品日 年
+  deliveryMoX:        72,   // 納品日 月
+  deliveryDayX:       92,   // 納品日 日
+  deliveryPersonY:    150,  // 納品担当者 top
+  deliveryPersonX:    155,  // 納品担当者 左端X
+  deliveryItemsX:     45,   // 納品品目・内訳 左端X
+  deliveryItemsY:     165,  // 納品品目 1行目 top
+  deliveryItemsLineH: 8,    // 納品品目 行間
+
   // ── 金額テーブル ─────────────────────────────────────────────
   // 共通：金額列（右揃え）
   amtX:       -3,    // -5→-3 (各金額一式 +2mm右 2026-07-17)
@@ -98,6 +109,8 @@ const AMT: React.CSSProperties = { ...TEXT, textAlign: 'right' };
 export default function FukuyamaTemplate({ quotation, settings, originalContractTotal, billingType, interimBillingTotal }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
   const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
+  const deliveryDate = dp(quotation.fukuyamaDeliveryDate || '');
+  const deliveryItemLines = (quotation.fukuyamaDeliveryItems || '').split('\n').slice(0, 3);
 
   const origTotal = originalContractTotal ?? quotation.total; // 最終契約額（税込）
 
@@ -160,6 +173,32 @@ export default function FukuyamaTemplate({ quotation, settings, originalContract
           {billingRound}
         </span>
       )}
+
+      {/* 納品日（年月日） */}
+      {deliveryDate && (
+        <>
+          <span style={{ ...TEXT, ...abs(COORD.deliveryDateY, COORD.deliveryYearX), width: '18mm', textAlign: 'right' }}>{deliveryDate.y}</span>
+          <span style={{ ...TEXT, ...abs(COORD.deliveryDateY, COORD.deliveryMoX),  width: '8mm',  textAlign: 'right' }}>{deliveryDate.m}</span>
+          <span style={{ ...TEXT, ...abs(COORD.deliveryDateY, COORD.deliveryDayX), width: '8mm',  textAlign: 'right' }}>{deliveryDate.d}</span>
+        </>
+      )}
+
+      {/* 納品担当者 */}
+      {quotation.fukuyamaDeliveryPerson && (
+        <span style={{ ...TEXT, ...abs(COORD.deliveryPersonY, COORD.deliveryPersonX), width: '48mm' }}>
+          {quotation.fukuyamaDeliveryPerson}
+        </span>
+      )}
+
+      {/* 納品品目・内訳（最大3行） */}
+      {deliveryItemLines.map((line, i) => (
+        <span
+          key={i}
+          style={{ ...TEXT, ...abs(COORD.deliveryItemsY + i * COORD.deliveryItemsLineH, COORD.deliveryItemsX), fontSize: '9.5pt' }}
+        >
+          {line}
+        </span>
+      ))}
 
       {/* 1. 既請求額 */}
       <span style={{ ...AMT, ...abs(COORD.prevBillY, COORD.amtX), width: `${COORD.amtW}mm` }}>
