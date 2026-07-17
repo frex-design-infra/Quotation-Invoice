@@ -44,22 +44,22 @@ const COORD = {
   // 自社情報（右側）※上から: 郵便番号→住所1行目→住所2行目→会社名→代表者名
   addrX:       137,   // 郵便番号・住所の左端X
   addrW:       55,    // 住所右揃え幅（右端 ~202mm）
-  postalY:     58,    // 〒郵便番号 top（文字高1つ分 +3.5mm 下げ）
-  addr1Y:      61,    // 住所1行目 top
-  addr2Y:      64,    // 住所2行目 top
+  postalY:     54.5,  // 〒郵便番号 top（58→54.5 自社情報ブロック全体を-3.5mm=1文字分上げ 2026-07-17）
+  addr1Y:      57.5,  // 住所1行目 top（61→57.5 -3.5mm）
+  addr2Y:      60.5,  // 住所2行目 top（64→60.5 -3.5mm）
   companyX:    137,   // 会社名・代表者名の左端X
   repNameX:    141,   // 代表者名のみ左端X
   companyW:    75,    // 幅
-  companyY:    67.15, // 会社名 top（ラベルのラインに合わせ -1mm 上げ）
-  repNameY:    75,    // 代表者名 top（ラベルのラインに合わせ -1mm 上げ）
+  companyY:    63.65, // 会社名 top（67.15→63.65 -3.5mm）
+  repNameY:    71.5,  // 代表者名 top（75→71.5 -3.5mm）
 
   // 角印 (sealDataUrl) ※他様式(112px≒30mm)に合わせてサイズUP。中心維持のためX/Yを-4mm補正
-  kakuinY:    52,
+  kakuinY:    48.5,   // 角印 top（52→48.5 -3.5mm=1文字分上げ 2026-07-17）
   kakuinX:    142,
   kakuinSize: 30,
 
   // 丸印・代表印 (repSealDataUrl) ※他様式(96px≒25mm)に合わせてサイズUP。中心維持のためX/Yを-1.5mm補正
-  maruinY:    65.5,
+  maruinY:    62,     // 丸印 top（65.5→62 -3.5mm=1文字分上げ 2026-07-17）
   maruinX:    167.5,  // ちょっとだけ右に移動（+2mm）
   maruinSize: 25,
 };
