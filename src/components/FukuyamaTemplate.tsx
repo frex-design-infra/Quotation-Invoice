@@ -20,9 +20,13 @@ interface Props {
 const COORD = {
   // 請求日（日付一式 +15mm下・+2mm右 2026-07-17 ※福山 納品書兼請求書）
   dateY:      200.2, // 181.2→200.2 (+15,追加+4mm下 計+19mm 2026-07-17)
-  dateYearX:  25,    // 23→25 (+2mm右)
+  dateYearX:  24.5,  // 23→25→24.5 (+2mm右のあと年のみ-0.5mm左 2026-07-17)
   dateMoX:    50,    // 48→50 (+2mm右)
   dateDayX:   66.5,  // 64.5→66.5 (+2mm右)
+
+  // 第[ ]回 請求分（回数）: 完了final=2 / 中間interim=1 / 一括single=空。位置は推定・要目視調整
+  billingRoundX: 110,   // 回数の左端X（推定）
+  billingRoundY: 199.5, // 回数 top（請求日行付近・推定）
 
   // ── 金額テーブル ─────────────────────────────────────────────
   // 共通：金額列（右揃え）
@@ -117,6 +121,9 @@ export default function FukuyamaTemplate({ quotation, settings, originalContract
 
   const fmt = (n: number) => n.toLocaleString('ja-JP');
 
+  // 第[ ]回 請求分の回数: 完了(final)=2 / 中間請求(interim)=1 / それ以外(一括single)=空
+  const billingRound = billingType === 'final' ? '2' : billingType === 'interim' ? '1' : '';
+
   return (
     <div
       id="fukuyama-print-area"
@@ -145,6 +152,13 @@ export default function FukuyamaTemplate({ quotation, settings, originalContract
           <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateMoX),   width: '10mm', textAlign: 'right' }}>{issueDate.m}</span>
           <span style={{ ...TEXT, ...abs(COORD.dateY, COORD.dateDayX),  width: '8mm',  textAlign: 'right' }}>{issueDate.d}</span>
         </>
+      )}
+
+      {/* 第[ ]回 請求分（回数）: 完了=2 / 中間=1 / 一括=空 */}
+      {billingRound && (
+        <span style={{ ...TEXT, ...abs(COORD.billingRoundY, COORD.billingRoundX), width: '8mm', textAlign: 'center' }}>
+          {billingRound}
+        </span>
       )}
 
       {/* 1. 既請求額 */}
