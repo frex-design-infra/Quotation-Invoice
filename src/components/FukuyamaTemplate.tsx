@@ -30,11 +30,11 @@ const COORD = {
 
   // ── 納品情報（納品日・担当者・品目）2026-07-17 追加 ※座標は推定・要目視調整 ──
   deliveryDateY:      156.0, // 納品日 行 top（150→…→156.0 下計+6.0mm 2026-07-17）
-  deliveryYearX:      50,   // 納品日 年
-  deliveryMoX:        72,   // 納品日 月
-  deliveryDayX:       92,   // 納品日 日
+  deliveryYearX:      52.5, // 納品日 年（50→52.5 右+2.5mm 2026-07-17）
+  deliveryMoX:        74.5, // 納品日 月（72→74.5 右+2.5mm）
+  deliveryDayX:       94.5, // 納品日 日（92→94.5 右+2.5mm）
   deliveryPersonY:    156.0, // 納品担当者 top（150→…→156.0 下計+6.0mm 2026-07-17）
-  deliveryPersonX:    155,  // 納品担当者 左端X
+  deliveryPersonX:    157.5, // 納品担当者 左端X（155→157.5 右+2.5mm 2026-07-17）
   deliveryItemsX:     45,   // 納品品目・内訳 左端X
   deliveryItemsY:     165,  // 納品品目 1行目 top
   deliveryItemsLineH: 8,    // 納品品目 行間
