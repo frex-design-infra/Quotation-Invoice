@@ -69,6 +69,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [inspectionType, setInspectionType] = useState<InspectionType>(initial?.inspectionType ?? '橋梁点検');
   const [roadAccessoryCount, setRoadAccessoryCount] = useState(initial?.roadAccessoryCount ?? 0);
   const [roadAccessoryDays, setRoadAccessoryDays] = useState(initial?.roadAccessoryDays ?? 0);
+  const [tunnelAreaM2, setTunnelAreaM2] = useState(initial?.tunnelAreaM2 ?? 0);
   const [kokusokenEnabled, setKokusokenEnabled] = useState(initial?.kokusokenEnabled ?? false);
   const [mextEnabled, setMextEnabled] = useState(initial?.mextEnabled ?? false);
   const [items, setItems] = useState<QuotationItem[]>(initial?.items ?? []);
@@ -121,11 +122,12 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     inspectionType,
     roadAccessoryCount,
     roadAccessoryDays,
+    tunnelAreaM2,
     ...overrides,
   }), [surveyDays, walkingDays, btDays, ewpDays, summaryDays, kokusokenEnabled, mextEnabled,
        btVehicleEnabled, btVehicleUnitPrice, ewpVehicleEnabled, ewpVehicleUnitPrice,
        trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
-       safetyCoordinationEnabled, inspectionType, roadAccessoryCount, roadAccessoryDays]);
+       safetyCoordinationEnabled, inspectionType, roadAccessoryCount, roadAccessoryDays, tunnelAreaM2]);
 
   // この見積専用の単価でマスタを上書きした設定（取引会社ごとの単価を保持し、マスタ変更の影響を受けない）
   const effectiveSettings = useMemo<MasterSettings>(() => ({
@@ -175,8 +177,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   }, [recalculate, bridges]);
 
   const handleRecalculate = useCallback(() => {
-    recalculate(bridges, { inspectionType, roadAccessoryCount, roadAccessoryDays });
-  }, [bridges, recalculate, inspectionType, roadAccessoryCount, roadAccessoryDays]);
+    recalculate(bridges, { inspectionType, roadAccessoryCount, roadAccessoryDays, tunnelAreaM2 });
+  }, [bridges, recalculate, inspectionType, roadAccessoryCount, roadAccessoryDays, tunnelAreaM2]);
 
   // 明細行の編集
   const updateItem = (id: string, field: keyof QuotationItem, value: string | number) => {
@@ -262,6 +264,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     inspectionType,
     roadAccessoryCount,
     roadAccessoryDays,
+    tunnelAreaM2,
     ordererCategory,
     clientName,
     projectName,
@@ -497,7 +500,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
           <div className="field-row">
             <label>点検種別</label>
             <div className="radio-group">
-              {(['橋梁点検', '道路附属物点検'] as InspectionType[]).map(type => (
+              {(['橋梁点検', '道路附属物点検', 'トンネル点検'] as InspectionType[]).map(type => (
                 <label key={type} className="radio-label">
                   <input
                     type="radio"
@@ -617,7 +620,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
             </>
           )}
 
-          {inspectionType === '道路附属物点検' && (
+          {(inspectionType === '道路附属物点検' || inspectionType === 'トンネル点検') && (
             <>
               <div className="field-row">
                 <label>点検基数</label>
@@ -643,6 +646,20 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
                   <span className="suffix">日 → {roadAccessoryDays * 2} 人工（初期値: 12基/日）</span>
                 </div>
               </div>
+              {inspectionType === 'トンネル点検' && (
+                <div className="field-row">
+                  <label>点検面積</label>
+                  <div className="input-with-suffix">
+                    <input
+                      type="number"
+                      min="0"
+                      value={tunnelAreaM2}
+                      onChange={e => setTunnelAreaM2(parseInt(e.target.value) || 0)}
+                    />
+                    <span className="suffix">m²（トンネル点検調書作成の数量・単価デフォ35円/m²）</span>
+                  </div>
+                </div>
+              )}
             </>
           )}
 

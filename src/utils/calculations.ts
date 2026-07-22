@@ -20,6 +20,7 @@ export interface WorkParams {
   inspectionType?: InspectionType;
   roadAccessoryCount?: number;
   roadAccessoryDays?: number;
+  tunnelAreaM2?: number;      // 点検面積 m²（トンネル点検の調書数量）
 }
 
 function genId() {
@@ -56,8 +57,10 @@ export function calculateItems(
           trafficGuardEnabled, trafficGuardUnitPrice, barrierEnabled, barrierUnitPrice,
           safetyCoordinationEnabled } = params;
 
-  // ── 道路附属物点検モード ─────────────────────────
-  if (params.inspectionType === '道路附属物点検') {
+  // ── 道路附属物点検 / トンネル点検モード（ロジック共通・ラベル/調書のみ差し替え）─────────
+  if (params.inspectionType === '道路附属物点検' || params.inspectionType === 'トンネル点検') {
+    const isTunnel = params.inspectionType === 'トンネル点検';
+    const inspectionLabel = isTunnel ? 'トンネル点検' : '道路附属物点検';
     const roadItems: QuotationItem[] = [];
     const count = params.roadAccessoryCount ?? 0;
     const days = params.roadAccessoryDays ?? Math.ceil(count / 12);
@@ -108,7 +111,7 @@ export function calculateItems(
     const inspectionQty = days * 2;
     roadItems.push({
       id: genId(),
-      label: `道路附属物点検 N=${count}`,
+      label: `${inspectionLabel} N=${count}`,
       quantity: inspectionQty,
       unit: '人工',
       unitPrice: settings.laborUnitPrice,
@@ -119,15 +122,18 @@ export function calculateItems(
     // separator
     roadItems.push(separator());
 
-    // 5. 道路附属物点検調書作成(xROAD登録含む)
-    const reportUnitPrice = Math.floor(settings.laborUnitPrice * 0.35 / 100) * 100;
+    // 5. 調書作成（道路附属物=xROAD登録含む/基, トンネル=m²・デフォルト35円/m²）
+    const reportUnitPrice = isTunnel ? 35 : Math.floor(settings.laborUnitPrice * 0.35 / 100) * 100;
+    const reportLabel = isTunnel ? 'トンネル点検調書作成' : '道路附属物点検調書作成(xROAD登録含む)';
+    const reportUnit = isTunnel ? 'm²' : '基';
+    const reportQty = isTunnel ? (params.tunnelAreaM2 ?? 0) : count;
     roadItems.push({
       id: genId(),
-      label: '道路附属物点検調書作成(xROAD登録含む)',
-      quantity: count,
-      unit: '基',
+      label: reportLabel,
+      quantity: reportQty,
+      unit: reportUnit,
       unitPrice: reportUnitPrice,
-      amount: count * reportUnitPrice,
+      amount: reportQty * reportUnitPrice,
       isAutoCalculated: true,
     });
 

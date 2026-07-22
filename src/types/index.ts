@@ -2,7 +2,7 @@
 export type OrdererCategory = '国' | '県' | '市町村';
 
 // 点検種別
-export type InspectionType = '橋梁点検' | '道路附属物点検';
+export type InspectionType = '橋梁点検' | '道路附属物点検' | 'トンネル点検';
 
 // 橋長区分マスタ
 export interface BridgeLengthTier {
@@ -164,6 +164,7 @@ export interface Quotation {
   inspectionType: InspectionType;
   roadAccessoryCount: number;      // 基数（道路附属物点検のみ）
   roadAccessoryDays: number;       // 点検日数（道路附属物点検のみ）
+  tunnelAreaM2?: number;           // 点検面積 m²（トンネル点検の調書数量）
   ordererCategory: OrdererCategory;
   clientName: string;
   projectName: string;
