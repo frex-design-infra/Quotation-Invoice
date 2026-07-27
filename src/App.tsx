@@ -138,6 +138,67 @@ function MainApp() {
     setTab('form');
   };
 
+  const handleCopyQuotation = (q: Quotation) => {
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+    const dateBase = today.replace(/-/g, '');
+    const sameBase = quotations
+      .filter(x => x.quotationNumber?.startsWith(dateBase + '-'))
+      .map(x => parseInt(x.quotationNumber.slice(-3), 10))
+      .filter(n => !isNaN(n));
+    const seq = sameBase.length > 0 ? Math.max(...sameBase) + 1 : 1;
+    const newNumber = `${dateBase}-${String(seq).padStart(3, '0')}`;
+
+    const copied: Quotation = {
+      ...q,
+      id: crypto.randomUUID(),
+      quotationNumber: newNumber,
+      date: today,
+      submitted: false,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+      // 変更見積・中間見積はリセット（コピー元と切り離す）
+      changeQuotations: undefined,
+      interimQuotationIssueDate: undefined,
+      interimQuotationSubmitted: undefined,
+      interimQuotationItems: undefined,
+      interimQuotationSourceChangeRound: undefined,
+      // 福山関連はリセット
+      fukuyamaEnabled: undefined,
+      fukuyamaTemplateUrl: undefined,
+      fukuyamaTemplateStoragePath: undefined,
+      fukuyamaIssueDate: undefined,
+      fukuyamaWorkContent: undefined,
+      fukuyamaDeliveryDate: undefined,
+      fukuyamaDeliveryPerson: undefined,
+      fukuyamaDeliveryItems: undefined,
+      fukuyamaFinalTemplateUrl: undefined,
+      fukuyamaFinalTemplateStoragePath: undefined,
+      fukuyamaFinalIssueDate: undefined,
+      fukuyamaInterimQuotationIssueDate: undefined,
+      fukuyamaInterimQuotationSubmitted: undefined,
+      fukuyamaInterimQuotationItems: undefined,
+      fukuyamaInterimQuotationSourceChangeRound: undefined,
+      // 復建関連はリセット
+      fukkenEnabled: undefined,
+      fukkenJobNumber: undefined,
+      fukkenProjectName: undefined,
+      fukkenLocation: undefined,
+      fukkenStartDate: undefined,
+      fukkenEndDate: undefined,
+      fukkenWorkContent: undefined,
+      fukkenSeishoDate: undefined,
+      fukkenSeishoSubmitted: undefined,
+      fukkenDeliveryDate: undefined,
+      fukkenDeliveryInvoiceDate: undefined,
+      fukkenBankAccountId: undefined,
+    };
+
+    setEditingQuotation(copied);
+    setFormInitialView('form');
+    setTab('form');
+  };
+
   const handleEdit = (q: Quotation) => {
     setEditingQuotation(q);
     setFormInitialView('form');
@@ -351,6 +412,7 @@ function MainApp() {
             onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
             onOpenInterimQuotation={handleOpenInterimQuotation}
             onOpenChangeQuotation={handleOpenChangeQuotation}
+            onCopy={handleCopyQuotation}
           />
         )}
         {tab === 'form' && (

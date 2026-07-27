@@ -21,9 +21,10 @@ interface Props {
   onOpenFukuyamaInterimQuotation: (q: Quotation) => void;
   onOpenInterimQuotation: (q: Quotation) => void;
   onOpenChangeQuotation: (q: Quotation, round: number) => void;
+  onCopy: (q: Quotation) => void;
 }
 
-export default function QuotationList({ quotations, invoices, settings, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation, onOpenChangeQuotation }: Props) {
+export default function QuotationList({ quotations, invoices, settings, onNew, onEdit, onPreview, onDelete, onToggleSubmitted, onCreateInvoice, onOpenFukken, onOpenFukuyama, onOpenFukuyamaInterimQuotation, onOpenInterimQuotation, onOpenChangeQuotation, onCopy }: Props) {
   const [animatingIds, setAnimatingIds] = useState<Set<string>>(new Set());
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -348,6 +349,9 @@ export default function QuotationList({ quotations, invoices, settings, onNew, o
                           );
                         })()}
                         <div className="dropdown-divider" />
+                        <button onClick={() => { onCopy(q); setOpenMenuId(null); }}>
+                          コピーして新規作成
+                        </button>
                         <button
                           className="dropdown-danger"
                           onClick={() => {
