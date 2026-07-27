@@ -42,10 +42,22 @@ interface Props {
   onFooterCommentChange?: (value: string) => void;
   changeRound?: number; // 変更見積の回数（指定時タイトル下に【第N回変更見積】を表示）
   isInterim?: boolean;  // 中間見積書フラグ（trueのとき【中間請求用見積】を表示）
+  subcontractMiscItems?: Array<{ id: string; label: string; amount: number }>; // 福山再委託用 手動諸経費
 }
 
-export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim }: Props) {
-  const totals = calculateTotals(quotation.items, settings);
+export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim, subcontractMiscItems }: Props) {
+  const standardTotals = calculateTotals(quotation.items, settings);
+  // 福山再委託用：手動諸経費・お値引きなしで合計を再計算
+  const effectiveTotals = subcontractMiscItems !== undefined
+    ? (() => {
+        const subtotalBeforeMisc = standardTotals.subtotalBeforeMisc;
+        const miscTotal = subcontractMiscItems.reduce((s, i) => s + i.amount, 0);
+        const subtotal = subtotalBeforeMisc + miscTotal;
+        const tax = Math.round(subtotal * (settings.taxRate / 100));
+        const total = subtotal + tax;
+        return { subtotalBeforeMisc, miscExpenses: miscTotal, discount: 0, subtotal, tax, total };
+      })()
+    : standardTotals;
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr);
@@ -59,16 +71,16 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
     label: `諸経費(${settings.miscExpensesRate}%)`,
     quantity: 1,
     unit: '式',
-    unitPrice: totals.miscExpenses,
-    amount: totals.miscExpenses,
+    unitPrice: effectiveTotals.miscExpenses,
+    amount: effectiveTotals.miscExpenses,
   };
 
-  const discountItem = totals.discount !== 0 ? {
+  const discountItem = effectiveTotals.discount !== 0 ? {
     label: 'お取引値引き',
     quantity: 1,
     unit: '式',
-    unitPrice: -totals.discount,
-    amount: -totals.discount,
+    unitPrice: -effectiveTotals.discount,
+    amount: -effectiveTotals.discount,
   } : null;
 
   return (
@@ -104,7 +116,7 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
           <div className="doc-intro">下記のとおりお見積申し上げます。</div>
           <div className="total-amount-area">
             <span className="total-label">お見積金額</span>
-            <span className="total-value">¥ {formatCurrency(totals.total)} -</span>
+            <span className="total-value">¥ {formatCurrency(effectiveTotals.total)} -</span>
             <span className="total-tax-incl">（税込）</span>
           </div>
         </div>
@@ -171,38 +183,50 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
 
           <tr className="subtotal-before-misc-row">
             <td colSpan={3} className="subtotal-label">直接費計</td>
-            <td className="col-amount">{formatCurrency(totals.subtotalBeforeMisc)}</td>
+            <td className="col-amount">{formatCurrency(effectiveTotals.subtotalBeforeMisc)}</td>
           </tr>
 
-          <tr>
-            <td>{miscExpensesItem.label}</td>
-            <td className="col-qty">{miscExpensesItem.quantity} {miscExpensesItem.unit}</td>
-            <td className="col-price">{formatCurrency(miscExpensesItem.unitPrice)}</td>
-            <td className="col-amount">{formatCurrency(miscExpensesItem.amount)}</td>
-          </tr>
-
-          {discountItem && (
-            <tr>
-              <td>{discountItem.label}</td>
-              <td className="col-qty">1 式</td>
-              <td className="col-price">{formatCurrency(discountItem.unitPrice)}</td>
-              <td className="col-amount">{formatCurrency(discountItem.amount)}</td>
-            </tr>
+          {subcontractMiscItems !== undefined ? (
+            subcontractMiscItems.map(item => (
+              <tr key={item.id}>
+                <td>{item.label}</td>
+                <td className="col-qty">1 式</td>
+                <td className="col-price">{formatCurrency(item.amount)}</td>
+                <td className="col-amount">{formatCurrency(item.amount)}</td>
+              </tr>
+            ))
+          ) : (
+            <>
+              <tr>
+                <td>{miscExpensesItem.label}</td>
+                <td className="col-qty">{miscExpensesItem.quantity} {miscExpensesItem.unit}</td>
+                <td className="col-price">{formatCurrency(miscExpensesItem.unitPrice)}</td>
+                <td className="col-amount">{formatCurrency(miscExpensesItem.amount)}</td>
+              </tr>
+              {discountItem && (
+                <tr>
+                  <td>{discountItem.label}</td>
+                  <td className="col-qty">1 式</td>
+                  <td className="col-price">{formatCurrency(discountItem.unitPrice)}</td>
+                  <td className="col-amount">{formatCurrency(discountItem.amount)}</td>
+                </tr>
+              )}
+            </>
           )}
 
           <tr className="subtotal-row">
             <td colSpan={3} className="subtotal-label">小計</td>
-            <td className="col-amount">{formatCurrency(totals.subtotal)}</td>
+            <td className="col-amount">{formatCurrency(effectiveTotals.subtotal)}</td>
           </tr>
 
           <tr className="tax-row">
             <td colSpan={3} className="subtotal-label">消費税 ({settings.taxRate}%)</td>
-            <td className="col-amount">{formatCurrency(totals.tax)}</td>
+            <td className="col-amount">{formatCurrency(effectiveTotals.tax)}</td>
           </tr>
 
           <tr className="total-row">
             <td colSpan={3} className="subtotal-label">合計</td>
-            <td className="col-amount">{formatCurrency(totals.total)}</td>
+            <td className="col-amount">{formatCurrency(effectiveTotals.total)}</td>
           </tr>
         </tbody>
       </table>

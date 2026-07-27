@@ -77,6 +77,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [csvFileName, setCsvFileName] = useState('');
   const [toastVisible, setToastVisible] = useState(false);
   const [subcontractMode, setSubcontractMode] = useState(false);
+  const [subcontractMiscItems, setSubcontractMiscItems] = useState<{id: string; label: string; amount: number}[]>([]);
   const [footerComment, setFooterComment] = useState<string>(
     initial?.footerComment ?? settings.quotationFooterComment
   );
@@ -359,6 +360,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   if (view === 'preview') {
     const q = buildQuotation();
     const displayQ = subcontractMode ? buildSubcontractQuotation(q, settings) : q;
+    const isFukuyamaSubcontract = subcontractMode && (clientName.includes('福山コンサルタント') || (initial?.fukuyamaEnabled ?? false));
     return (
       <div>
         {toastVisible && (
@@ -367,7 +369,15 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
         <div className="preview-toolbar no-print">
           <button onClick={() => { setView('form'); setSubcontractMode(false); }} className="btn-secondary">← 編集に戻る</button>
           <button
-            onClick={() => setSubcontractMode(v => !v)}
+            onClick={() => {
+              const newMode = !subcontractMode;
+              setSubcontractMode(newMode);
+              if (newMode && (clientName.includes('福山コンサルタント') || (initial?.fukuyamaEnabled ?? false))) {
+                const subQForMisc = buildSubcontractQuotation(buildQuotation(), effectiveSettings);
+                const directCost = subQForMisc.items.filter(i => !i.isSeparator).reduce((s, i) => s + i.amount, 0);
+                setSubcontractMiscItems([{ id: genId(), label: '諸経費', amount: Math.round(directCost * 0.15) }]);
+              }
+            }}
             className={subcontractMode ? 'btn-subcontract active' : 'btn-subcontract'}
           >
             {subcontractMode ? '通常表示に戻る' : '再委託用'}
@@ -378,10 +388,62 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
           </button>
           <button onClick={handleSave} className="btn-success">保存</button>
         </div>
+        {isFukuyamaSubcontract && (
+          <div className="no-print" style={{ background: '#f8f9fa', border: '1px solid #e0e0e0', borderRadius: 8, padding: '12px 16px', margin: '8px auto', maxWidth: 700 }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+              <strong style={{ fontSize: 13, color: '#374151' }}>諸経費（再委託用）</strong>
+              <button
+                className="btn-secondary btn-sm"
+                onClick={() => setSubcontractMiscItems(prev => [...prev, { id: genId(), label: '諸経費', amount: 0 }])}
+              >
+                ＋ 追加
+              </button>
+            </div>
+            <table style={{ borderCollapse: 'collapse', fontSize: 13, width: '100%', maxWidth: 480 }}>
+              <thead>
+                <tr>
+                  <th style={{ textAlign: 'left', padding: '3px 8px', color: '#6b7280', fontWeight: 500 }}>項目名</th>
+                  <th style={{ textAlign: 'right', padding: '3px 8px', color: '#6b7280', fontWeight: 500, width: 140 }}>金額</th>
+                  <th style={{ width: 36 }}></th>
+                </tr>
+              </thead>
+              <tbody>
+                {subcontractMiscItems.map(item => (
+                  <tr key={item.id}>
+                    <td style={{ padding: '3px 4px' }}>
+                      <input
+                        type="text"
+                        value={item.label}
+                        onChange={e => setSubcontractMiscItems(prev => prev.map(i => i.id === item.id ? { ...i, label: e.target.value } : i))}
+                        style={{ width: '100%', padding: '3px 6px', border: '1px solid #ddd', borderRadius: 4, fontSize: 13 }}
+                      />
+                    </td>
+                    <td style={{ padding: '3px 4px' }}>
+                      <input
+                        type="number"
+                        value={item.amount === 0 ? '' : item.amount}
+                        placeholder="0"
+                        onChange={e => setSubcontractMiscItems(prev => prev.map(i => i.id === item.id ? { ...i, amount: parseInt(e.target.value) || 0 } : i))}
+                        style={{ width: '100%', padding: '3px 6px', border: '1px solid #ddd', borderRadius: 4, textAlign: 'right', fontSize: 13 }}
+                      />
+                    </td>
+                    <td style={{ padding: '3px 4px', textAlign: 'center' }}>
+                      <button className="btn-danger btn-sm" onClick={() => setSubcontractMiscItems(prev => prev.filter(i => i.id !== item.id))}>×</button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div style={{ marginTop: 6, fontSize: 13, color: '#6b7280' }}>
+              諸経費計: ¥ {subcontractMiscItems.reduce((s, i) => s + i.amount, 0).toLocaleString('ja-JP')}
+            </div>
+          </div>
+        )}
         <QuotationPreview
           quotation={displayQ}
           settings={settings}
           isSubcontract={subcontractMode}
+          subcontractMiscItems={isFukuyamaSubcontract ? subcontractMiscItems : undefined}
           onFooterCommentChange={subcontractMode || pdfSaving ? undefined : setFooterComment}
         />
       </div>
