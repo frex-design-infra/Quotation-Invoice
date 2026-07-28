@@ -12,6 +12,7 @@ import FukuyamaPage from './pages/FukuyamaPage';
 import FukuyamaInterimQuotationPage from './pages/FukuyamaInterimQuotationPage';
 import InterimQuotationPage from './pages/InterimQuotationPage';
 import ChangeQuotationPage from './pages/ChangeQuotationPage';
+import ProjectDetailPage from './pages/ProjectDetailPage';
 import ApprovalViewer from './pages/ApprovalViewer';
 import type { Quotation, Invoice, MasterSettings } from './types';
 import { calculateTotals } from './utils/calculations';
@@ -97,7 +98,7 @@ function buildFukuyamaInvoice(q: Quotation, billingType: 'single' | 'interim' | 
   };
 }
 
-type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation' | 'change-quotation';
+type Tab = 'list' | 'form' | 'invoice-list' | 'invoice-form' | 'settings' | 'fukken-seisho' | 'fukken-delivery' | 'fukuyama' | 'fukuyama-interim-quotation' | 'interim-quotation' | 'change-quotation' | 'project-detail';
 
 export default function App() {
   // メールの専用リンク（?token=xxx）でアクセスされた場合は、
@@ -250,6 +251,11 @@ function MainApp() {
     setEditingQuotation(q);
     setChangeRound(round);
     setTab('change-quotation');
+  };
+
+  const handleOpenProjectDetail = (q: Quotation) => {
+    setEditingQuotation(q);
+    setTab('project-detail');
   };
 
   // Invoice handlers
@@ -413,6 +419,7 @@ function MainApp() {
             onOpenInterimQuotation={handleOpenInterimQuotation}
             onOpenChangeQuotation={handleOpenChangeQuotation}
             onCopy={handleCopyQuotation}
+            onOpenProjectDetail={handleOpenProjectDetail}
           />
         )}
         {tab === 'form' && (
@@ -514,6 +521,23 @@ function MainApp() {
               setTab('list');
             }}
             onCancel={() => setTab('list')}
+          />
+        )}
+        {tab === 'project-detail' && editingQuotation && (
+          <ProjectDetailPage
+            quotation={editingQuotation}
+            invoices={invoices}
+            settings={settings}
+            onBack={() => setTab('list')}
+            onEditQuotation={(q) => { setEditingQuotation(q); setFormInitialView('form'); setTab('form'); }}
+            onPreviewQuotation={(q) => { setEditingQuotation(q); setFormInitialView('preview'); setTab('form'); }}
+            onOpenChangeQuotation={handleOpenChangeQuotation}
+            onOpenInterimQuotation={handleOpenInterimQuotation}
+            onOpenFukuyamaInterimQuotation={handleOpenFukuyamaInterimQuotation}
+            onCreateInvoice={handleCreateInvoiceFromQuotation}
+            onEditInvoice={handleEditInvoice}
+            onOpenFukken={handleOpenFukken}
+            onOpenFukuyama={(q, bt) => { setEditingQuotation(q); setFukuyamaBillingType(bt ?? 'single'); setFukuyamaReturnTab('list'); setTab('fukuyama'); }}
           />
         )}
         {tab === 'fukken-delivery' && editingQuotation && (
