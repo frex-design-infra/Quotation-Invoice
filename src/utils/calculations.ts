@@ -549,11 +549,18 @@ export function buildSubcontractQuotation(q: Quotation, settings: MasterSettings
 
   const filtered = q.items
     .filter(item => item.isSeparator || !isExcluded(item.label))
-    .map(item =>
-      !item.isSeparator && addsSuffix(item.label)
-        ? { ...item, label: item.label + ' 補助' }
-        : item
-    );
+    .map(item => {
+      if (item.isSeparator) return item;
+      // 道路附属物点検 N=444 → 道路附属物点検 補助 N=444（「N=」の前に挿入）
+      if (/^道路附属物点検 N=/.test(item.label)) {
+        return { ...item, label: item.label.replace('道路附属物点検 ', '道路附属物点検 補助 ') };
+      }
+      // 現地踏査・橋梁点検(...) は末尾に 補助
+      if (addsSuffix(item.label)) {
+        return { ...item, label: item.label + ' 補助' };
+      }
+      return item;
+    });
 
   // 連続する空行・先頭・末尾の空行を除去
   const cleaned = filtered.filter((item, i, arr) => {
