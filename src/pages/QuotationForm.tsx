@@ -98,7 +98,11 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const skipAutoRecalc = useRef(true);
 
   // roadAccessoryCount 変更時に roadAccessoryDays を自動計算
+  // N数をCEOが実際に変更した時だけ日数を再計算。初回レンダー（＝保存済み見積を開いた瞬間）は
+  // スキップし、保存済みの roadAccessoryDays を勝手に書き換えない（＝全明細再計算の暴発を防ぐ）
+  const isFirstRoadDays = useRef(true);
   useEffect(() => {
+    if (isFirstRoadDays.current) { isFirstRoadDays.current = false; return; }
     setRoadAccessoryDays(Math.ceil(roadAccessoryCount / 12) || 0);
   }, [roadAccessoryCount]);
 
@@ -153,7 +157,17 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     const calculated = calculateItems(
       bridgeList, effectiveSettings, buildParams(paramOverrides), category ?? ordererCategory
     );
-    setItems(calculated);
+    // 自動項目のみ再生成し、CEOが手入力した項目(isAutoCalculated=false)は末尾に温存する。
+    // これで再計算しても旅費・宿泊などの手動項目が消えない（データ保護）
+    setItems(prev => {
+      const manual = prev.filter(i => !i.isSeparator && !i.isAutoCalculated);
+      if (manual.length === 0) return calculated;
+      return [
+        ...calculated,
+        { id: genId(), label: '', quantity: 0, unit: '', unitPrice: 0, amount: 0, isAutoCalculated: false, isSeparator: true },
+        ...manual,
+      ];
+    });
   }, [effectiveSettings, ordererCategory, buildParams]);
 
   const handleCSVUpload = useCallback(async (file: File) => {
