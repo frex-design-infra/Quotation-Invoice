@@ -1098,14 +1098,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
               <span>- ¥ {formatCurrency(totals.discount)}</span>
             </div>
           )}
-          {totals.discount < 0 && (
-            <div className="total-line">
-              <span>丸め計上</span>
-              <span>+ ¥ {formatCurrency(-totals.discount)}</span>
-            </div>
-          )}
           <div className="total-line subtotal-line">
-            <span>小計（税抜）</span>
+            <span>{totals.discount < 0 ? '小計（千円単位切上げ・税抜）' : '小計（税抜）'}</span>
             <span>¥ {formatCurrency(totals.subtotal)}</span>
           </div>
           <div className="total-line">

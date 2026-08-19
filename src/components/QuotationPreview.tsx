@@ -84,9 +84,10 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
     amount: effectiveTotals.miscExpenses,
   };
 
-  // 復建=丸め計上（切り上げ・加算）、それ以外=お取引値引き（切り捨て・減算）
-  const adjustmentItem = effectiveTotals.discount !== 0 ? {
-    label: isFukkenQuote ? '丸め計上' : 'お取引値引き',
+  // 復建の丸め計上（切り上げ）は専用行を出さず「小計」ラベルに表記。非復建はお取引値引き行を表示
+  const showRoundUpInSubtotal = isFukkenQuote && effectiveTotals.discount < 0;
+  const adjustmentItem = (!isFukkenQuote && effectiveTotals.discount !== 0) ? {
+    label: 'お取引値引き',
     quantity: 1,
     unit: '式',
     unitPrice: -effectiveTotals.discount,
@@ -225,7 +226,7 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
           )}
 
           <tr className="subtotal-row">
-            <td colSpan={3} className="subtotal-label">小計</td>
+            <td colSpan={3} className="subtotal-label">{showRoundUpInSubtotal ? '小計 (千円単位切上げ)' : '小計'}</td>
             <td className="col-amount">{formatCurrency(effectiveTotals.subtotal)}</td>
           </tr>
 
