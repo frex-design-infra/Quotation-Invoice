@@ -92,6 +92,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   const [fuelLitersPerHour, setFuelLitersPerHour] = useState<number>(initial?.fuelLitersPerHour ?? settings.fuelLitersPerHour);
   const [fuelUnitPrice, setFuelUnitPrice] = useState<number>(initial?.fuelUnitPrice ?? settings.fuelUnitPrice);
   const [fukkenEnabled, setFukkenEnabled] = useState(initial?.fukkenEnabled ?? false);
+  // 復建見積の丸め計上（合計を万円単位に切り上げ）。新規はON初期
+  const [fukkenRoundUpEnabled, setFukkenRoundUpEnabled] = useState(initial?.fukkenRoundUpEnabled ?? true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dragItemId = useRef<string | null>(null);
   const [dragOverId, setDragOverId] = useState<string | null>(null);
@@ -270,7 +272,11 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     dragItemId.current = null;
   };
 
-  const totals = calculateTotals(items, settings);
+  // 復建見積のみ丸めモードを切替（ON=万円切り上げ丸め計上 / OFF=丸めなし）。非復建は現行どおり
+  const totalsRounding = fukkenEnabled
+    ? (fukkenRoundUpEnabled ? 'ceil10000' : 'none')
+    : 'default';
+  const totals = calculateTotals(items, settings, totalsRounding);
 
   const buildQuotation = (): Quotation => ({
     id: initial?.id ?? genId(),
@@ -320,6 +326,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     fuelLitersPerHour,
     fuelUnitPrice,
     fukkenEnabled,
+    fukkenRoundUpEnabled,
     // Preserve existing Fukken fields when saving from quotation form
     fukkenJobNumber: initial?.fukkenJobNumber,
     fukkenLocation: initial?.fukkenLocation,
@@ -560,6 +567,19 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
               <span>復建技術コンサルタント所定様式を使用</span>
             </label>
           </div>
+          {fukkenEnabled && (
+            <div className="field-row">
+              <label>丸め計上</label>
+              <label className="toggle-label" style={{ gap: '8px' }}>
+                <input
+                  type="checkbox"
+                  checked={fukkenRoundUpEnabled}
+                  onChange={e => setFukkenRoundUpEnabled(e.target.checked)}
+                />
+                <span>合計（直接費計＋諸経費）を万円単位に切り上げて計上</span>
+              </label>
+            </div>
+          )}
           <div className="field-row">
             <label>提出状況</label>
             <button
@@ -1076,6 +1096,12 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
             <div className="total-line discount-line">
               <span>お値引き</span>
               <span>- ¥ {formatCurrency(totals.discount)}</span>
+            </div>
+          )}
+          {totals.discount < 0 && (
+            <div className="total-line">
+              <span>丸め計上</span>
+              <span>+ ¥ {formatCurrency(-totals.discount)}</span>
             </div>
           )}
           <div className="total-line subtotal-line">

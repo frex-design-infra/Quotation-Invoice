@@ -46,7 +46,16 @@ interface Props {
 }
 
 export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim, subcontractMiscItems }: Props) {
-  const standardTotals = calculateTotals(quotation.items, settings);
+  // 復建の通常見積書のみ丸め計上を適用（中間・変更・再委託・福山は対象外）
+  const isFukkenQuote = quotation.fukkenEnabled === true
+    && !isSubcontract
+    && subcontractMiscItems === undefined
+    && !isInterim
+    && !changeRound;
+  const rounding = isFukkenQuote
+    ? (quotation.fukkenRoundUpEnabled ? 'ceil10000' : 'none')
+    : 'default';
+  const standardTotals = calculateTotals(quotation.items, settings, rounding);
   // 福山再委託用：手動諸経費・お値引きなしで合計を再計算
   const effectiveTotals = subcontractMiscItems !== undefined
     ? (() => {
@@ -75,8 +84,9 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
     amount: effectiveTotals.miscExpenses,
   };
 
-  const discountItem = effectiveTotals.discount !== 0 ? {
-    label: 'お取引値引き',
+  // 復建=丸め計上（切り上げ・加算）、それ以外=お取引値引き（切り捨て・減算）
+  const adjustmentItem = effectiveTotals.discount !== 0 ? {
+    label: isFukkenQuote ? '丸め計上' : 'お取引値引き',
     quantity: 1,
     unit: '式',
     unitPrice: -effectiveTotals.discount,
@@ -203,12 +213,12 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
                 <td className="col-price">{formatCurrency(miscExpensesItem.unitPrice)}</td>
                 <td className="col-amount">{formatCurrency(miscExpensesItem.amount)}</td>
               </tr>
-              {discountItem && (
+              {adjustmentItem && (
                 <tr>
-                  <td>{discountItem.label}</td>
+                  <td>{adjustmentItem.label}</td>
                   <td className="col-qty">1 式</td>
-                  <td className="col-price">{formatCurrency(discountItem.unitPrice)}</td>
-                  <td className="col-amount">{formatCurrency(discountItem.amount)}</td>
+                  <td className="col-price">{formatCurrency(adjustmentItem.unitPrice)}</td>
+                  <td className="col-amount">{formatCurrency(adjustmentItem.amount)}</td>
                 </tr>
               )}
             </>

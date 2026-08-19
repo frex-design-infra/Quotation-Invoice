@@ -504,17 +504,40 @@ export function calculateItems(
   return items;
 }
 
+/**
+ * 丸めモード：
+ *  - 'default'   … 現行。諸経費込み合計の千円未満を自動値引き（千円単位に切り捨て）
+ *  - 'ceil10000' … 復建見積の丸め計上。諸経費込み合計を万円単位に切り上げ（値引きなし）
+ *  - 'none'      … 丸めも値引きもしない（諸経費込み合計にそのまま課税）
+ */
+export type TotalsRounding = 'default' | 'ceil10000' | 'none';
+
 /** 小計・諸経費・値引き・消費税・合計を計算 */
 export function calculateTotals(
   items: QuotationItem[],
   settings: MasterSettings,
+  rounding: TotalsRounding = 'default',
 ): { subtotalBeforeMisc: number; miscExpenses: number; discount: number; subtotal: number; tax: number; total: number } {
   const subtotalBeforeMisc = items.reduce((s, i) => s + i.amount, 0);
   const miscExpenses = Math.round(subtotalBeforeMisc * (settings.miscExpensesRate / 100));
-  // 諸経費込み合計の千円未満（100円の位まで）を自動値引き
   const sumWithMisc = subtotalBeforeMisc + miscExpenses;
-  const discount = sumWithMisc % 1000;
-  const subtotal = sumWithMisc - discount;
+
+  let subtotal: number;
+  let discount: number;
+  if (rounding === 'ceil10000') {
+    // 復建見積：諸経費込み合計を万円単位に切り上げ＝丸め計上（discountは負値＝加算分）
+    subtotal = Math.ceil(sumWithMisc / 10000) * 10000;
+    discount = sumWithMisc - subtotal;
+  } else if (rounding === 'none') {
+    // 丸めも値引きもしない
+    subtotal = sumWithMisc;
+    discount = 0;
+  } else {
+    // 現行：諸経費込み合計の千円未満（100円の位まで）を自動値引き
+    discount = sumWithMisc % 1000;
+    subtotal = sumWithMisc - discount;
+  }
+
   const tax = Math.round(subtotal * (settings.taxRate / 100));
   const total = subtotal + tax;
   return { subtotalBeforeMisc, miscExpenses, discount, subtotal, tax, total };

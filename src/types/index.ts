@@ -196,6 +196,7 @@ export interface Quotation {
 
   // 復建技術コンサルタント様式用（任意）
   fukkenEnabled?: boolean;
+  fukkenRoundUpEnabled?: boolean;      // 復建見積の丸め計上（合計を万円単位に切り上げ）。true=丸める / false=丸めない
   fukkenJobNumber?: string;
   fukkenProjectName?: string;
   fukkenLocation?: string;
