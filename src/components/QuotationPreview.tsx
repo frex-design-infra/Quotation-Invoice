@@ -43,9 +43,10 @@ interface Props {
   changeRound?: number; // 変更見積の回数（指定時タイトル下に【第N回変更見積】を表示）
   isInterim?: boolean;  // 中間見積書フラグ（trueのとき【中間請求用見積】を表示）
   subcontractMiscItems?: Array<{ id: string; label: string; amount: number }>; // 福山再委託用 手動諸経費
+  subcontractCeilThousand?: boolean; // ウヌマ地域総研 再委託用：お値引きなし・諸経費を千円単位に切り上げ吸収
 }
 
-export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim, subcontractMiscItems }: Props) {
+export default function QuotationPreview({ quotation, settings, isSubcontract, onFooterCommentChange, changeRound, isInterim, subcontractMiscItems, subcontractCeilThousand }: Props) {
   // 復建の通常見積書のみ丸め計上を適用（中間・変更・再委託・福山は対象外）
   const isFukkenQuote = quotation.fukkenEnabled === true
     && !isSubcontract
@@ -66,6 +67,17 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
         const total = subtotal + tax;
         return { subtotalBeforeMisc, miscExpenses: miscTotal, discount: 0, subtotal, tax, total };
       })()
+    : subcontractCeilThousand
+    ? (() => {
+        // ウヌマ地域総研 再委託用：お値引きなし・諸経費を千円単位に切り上げて吸収（諸経費は必ず15%以上）
+        const subtotalBeforeMisc = standardTotals.subtotalBeforeMisc;
+        const misc15 = Math.round(subtotalBeforeMisc * (settings.miscExpensesRate / 100));
+        const subtotal = Math.ceil((subtotalBeforeMisc + misc15) / 1000) * 1000;
+        const miscExpenses = subtotal - subtotalBeforeMisc;
+        const tax = Math.round(subtotal * (settings.taxRate / 100));
+        const total = subtotal + tax;
+        return { subtotalBeforeMisc, miscExpenses, discount: 0, subtotal, tax, total };
+      })()
     : standardTotals;
 
   const formatDate = (dateStr: string) => {
@@ -77,7 +89,7 @@ export default function QuotationPreview({ quotation, settings, isSubcontract, o
   };
 
   const miscExpensesItem = {
-    label: `諸経費(${settings.miscExpensesRate}%)`,
+    label: subcontractCeilThousand ? '諸経費' : `諸経費(${settings.miscExpensesRate}%)`,
     quantity: 1,
     unit: '式',
     unitPrice: effectiveTotals.miscExpenses,

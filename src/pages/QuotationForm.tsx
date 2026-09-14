@@ -382,6 +382,8 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
     const q = buildQuotation();
     const displayQ = subcontractMode ? buildSubcontractQuotation(q, settings) : q;
     const isFukuyamaSubcontract = subcontractMode && (clientName.includes('福山コンサルタント') || (initial?.fukuyamaEnabled ?? false));
+    // ウヌマ地域総研 再委託用：お値引きなし・諸経費を千円単位に切り上げて吸収（15%を下回らない）
+    const isUnumaSubcontract = subcontractMode && clientName.includes('ウヌマ');
     return (
       <div>
         {toastVisible && (
@@ -465,6 +467,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
           settings={settings}
           isSubcontract={subcontractMode}
           subcontractMiscItems={isFukuyamaSubcontract ? subcontractMiscItems : undefined}
+          subcontractCeilThousand={isUnumaSubcontract}
           onFooterCommentChange={subcontractMode || pdfSaving ? undefined : setFooterComment}
         />
       </div>
