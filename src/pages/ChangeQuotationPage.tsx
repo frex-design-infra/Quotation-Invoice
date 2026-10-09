@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Quotation, MasterSettings, QuotationItem, ChangeQuotation } from '../types';
 import QuotationPreview from '../components/QuotationPreview';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   quotation: Quotation;
@@ -124,7 +125,7 @@ export default function ChangeQuotationPage({ quotation, settings, round, allQuo
       const imgH = (canvas.height / canvas.width) * imgW;
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`変更見積書_第${round}回_${quotationNumber}.pdf`);
+      pdf.save(`${sanitizeFilename(`【お見積書】${quotation.projectName}_${quotationNumber}`)}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -134,7 +135,7 @@ export default function ChangeQuotationPage({ quotation, settings, round, allQuo
     <div className="fukken-form-page">
       <div className="preview-toolbar no-print">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
-        <button onClick={() => window.print()} className="btn-secondary">🖨 印刷</button>
+        <button onClick={() => printWithFilename(`【お見積書】${quotation.projectName}_${quotationNumber}`)} className="btn-secondary">🖨 印刷</button>
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>

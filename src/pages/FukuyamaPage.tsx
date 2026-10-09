@@ -4,6 +4,7 @@ import { calculateTotals } from '../utils/calculations';
 import FukuyamaTemplate from '../components/FukuyamaTemplate';
 import DatePicker from '../components/DatePicker';
 import { uploadFukuyamaTemplate, deleteFukuyamaTemplate } from '../lib/storage';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   quotation: Quotation;
@@ -17,6 +18,13 @@ const BILLING_TITLE: Record<string, string> = {
   single:  '納品書兼請求書',
   interim: '中間請求書',
   final:   '納品書/請求書',
+};
+
+// PDF保存のファイル名に使うラベル（「/」を避けて一体型は納品書兼請求書に統一）
+const BILLING_FILE_LABEL: Record<string, string> = {
+  single:  '納品書兼請求書',
+  interim: '中間請求書',
+  final:   '納品書兼請求書',
 };
 
 function today(): string {
@@ -124,7 +132,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
       const imgData = canvas.toDataURL('image/jpeg', 0.98);
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, 210, (canvas.height / canvas.width) * 210);
-      pdf.save(`${BILLING_TITLE[billingType]}_${quotation.projectName}.pdf`);
+      pdf.save(`${sanitizeFilename(`【${BILLING_FILE_LABEL[billingType]}】${quotation.projectName}_${quotation.quotationNumber}`)}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -164,7 +172,7 @@ export default function FukuyamaPage({ quotation, settings, billingType = 'singl
       {toastVisible && <div className="toast-saved">保存しました ✓</div>}
       <div className="preview-toolbar no-print">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
-        <button onClick={() => window.print()} className="btn-secondary">🖨 印刷</button>
+        <button onClick={() => printWithFilename(`【${BILLING_FILE_LABEL[billingType]}】${quotation.projectName}_${quotation.quotationNumber}`)} className="btn-secondary">🖨 印刷</button>
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving || !templateUrl}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>

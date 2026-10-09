@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Quotation, MasterSettings } from '../types';
 import FukkenDeliveryInvoiceTemplate from '../components/FukkenDeliveryInvoiceTemplate';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 type DocTab = 'delivery' | 'invoice';
 
@@ -49,8 +50,8 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
   const handleSavePDF = async () => {
     const printId = activeTab === 'delivery' ? 'fukken-delivery-print-area' : 'fukken-invoice-print-area';
     const fileName = activeTab === 'delivery'
-      ? `納品書_${fukkenJobNumber || quotation.quotationNumber}`
-      : `請求書_${fukkenJobNumber || quotation.quotationNumber}`;
+      ? `【納品書】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`
+      : `【請求書】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`;
     const el = document.getElementById(printId);
     if (!el || pdfSaving) return;
     setPdfSaving(true);
@@ -65,7 +66,7 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`${fileName}.pdf`);
+      pdf.save(`${sanitizeFilename(fileName)}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -88,7 +89,7 @@ export default function FukkenDeliveryInvoicePage({ quotation, settings, initial
             onClick={() => setActiveTab('invoice')}
           >請求書</button>
         </div>
-        <button onClick={() => window.print()} className="btn-secondary">🖨 印刷</button>
+        <button onClick={() => printWithFilename(`【${activeTab === 'delivery' ? '納品書' : '請求書'}】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`)} className="btn-secondary">🖨 印刷</button>
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>

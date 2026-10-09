@@ -3,6 +3,7 @@ import QuotationPreview from '../components/QuotationPreview';
 import { loadByToken, getSettings, submitAction, listMembers, type TokenContext } from '../lib/approval';
 import type { MasterSettings } from '../types';
 import type { ActionType, FlowStatus, Member } from '../types/approval';
+import { printWithFilename } from '../utils/printFilename';
 
 const STATUS_COLOR: Record<FlowStatus, { bg: string; fg: string }> = {
   確認待ち: { bg: '#38bdf8', fg: '#fff' },
@@ -140,7 +141,7 @@ export default function ApprovalViewer({ token }: { token: string }) {
               {purpose === '閲覧' && !actions.some(a => a.memberId === flow.assigneeId && a.action === '確認') && (
                 <button disabled={submitting} onClick={() => handleAction('確認')} style={{ ...btnStyle('#7c3aed'), marginRight: 10 }}>{submitting ? '送信中...' : '✓ 確認する'}</button>
               )}
-              <button onClick={() => window.print()} style={btnStyle('#292827')}>🖨 印刷</button>
+              <button onClick={() => printWithFilename(`【お見積書】${flow.projectName}_${displayQuotation?.quotationNumber ?? ''}`)} style={btnStyle('#292827')}>🖨 印刷</button>
             </div>
           ) : alreadyActed ? (
             <p style={{ color: '#555', margin: 0 }}>あなたの{purpose}は登録済みです。他の方の対応をお待ちください。</p>

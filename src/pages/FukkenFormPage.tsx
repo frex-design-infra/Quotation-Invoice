@@ -3,6 +3,7 @@ import type { Quotation, MasterSettings } from '../types';
 import FukkenSeishoTemplate from '../components/FukkenSeishoTemplate';
 import FukkenDeliveryInvoiceTemplate from '../components/FukkenDeliveryInvoiceTemplate';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   quotation: Quotation;
@@ -50,20 +51,21 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
     onSave(buildUpdated());
   };
 
+  const docLabel = (tab: string): string =>
+    tab === 'seisho' ? '請書' : tab === 'delivery' ? '納品書' : '請求書';
+
   const handlePrint = () => {
-    window.print();
+    printWithFilename(`【${docLabel(activeTab)}】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`);
   };
 
   const handleSavePDF = async () => {
     let printAreaId = 'fukken-seisho-print-area';
-    let fileName = `請書_${quotation.fukkenJobNumber || quotation.quotationNumber}`;
     if (activeTab === 'delivery') {
       printAreaId = 'fukken-delivery-print-area';
-      fileName = `納品書_${quotation.fukkenJobNumber || quotation.quotationNumber}`;
     } else if (activeTab === 'invoice') {
       printAreaId = 'fukken-invoice-print-area';
-      fileName = `請求書_${quotation.fukkenJobNumber || quotation.quotationNumber}`;
     }
+    const fileName = `【${docLabel(activeTab)}】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`;
 
     const el = document.getElementById(printAreaId);
     if (!el || pdfSaving) return;
@@ -84,7 +86,7 @@ export default function FukkenFormPage({ quotation, settings, initialTab, onSave
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`${fileName}.pdf`);
+      pdf.save(`${sanitizeFilename(fileName)}.pdf`);
     } finally {
       setPdfSaving(false);
     }

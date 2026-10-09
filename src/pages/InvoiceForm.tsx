@@ -3,6 +3,7 @@ import type { Invoice, MasterSettings, Quotation } from '../types';
 import { formatCurrency } from '../utils/calculations';
 import InvoicePreview from '../components/InvoicePreview';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   settings: MasterSettings;
@@ -179,7 +180,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
   };
 
   const handlePrint = () => {
-    window.print();
+    printWithFilename(`【納品書兼請求書】${projectName}_${invoiceNumber}`);
   };
 
   const handleSavePDF = async () => {
@@ -202,7 +203,7 @@ export default function InvoiceForm({ settings, initial, sourceQuotation, initia
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`請求書_${invoiceNumber}.pdf`);
+      pdf.save(`${sanitizeFilename(`【納品書兼請求書】${projectName}_${invoiceNumber}`)}.pdf`);
     } finally {
       setPdfSaving(false);
     }

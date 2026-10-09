@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import type { Quotation, MasterSettings } from '../types';
 import FukkenSeishoTemplate from '../components/FukkenSeishoTemplate';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   quotation: Quotation;
@@ -60,7 +61,7 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
       const imgW = 210;
       const imgH = (canvas.height / canvas.width) * imgW;
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`請書_${fukkenJobNumber || quotation.quotationNumber}.pdf`);
+      pdf.save(`${sanitizeFilename(`【請書】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`)}.pdf`);
     } finally {
       setPdfSaving(false);
     }
@@ -74,7 +75,7 @@ export default function FukkenSeishoPage({ quotation, settings, onSave, onCancel
       <div className="preview-toolbar no-print">
         <button onClick={onCancel} className="btn-secondary">← 一覧に戻る</button>
         <span className="fukken-page-title">請書（提出用）</span>
-        <button onClick={() => window.print()} className="btn-secondary">🖨 印刷</button>
+        <button onClick={() => printWithFilename(`【請書】${fukkenProjectName}_${fukkenJobNumber || quotation.quotationNumber}`)} className="btn-secondary">🖨 印刷</button>
         <button onClick={handleSavePDF} className="btn-primary" disabled={pdfSaving}>
           {pdfSaving ? '生成中...' : '📄 PDF保存'}
         </button>

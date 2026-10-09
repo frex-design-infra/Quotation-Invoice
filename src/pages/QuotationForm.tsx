@@ -4,6 +4,7 @@ import { calculateItems, calculateTotals, formatCurrency, buildSubcontractQuotat
 import { parseBridgeCSV } from '../utils/csvParser';
 import QuotationPreview from '../components/QuotationPreview';
 import DatePicker from '../components/DatePicker';
+import { printWithFilename, sanitizeFilename } from '../utils/printFilename';
 
 interface Props {
   settings: MasterSettings;
@@ -345,7 +346,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
   };
 
   const handlePrint = () => {
-    window.print();
+    printWithFilename(`【お見積書】${projectName}_${quotationNumber}`);
   };
 
   const [pdfSaving, setPdfSaving] = useState(false);
@@ -372,7 +373,7 @@ export default function QuotationForm({ settings, initial, initialView, allQuota
       // コンテンツがA4を超える場合はページ高さをコンテンツに合わせる
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: imgH > 297 ? [imgW, imgH] : 'a4' });
       pdf.addImage(imgData, 'JPEG', 0, 0, imgW, imgH);
-      pdf.save(`見積書_${quotationNumber}.pdf`);
+      pdf.save(`${sanitizeFilename(`【お見積書】${projectName}_${quotationNumber}`)}.pdf`);
     } finally {
       setPdfSaving(false);
     }
