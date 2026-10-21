@@ -108,7 +108,12 @@ const AMT: React.CSSProperties = { ...TEXT, textAlign: 'right' };
 
 export default function FukuyamaTemplate({ quotation, settings, originalContractTotal, billingType, interimBillingTotal }: Props) {
   const templateSrc = quotation.fukuyamaTemplateUrl ?? '';
-  const issueDate = dp(quotation.fukuyamaIssueDate || quotation.date || '');
+  // 請求日：完了時最終請求(final)は専用フィールド fukuyamaFinalIssueDate を優先
+  //（single/中間は fukuyamaIssueDate）。FukuyamaPage の保存先と一致させる。
+  const issueDateRaw = billingType === 'final'
+    ? (quotation.fukuyamaFinalIssueDate || quotation.fukuyamaIssueDate || quotation.date || '')
+    : (quotation.fukuyamaIssueDate || quotation.date || '');
+  const issueDate = dp(issueDateRaw);
   const deliveryDate = dp(quotation.fukuyamaDeliveryDate || '');
   const deliveryItemLines = (quotation.fukuyamaDeliveryItems || '').split('\n').slice(0, 3);
 
