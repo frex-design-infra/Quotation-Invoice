@@ -9,15 +9,26 @@ const DOW = ['日', '月', '火', '水', '木', '金', '土'];
 
 export default function DatePicker({ value, onChange }: Props) {
   const [open, setOpen] = useState(false);
+  const [openUp, setOpenUp] = useState(false); // 下に余白が無いとき上向きに開く
   const [viewYear, setViewYear] = useState(new Date().getFullYear());
   const [viewMonth, setViewMonth] = useState(new Date().getMonth()); // 0-based
   const containerRef = useRef<HTMLDivElement>(null);
 
   // 開くとき現在の value に合わせてビューを同期
   const handleOpen = () => {
-    if (value) {
-      setViewYear(parseInt(value.slice(0, 4)));
-      setViewMonth(parseInt(value.slice(5, 7)) - 1);
+    if (!open) {
+      if (value) {
+        setViewYear(parseInt(value.slice(0, 4)));
+        setViewMonth(parseInt(value.slice(5, 7)) - 1);
+      }
+      // 画面下端での見切れ防止：下に十分な余白が無く上の方が広ければ上向きに開く
+      const rect = containerRef.current?.getBoundingClientRect();
+      if (rect) {
+        const POPUP_EST = 360; // カレンダーのおおよその高さ(px)
+        const spaceBelow = window.innerHeight - rect.bottom;
+        const spaceAbove = rect.top;
+        setOpenUp(spaceBelow < POPUP_EST && spaceAbove > spaceBelow);
+      }
     }
     setOpen(o => !o);
   };
@@ -76,7 +87,7 @@ export default function DatePicker({ value, onChange }: Props) {
       </div>
 
       {open && (
-        <div className="datepicker-popup">
+        <div className={`datepicker-popup${openUp ? ' up' : ''}`}>
           <div className="datepicker-header">
             <button className="datepicker-nav" onClick={prevMonth}>‹</button>
             <span className="datepicker-title">{viewYear}年 {viewMonth + 1}月</span>

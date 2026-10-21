@@ -709,6 +709,14 @@ button {
   box-shadow: 0 8px 28px rgba(0,0,0,0.14);
   padding: 14px;
   min-width: 260px;
+  /* 画面からはみ出す場合は内部スクロール（見切れ防止の保険） */
+  max-height: calc(100vh - 100px);
+  overflow-y: auto;
+}
+/* 下に余白が無いときは上向きに開く */
+.datepicker-popup.up {
+  top: auto;
+  bottom: calc(100% + 6px);
 }
 
 .datepicker-header {
